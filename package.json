@@ -1,0 +1,62 @@
+{
+	"name": "grace-tree",
+	"version": "0.0.1",
+	"description": "Grace Tree",
+	"main": "server.js",
+	"scripts": {
+		"prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL",
+		"pretest": "eslint --ignore-path .gitignore . --fix",
+		"test": "npm run prestart && mocha --exit",
+		"test-coverage": "npm test && istanbul cover node_modules/mocha/bin/_mocha -x **/util/email-service.js -- -R spec --exit",
+		"install-local": "npm install -g mocha & npm install -g node-inspector & npm install",
+		"make": "knex migrate:make --env development --knexfile ./db/knexfile.js",
+		"migrate": "npm run prestart && knex migrate:latest --env development --knexfile ./db/knexfile.js",
+		"rollback": "npm run prestart && knex migrate:rollback --env development --knexfile ./db/knexfile.js",
+		"seed": "npm run prestart && knex seed:run --env development --knexfile ./db/knexfile.js",
+		"start": "npm run prestart && node server.js",
+		"debug": "npm run prestart && node-debug server.js",
+		"dev": "set DEBUG=grace-tree* & npm run prestart && nodemon %NODE_DEBUG_OPTION% server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@bitbucket.org:betaquickdevelopers/grace-tree-server.git"
+	},
+	"keywords": [
+		"none"
+	],
+	"author": "BetaQuick",
+	"license": "",
+	"devDependencies": {
+		"chai": "^4.2.0",
+		"chai-as-promised": "^7.1.1",
+		"eslint": "^5.6.1",
+		"eslint-config-strongloop": "^2.1.0",
+		"istanbul": "^1.1.0-alpha.1",
+		"mocha": "^5.2.0",
+		"mock-knex": "^0.4.2",
+		"nodemon": "^1.18.4",
+		"prettier": "^1.14.3",
+		"sinon": "^6.3.5",
+		"supertest": "^3.3.0"
+	},
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"body-parser": "^1.18.3",
+		"cors": "^2.8.4",
+		"cowsay": "^1.1.9",
+		"debug": "^4.1.0",
+		"dotenv": "^6.1.0",
+		"express": "^4.16.3",
+		"joi": "^13.7.0",
+		"json-stringify-safe": "^5.0.1",
+		"jsonwebtoken": "^8.3.0",
+		"knex": "^0.15.2",
+		"lodash": "^4.17.11",
+		"moment": "^2.22.2",
+		"mysql": "^2.16.0",
+		"nodemailer": "^4.6.8"
+	},
+	"engines": {
+		"node": "8.12.0"
+	}
+}
