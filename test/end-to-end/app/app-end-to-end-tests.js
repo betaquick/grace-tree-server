@@ -85,6 +85,30 @@ describe('test routing process end-to-end', () => {
         });
     });
 
+    it('/api/v1/ - validation error handler', done => {
+      router.get('/422', (req, res, next) => {
+        const err = {
+          name: 'ValidationError',
+          message: 'Validation error'
+        };
+        return handleError(err, res, 'System Error', error);
+      });
+
+      request
+        .get('/api/v1/422')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('status', 422);
+          return done();
+        });
+    });
+
     it('/api/v1/ - system error handler', done => {
       router.get('/500', (req, res, next) => {
         return handleError({}, res, 'System Error', error);
@@ -101,6 +125,26 @@ describe('test routing process end-to-end', () => {
           expect(body).to.be.an('object');
           expect(body).to.have.property('error', true);
           expect(body).to.have.property('status', 500);
+          return done();
+        });
+    });
+
+    it('/api/v1/ - system error handler', done => {
+      router.get('/400', (req, res, next) => {
+        return handleError({ code: 400 }, res, 'System Error', error);
+      });
+
+      request
+        .get('/api/v1/400')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(400)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('status', 400);
           return done();
         });
     });

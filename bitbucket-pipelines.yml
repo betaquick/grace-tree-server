@@ -1,0 +1,48 @@
+# Grace Tree Server
+# Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: betaquick/node_sonar
+
+pipelines:
+  default:
+  - step:
+      caches:
+      - node
+      script: # Modify the commands below to build your repository.
+      - npm install
+      # - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
+      # - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
+      - npm run test-coverage
+      services:
+      - mysql
+
+  branches:
+    master:
+    - step:
+        image: betaquick/node_sonar
+        script:
+        - npm install
+        # - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
+        # - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
+        - npm run test-coverage
+        services:
+        - mysql
+    - step:
+        name: Deploy to AWS
+        # trigger: manual
+        deployment: test
+        image: atlassian/pipelines-awscli
+        script:
+        - aws deploy push --application-name grace-tree-server-app --s3-location s3://grace-tree-server/$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER --ignore-hidden-files
+        - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default
+
+definitions:
+  services:
+    mysql:
+      image: mysql:5.6
+      environment:
+        MYSQL_DATABASE: 'grace_tree_db'
+        MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+        MYSQL_USER: $DB_USERNAME
+        MYSQL_PASSWORD: $DB_PASSWORD
