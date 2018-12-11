@@ -47,7 +47,6 @@ const register = async data => {
 
   try {
     await Joi.validate(data, registerationValidator);
-    console.log(data.emails[0].emailAddress);
 
     const emailAddress = _.get(data.emails[0], 'emailAddress');
     let user = await userData.getUserByParam(USER_EMAIL, { emailAddress });

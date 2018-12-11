@@ -22,7 +22,6 @@ const sendSMS = async smsOptions => {
 const sendVerificationSMS = async options => {
   try {
     const result = await bitly.shorten(`${process.env.WEB_URL}/verify/${options.token}`);
-    console.log(result);
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.phoneNumber,
