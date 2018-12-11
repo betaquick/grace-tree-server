@@ -19,7 +19,7 @@ const registerationValidator = Joi.object().keys({
 
 const emailValidator = Joi.object().keys({
   userId: Joi.number().required(),
-  emailAddress: Joi.string().required()
+  emailAddress: Joi.string().email().required()
 });
 
 const phoneValidator = Joi.object().keys({

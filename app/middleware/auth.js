@@ -32,7 +32,11 @@ module.exports = function(req, res, next) {
       // if everything is good, save to request for use in other routes
       req.user = decoded;
 
-      return next(req);
+      if (req.fromVerify) {
+        return next(req);
+      }
+
+      return next();
     }
   });
 };

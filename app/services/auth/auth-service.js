@@ -19,7 +19,7 @@ const {
   phoneValidator
 } = require('./auth-validator');
 const { SECRET_KEY } = require('./../../config/config');
-const { randomBytesAsync, throwError, isUserValid } = require('./../../controllers/util/controller-util');
+const { randomBytesAsync, throwError } = require('./../../controllers/util/controller-util');
 
 const USER_EMAIL = 'user_email';
 const USER_PHONE = 'user_phone';
@@ -71,54 +71,54 @@ const register = async data => {
   }
 };
 
-const verifyEmail = async(userId, emailAddress) => {
+const verifyEmail = async(userId, data) => {
+  const { emailAddress } = data;
   debug('Starting validation process for email: ' + emailAddress);
 
   try {
     await Joi.validate({ userId, emailAddress }, emailValidator);
-    const user = await userData.getUserByParam(USER_EMAIL, { userId, emailAddress });
-    isUserValid(user);
 
     const randomBytes = await randomBytesAsync(10);
     const token = randomBytes.toString('hex');
     const params = {
+      emailAddress,
       verificationCode: token,
       verificationCodeExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
     };
 
-    await userData.updateUserByParams(USER_EMAIL, { userId, emailAddress }, params);
+    await userData.updateUserByParams('user', { userId }, { email: emailAddress });
+    await userData.updateUserByParams(USER_EMAIL, { userId, primary: 1 }, params);
 
     const options = {
       email: emailAddress,
-      first_name: user.first_name,
       token
     };
 
     await emailService.sendVerificationMail(options);
 
-    return user.userId;
+    return userId;
   } catch (err) {
     error('Error verifying email', err);
     throw err;
   }
 };
 
-const verifyPhone = async(userId, phoneNumber) => {
+const verifyPhone = async(userId, data) => {
+  const { phoneNumber } = data;
   debug('Starting validation process for phone: ' + phoneNumber);
 
   try {
     await Joi.validate({ userId, phoneNumber }, phoneValidator);
-    const user = await userData.getUserByParam(USER_PHONE, { userId, phoneNumber });
-    isUserValid(user);
 
     const randomBytes = await randomBytesAsync(16);
     const token = randomBytes.toString('hex');
     const params = {
+      phoneNumber,
       verificationCode: token,
       verificationCodeExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
     };
 
-    await userData.updateUserByParams(USER_PHONE, { userId, phoneNumber }, params);
+    await userData.updateUserByParams(USER_PHONE, { userId, primary: 1 }, params);
 
     const options = {
       phoneNumber,
@@ -127,7 +127,7 @@ const verifyPhone = async(userId, phoneNumber) => {
 
     await smsService.sendVerificationSMS(options);
 
-    return user.userId;
+    return userId;
   } catch (err) {
     error('Error verifying phone number', err);
     throw err;

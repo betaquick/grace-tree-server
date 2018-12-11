@@ -8,30 +8,35 @@ const auth = require('./auth');
 const userData = require('../services/user/user-data');
 
 module.exports = function(req, res, next) {
+  req.fromVerify = true;
+
   auth(req, res, async request => {
     const { userId } = request.user;
     const params = {
       userId,
-      primary: 1,
-      isVerified: 1
+      primary: 1
     };
-    const emailVerification = await userData.getUserByParam('user_email', params);
-    const phoneVerification = await userData.getUserByParam('user_phone', params);
+    const email = await userData.getUserByParam('user_email', params);
+    const phone = await userData.getUserByParam('user_phone', params);
 
-    if (emailVerification && phoneVerification) {
-      debug('Verification successful:', stringify(emailVerification), stringify(phoneVerification));
+    if (email.isVerified === 1 && phone.isVerified === 1) {
+      debug('Verification successful:', stringify(email), stringify(phone));
       return next();
     }
-    
-    error('Email verified:', !!emailVerification);
-    error('Phone verified:', !!phoneVerification);
+
+    error('Email verified:', email.isVerified === 1);
+    error('Phone verified:', phone.isVerified === 1);
     return res.status(401).send({
       status: 401,
       error: true,
       body: {
-        isEmailVerified: !!emailVerification,
-        isPhoneVerified: !!phoneVerification,
-        user: req.user
+        isEmailVerified: email.isVerified === 1,
+        isPhoneVerified: phone.isVerified === 1,
+        user: {
+          ...req.user,
+          emailAddress: email.emailAddress,
+          phoneNumber: phone.phoneNumber
+        }
       },
       message: 'Please verify your email or phone'
     });

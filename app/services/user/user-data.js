@@ -1,4 +1,6 @@
 'use strict';
+const stringify = require('json-stringify-safe');
+
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 
 module.exports = {
@@ -81,7 +83,7 @@ module.exports = {
             userId,
             userAddressId: addressIds[0],
             deliveryPosition,
-            description: `${description}`,
+            description: stringify(description),
             selfPickup,
             deliveryStatus: 'Pause'
           };
