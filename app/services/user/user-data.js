@@ -3,7 +3,6 @@ const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 
 module.exports = {
   getUserByParam(table, params) {
-    console.log('getUserByParam', params);
     return knex(table)
       .first()
       .where(params);

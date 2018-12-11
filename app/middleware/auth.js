@@ -1,7 +1,7 @@
 'use strict';
 
-const debug = require('debug')('fccc-admin:server:debug');
-const error = require('debug')('fccc-admin:server:error');
+const debug = require('debug')('grace-tree:server:debug');
+const error = require('debug')('grace-tree:server:error');
 
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
@@ -30,11 +30,9 @@ module.exports = function(req, res, next) {
     } else {
       debug('Authorization success');
       // if everything is good, save to request for use in other routes
-      const { roles, ...user } = decoded;
-      req.user = user;
-      req.roles = roles;
+      req.user = decoded;
 
-      return next();
+      return next(req);
     }
   });
 };
