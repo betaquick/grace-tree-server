@@ -63,7 +63,7 @@ module.exports = {
             firstName,
             lastName,
             comment,
-            status: 'Pause',
+            status: 'Pause'
           };
           return knex('user_profile').transacting(trx).insert(profile);
         })
@@ -98,5 +98,5 @@ module.exports = {
     return knex(table)
       .where(where)
       .update(params);
-  },
+  }
 };

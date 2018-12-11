@@ -11,4 +11,4 @@ module.exports = {
       .then(data => handleSuccess(res, 'Registration successful', data))
       .catch(err => handleError(err, res, err.message, error));
   }
-}
+};

@@ -72,7 +72,7 @@ const register = async data => {
   }
 };
 
-const verifyEmail = async (userId, emailAddress) => {
+const verifyEmail = async(userId, emailAddress) => {
   debug('Starting validation process for email: ' + emailAddress);
 
   try {
@@ -104,7 +104,7 @@ const verifyEmail = async (userId, emailAddress) => {
   }
 };
 
-const verifyPhone = async (userId, phoneNumber) => {
+const verifyPhone = async(userId, phoneNumber) => {
   debug('Starting validation process for phone: ' + phoneNumber);
 
   try {

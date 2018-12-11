@@ -29,7 +29,7 @@ const sendVerificationSMS = async options => {
       body: `Click ${result.url} to verify your phone number on Grace Tree Services`
     };
     return sendSMS(smsOptions);
-  } catch(e) {
+  } catch (e) {
     throw e;
   }
 };
