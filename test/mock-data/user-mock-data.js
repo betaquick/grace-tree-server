@@ -19,31 +19,12 @@ const validUserData = {
   emails: [{
     emailAddress: 'test@gracetreeservices.com',
     primary: true
-  }],
-  userAddress: '1, Moses Adebayo Street',
-  city: 'Ojodu',
-  state: 'Lagos',
-  zip: '23401',
-  deliveryPosition: 'outside',
-  description: {
-    chips: true,
-    grindings: true,
-    logs: false,
-    rounds: false,
-    poplar: true
-  },
-  selfPickup: 1
+  }]
 };
 
 const invalidUserData = {
   firstName: 'Invalid',
-  lastName: 'Invalid',
-  userAddress: 'Invalid Address',
-  city: 'Invalid',
-  state: 'Invalid',
-  zip: 'Invalid',
-  deliveryPosition: 'invalid',
-  selfPickup: 1
+  lastName: 'Invalid'
 };
 
 module.exports = {

@@ -1,7 +1,13 @@
 'use strict';
-const stringify = require('json-stringify-safe');
+const constants = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
+const {
+  USER_TABLE,
+  USER_EMAIL_TABLE,
+  USER_PHONE_TABLE,
+  USER_PROFILE_TABLE
+} = require('../../../constants/table.constants');
 
 module.exports = {
   getUserByParam(table, params) {
@@ -15,24 +21,16 @@ module.exports = {
       const {
         firstName,
         lastName,
-        comment,
         phones,
         email,
         emails,
-        password,
-        userAddress,
-        city,
-        state,
-        zip,
-        deliveryPosition,
-        description,
-        selfPickup
+        password
       } = user;
       let userId;
 
-      return knex('user')
+      return knex(USER_TABLE)
         .transacting(trx)
-        .insert({ email, password, userType: 'general' })
+        .insert({ email, password, userType: constants.UserTypes.General })
         .then(userIds => {
           userId = userIds[0];
 
@@ -44,7 +42,7 @@ module.exports = {
               primary
             };
           });
-          return knex('user_email').transacting(trx).insert(emailMap);
+          return knex(USER_EMAIL_TABLE).transacting(trx).insert(emailMap);
         })
         .then(() => {
           const phoneMap = phones.map(phone => {
@@ -56,39 +54,17 @@ module.exports = {
               phoneType
             };
           });
-          return knex('user_phone').transacting(trx).insert(phoneMap);
+          return knex(USER_PHONE_TABLE).transacting(trx).insert(phoneMap);
         })
         .then(() => {
           const profile = {
             userId,
             firstName,
             lastName,
-            comment,
-            status: 'Pause'
+            status: constants.StatusTypes.Pause
           };
-          return knex('user_profile').transacting(trx).insert(profile);
-        })
-        .then(() => {
-          const address = {
-            userId,
-            userAddress,
-            city,
-            state,
-            zip
-          };
-          return knex('user_address').transacting(trx).insert(address);
-        })
-        .then(addressIds => {
-          const delivery = {
-            userId,
-            userAddressId: addressIds[0],
-            deliveryPosition,
-            description: stringify(description),
-            selfPickup,
-            deliveryStatus: 'Pause'
-          };
-          const deliveryIds = knex('scheduled_delivery').transacting(trx).insert(delivery);
-          return Promise.all([userId, deliveryIds]);
+          const profileIds = knex(USER_PROFILE_TABLE).transacting(trx).insert(profile);
+          return Promise.all([userId, profileIds]);
         })
         .then(trx.commit)
         .catch(trx.rollback);

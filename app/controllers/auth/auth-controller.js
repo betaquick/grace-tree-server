@@ -2,6 +2,8 @@
 
 const debug = require('debug')('grace-tree:auth-controller:debug');
 const error = require('debug')('grace-tree:auth-controller:error');
+const verificationTypes = require('@betaquick/grace-tree-constants').VerificationTypes;
+
 const authSvc = require('../../services/auth/auth-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
@@ -19,7 +21,7 @@ module.exports = {
     debug('verifying for ' + verifyType);
 
     let verifySvc;
-    if (verifyType === 'email') {
+    if (verifyType === verificationTypes.Email) {
       verifySvc = authSvc.verifyEmail(userId, req.body);
     } else {
       verifySvc = authSvc.verifyPhone(userId, req.body);

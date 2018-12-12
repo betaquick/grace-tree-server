@@ -14,15 +14,17 @@ const emailService = require('../util/email-service');
 const smsService = require('../util/sms-service');
 
 const {
-  registerationValidator,
+  registrationValidator,
   emailValidator,
   phoneValidator
 } = require('./auth-validator');
 const { SECRET_KEY } = require('./../../config/config');
 const { randomBytesAsync, throwError } = require('./../../controllers/util/controller-util');
-
-const USER_EMAIL = 'user_email';
-const USER_PHONE = 'user_phone';
+const {
+  USER_TABLE,
+  USER_EMAIL_TABLE,
+  USER_PHONE_TABLE
+} = require('../../../constants/table.constants');
 
 /**
  * create a JSON Web Token from the data model
@@ -46,10 +48,10 @@ const register = async data => {
   debug('Starting registration process: ' + stringify(data));
 
   try {
-    await Joi.validate(data, registerationValidator);
+    await Joi.validate(data, registrationValidator);
 
     const emailAddress = _.get(data.emails[0], 'emailAddress');
-    let user = await userData.getUserByParam(USER_EMAIL, { emailAddress });
+    let user = await userData.getUserByParam(USER_EMAIL_TABLE, { emailAddress });
     if (user) {
       throwError(422, 'Email address has already been taken');
     }
@@ -86,8 +88,8 @@ const verifyEmail = async(userId, data) => {
       verificationCodeExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
     };
 
-    await userData.updateUserByParams('user', { userId }, { email: emailAddress });
-    await userData.updateUserByParams(USER_EMAIL, { userId, primary: 1 }, params);
+    await userData.updateUserByParams(USER_TABLE, { userId }, { email: emailAddress });
+    await userData.updateUserByParams(USER_EMAIL_TABLE, { userId, primary: 1 }, params);
 
     const options = {
       email: emailAddress,
@@ -118,7 +120,7 @@ const verifyPhone = async(userId, data) => {
       verificationCodeExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
     };
 
-    await userData.updateUserByParams(USER_PHONE, { userId, primary: 1 }, params);
+    await userData.updateUserByParams(USER_PHONE_TABLE, { userId, primary: 1 }, params);
 
     const options = {
       phoneNumber,

@@ -2,19 +2,11 @@
 
 const Joi = require('joi');
 
-const registerationValidator = Joi.object().keys({
+const registrationValidator = Joi.object().keys({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
-  comment: Joi.string(),
   phones: Joi.array().required(),
-  emails: Joi.array().required(),
-  userAddress: Joi.string().required(),
-  city: Joi.string().required(),
-  state: Joi.string().required(),
-  zip: Joi.string().required(),
-  deliveryPosition: Joi.string().required(),
-  description: Joi.object().required(),
-  selfPickup: Joi.number().required()
+  emails: Joi.array().required()
 });
 
 const emailValidator = Joi.object().keys({
@@ -28,7 +20,7 @@ const phoneValidator = Joi.object().keys({
 });
 
 module.exports = {
-  registerationValidator,
+  registrationValidator,
   emailValidator,
   phoneValidator
 };

@@ -11,17 +11,17 @@ const smsService = require('../../../app/services/util/sms-service');
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
 const { userData, validUserData, invalidUserData } = require('../../mock-data/user-mock-data');
+const {
+  USER_TABLE,
+  USER_EMAIL_TABLE,
+  USER_PHONE_TABLE,
+  USER_PROFILE_TABLE
+} = require('../../../constants/table.constants');
 
 const request = supertest(app);
 
 describe('test auth process end-to-end', () => {
   // Ensure db is running and migrations are complete
-  const USER_TABLE = 'user';
-  const USER_PHONE_TABLE = 'user_phone';
-  const USER_EMAIL_TABLE = 'user_email';
-  const USER_PROFILE_TABLE = 'user_profile';
-  const USER_ADDRESS_TABLE = 'user_address';
-  const SCHEDULED_DELIVERY_TABLE = 'scheduled_delivery';
   let sandbox;
   let userId = 1;
 
@@ -43,10 +43,8 @@ describe('test auth process end-to-end', () => {
     const user = knex(USER_TABLE).where({ userId }).delete();
     const userEmail = knex(USER_EMAIL_TABLE).where({ userId }).delete();
     const userPhone = knex(USER_PHONE_TABLE).where({ userId }).delete();
-    const userAddress = knex(USER_ADDRESS_TABLE).where({ userId }).delete();
     const userProfile = knex(USER_PROFILE_TABLE).where({ userId }).delete();
-    const scheduledDelivery = knex(SCHEDULED_DELIVERY_TABLE).where({ userId }).delete();
-    return Promise.all([user, userEmail, userPhone, userAddress, userProfile, scheduledDelivery]);
+    return Promise.all([user, userEmail, userPhone, userProfile]);
   });
 
   describe('/api/v1/auth/register', () => {
