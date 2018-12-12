@@ -13,7 +13,7 @@ router.get('/error-route', (req, res, next) => {
 });
 
 const app = require('../../../app/config/app-config')();
-const { activeUserData } = require('../../mock-data/user-mock-data');
+const { userData } = require('../../mock-data/user-mock-data');
 
 const request = supertest(app);
 const invalid_route = -1;
@@ -24,7 +24,7 @@ describe('test routing process end-to-end', () => {
   before(() => {
     sandbox = sinon.createSandbox();
     // Allows auth middle to always succeed
-    sandbox.stub(jwt, 'verify').callsArgWith(2, null, activeUserData);
+    sandbox.stub(jwt, 'verify').callsArgWith(2, null, userData);
   });
 
   after(() => {

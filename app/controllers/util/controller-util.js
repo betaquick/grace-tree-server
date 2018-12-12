@@ -1,6 +1,26 @@
 'use strict';
+const debug = require('debug')('fccc-server:server:debug');
+const crypto = require('crypto');
+const { promisify } = require('util');
+
+const randomBytesAsync = promisify(crypto.randomBytes);
+const throwError = (code, message) => {
+  debug(message);
+  let err = new Error(message);
+  err.code = code;
+  throw err;
+};
 
 module.exports = {
+  randomBytesAsync,
+  throwError,
+
+  handleSuccess(res, message, object) {
+    return res
+      .status(200)
+      .json({ status: 200, error: false, message, body: object });
+  },
+
   handleError(err, res, message, errorFunc) {
     errorFunc('Error: ', err.code, message);
     if (err.name === 'ValidationError') {
