@@ -30,5 +30,25 @@ module.exports = {
     verifySvc
       .then(data => handleSuccess(res, 'Verification link sent successfully', data))
       .catch(err => handleError(err, res, err.message, error));
+  },
+
+  validateToken(req, res) {
+    const { token, verifyType } = req.params;
+    debug('Validate a token' + token);
+
+    let validateSvc;
+    if (verifyType === verificationTypes.Email) {
+      validateSvc = authSvc.validateEmailToken(token);
+    } else {
+      validateSvc = authSvc.validatePhoneToken(token);
+    }
+
+    validateSvc
+      .then(user =>
+        handleSuccess(res, 'Token validation successful', { user })
+      )
+      .catch(err =>
+        handleError(err, res, 'Error validating token', error)
+      );
   }
 };

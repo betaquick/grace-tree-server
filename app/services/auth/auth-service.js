@@ -19,7 +19,7 @@ const {
   phoneValidator
 } = require('./auth-validator');
 const { SECRET_KEY } = require('./../../config/config');
-const { randomBytesAsync, throwError } = require('./../../controllers/util/controller-util');
+const { randomBytesAsync, throwError, isUserValid } = require('./../../controllers/util/controller-util');
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
@@ -136,4 +136,63 @@ const verifyPhone = async(userId, data) => {
   }
 };
 
-module.exports = { register, verifyEmail, verifyPhone };
+const validateEmailToken = async token => {
+  try {
+    await Joi.validate(token, Joi.string().required());
+
+    const user = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
+    isUserValid(user);
+
+    if (moment().isAfter(user.verificationCodeExpiry)) {
+      throwError(422, 'Token provided has expired');
+    }
+
+    const params = {
+      verificationCode: null,
+      verificationCodeExpiry: null,
+      isVerified: 1
+    };
+    const where = {
+      userId: user.userId,
+      emailAddress: user.emailAddress
+    };
+    await userData.updateUserByParams(USER_EMAIL_TABLE, where, params);
+
+    return user;
+  } catch (err) {
+    error('Error validating email', err);
+    throw err;
+  }
+};
+
+const validatePhoneToken = async token => {
+  try {
+    await Joi.validate(token, Joi.string().required());
+
+    const user = await userData.getUserByParam(USER_PHONE_TABLE, { verificationCode: token });
+    isUserValid(user);
+
+    if (moment().isAfter(user.verificationCodeExpiry)) {
+      throwError(422, 'Token provided has expired');
+    }
+
+    const params = {
+      verificationCode: null,
+      verificationCodeExpiry: null,
+      isVerified: 1
+    };
+    const where = {
+      userId: user.userId,
+      phoneNumber: user.phoneNumber
+    };
+    await userData.updateUserByParams(USER_PHONE_TABLE, where, params);
+
+    return user;
+  } catch (err) {
+    error('Error validating email', err);
+    throw err;
+  }
+};
+
+
+module.exports = { register, verifyEmail, verifyPhone, validateEmailToken, validatePhoneToken };

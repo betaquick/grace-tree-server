@@ -13,7 +13,8 @@ module.exports = {
   getUserByParam(table, params) {
     return knex(table)
       .first()
-      .where(params);
+      .where(params)
+      .join('user_profile', `${table}.userId`, '=', 'user_profile.userId');
   },
 
   insertUser(user) {

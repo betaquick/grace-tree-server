@@ -5,6 +5,7 @@ const supertest = require('supertest');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 const emailService = require('../../../app/services/util/email-service');
 const smsService = require('../../../app/services/util/sms-service');
@@ -24,6 +25,7 @@ describe('test auth process end-to-end', () => {
   // Ensure db is running and migrations are complete
   let sandbox;
   let userId = 1;
+  let verificationCode;
 
   beforeEach(() => {
     userData.userId = userId;
@@ -47,7 +49,7 @@ describe('test auth process end-to-end', () => {
     return Promise.all([user, userEmail, userPhone, userProfile]);
   });
 
-  describe('/api/v1/auth/register', () => {
+  describe('/api/v1/auth', () => {
     it('/api/v1/auth/register - valid register successful', () => {
       return request
         .post('/api/v1/auth/register')
@@ -63,7 +65,6 @@ describe('test auth process end-to-end', () => {
           expect(data.body).to.have.property('token');
           expect(data.body).to.have.property('userId');
           userId = data.body.userId;
-          return userId;
         });
     });
 
@@ -118,7 +119,6 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('status', 200);
           expect(data).to.have.property('error', false);
           expect(data).to.have.property('body');
-          return data.body.userId;
         });
     });
 
@@ -161,7 +161,6 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('status', 200);
           expect(data).to.have.property('error', false);
           expect(data).to.have.property('body');
-          return data.body.userId;
         });
     });
 
@@ -202,6 +201,140 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('error', true);
           expect(data).to.have.property('status', 401);
           expect(data).to.have.property('message').to.be.a('string');
+        });
+    });
+
+    it('/api/v1/auth/validate - velidate email token successful', () => {
+      return knex(USER_EMAIL_TABLE)
+        .first()
+        .where({
+          userId,
+          emailAddress: validUserData.emails[0].emailAddress
+        })
+        .then(fetchedEmail => {
+          verificationCode = fetchedEmail.verificationCode;
+          return request
+            .put(`/api/v1/auth/validate/email/${verificationCode}`)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'auth')
+            .expect(200)
+            .then(res => {
+              const data = res.body;
+              expect(data).to.be.an('object');
+              expect(data).to.have.property('status', 200);
+              expect(data).to.have.property('error', false);
+              expect(data).to.have.property('body');
+            });
+        });
+    });
+
+    it('/api/v1/auth/validate - validate email token failed', (done) => {
+      request
+        .put('/api/v1/auth/validate/email/invalid')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(404)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 404);
+          return done();
+        });
+    });
+
+    it('/api/v1/auth/validate - velidate sms token successful', () => {
+      return knex(USER_EMAIL_TABLE)
+        .where({
+          userId,
+          emailAddress: validUserData.emails[0].emailAddress
+        })
+        .update({
+          verificationCode,
+          verificationCodeExpiry: moment().subtract(1, 'h').format('YYYY-MM-DD HH:mm:ss')
+        })
+        .then(() => {
+          return request
+            .put(`/api/v1/auth/validate/email/${verificationCode}`)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'auth')
+            .expect(422)
+            .then(res => {
+              const data = res.body;
+              expect(data).to.be.an('object');
+              expect(data).to.have.property('status', 422);
+              expect(data).to.have.property('error', true);
+              expect(data).to.have.property('message');
+            });
+        });
+    });
+
+    it('/api/v1/auth/validate - velidate sms token successful', () => {
+      return knex(USER_PHONE_TABLE)
+        .first()
+        .where({
+          userId,
+          phoneNumber: validUserData.phones[0].phoneNumber
+        })
+        .then(fetchedPhone => {
+          verificationCode = fetchedPhone.verificationCode;
+          return request
+            .put(`/api/v1/auth/validate/sms/${verificationCode}`)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'auth')
+            .expect(200)
+            .then(res => {
+              const data = res.body;
+              expect(data).to.be.an('object');
+              expect(data).to.have.property('status', 200);
+              expect(data).to.have.property('error', false);
+              expect(data).to.have.property('body');
+            });
+        });
+    });
+
+    it('/api/v1/auth/validate - validate sms token failed', (done) => {
+      request
+        .put('/api/v1/auth/validate/sms/invalid')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(404)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 404);
+          return done();
+        });
+    });
+
+    it('/api/v1/auth/validate - velidate sms token successful', () => {
+      return knex(USER_PHONE_TABLE)
+        .where({
+          userId,
+          phoneNumber: validUserData.phones[0].phoneNumber
+        })
+        .update({
+          verificationCode,
+          verificationCodeExpiry: moment().subtract(1, 'h').format('YYYY-MM-DD HH:mm:ss')
+        })
+        .then(() => {
+          return request
+            .put(`/api/v1/auth/validate/sms/${verificationCode}`)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'auth')
+            .expect(422)
+            .then(res => {
+              const data = res.body;
+              expect(data).to.be.an('object');
+              expect(data).to.have.property('status', 422);
+              expect(data).to.have.property('error', true);
+              expect(data).to.have.property('message');
+            });
         });
     });
   });
