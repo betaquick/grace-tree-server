@@ -8,7 +8,6 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
 const emailService = require('../../../app/services/util/email-service');
-const smsService = require('../../../app/services/util/sms-service');
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
 const { userData, validUserData, invalidUserData } = require('../../mock-data/user-mock-data');
@@ -33,7 +32,6 @@ describe('test auth process end-to-end', () => {
     // Allows middle to always succeed
     sandbox.stub(jwt, 'verify').callsArgWith(2, null, userData);
     sandbox.stub(emailService, 'sendVerificationMail').resolves(Promise.resolve(true));
-    sandbox.stub(smsService, 'sendVerificationSMS').resolves(Promise.resolve(true));
   });
 
   afterEach(() => {
@@ -57,6 +55,7 @@ describe('test auth process end-to-end', () => {
         .set('Accept', 'application/json')
         .expect(200)
         .then(res => {
+          console.log(res);
           const data = res.body;
           expect(data).to.be.an('object');
           expect(data).to.have.property('status', 200);
@@ -122,7 +121,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/verify - verify email failed', (done) => {
+    it('/api/v1/auth/verify - verify email failed', done => {
       const params = {
         verifyType: 'email',
         emailAddress: 'invalid'
@@ -162,9 +161,9 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('error', false);
           expect(data).to.have.property('body');
         });
-    });
+    }).timeout(30000);
 
-    it('/api/v1/auth/verify - verify phone failed', (done) => {
+    it('/api/v1/auth/verify - verify phone failed', done => {
       const params = {
         verifyType: 'sms'
       };
@@ -224,7 +223,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - velidate email token successful', () => {
+    it('/api/v1/auth/validate - validate email token successful', () => {
       return knex(USER_EMAIL_TABLE)
         .first()
         .where({
@@ -256,7 +255,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - validate email token failed', (done) => {
+    it('/api/v1/auth/validate - validate email token failed', done => {
       request
         .put('/api/v1/auth/validate/email/invalid')
         .set('Accept', 'application/json')
@@ -331,7 +330,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - validate sms token failed', (done) => {
+    it('/api/v1/auth/validate - validate sms token failed', done => {
       request
         .put('/api/v1/auth/validate/sms/invalid')
         .set('Accept', 'application/json')
@@ -348,7 +347,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - validate sms token failed on wrong verification type', (done) => {
+    it('/api/v1/auth/validate - validate sms token failed on wrong verification type', done => {
       request
         .put('/api/v1/auth/validate/call/invalid')
         .set('Accept', 'application/json')
