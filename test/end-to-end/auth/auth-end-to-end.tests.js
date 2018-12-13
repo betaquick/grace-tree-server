@@ -55,7 +55,6 @@ describe('test auth process end-to-end', () => {
         .set('Accept', 'application/json')
         .expect(200)
         .then(res => {
-          console.log(res);
           const data = res.body;
           expect(data).to.be.an('object');
           expect(data).to.have.property('status', 200);
