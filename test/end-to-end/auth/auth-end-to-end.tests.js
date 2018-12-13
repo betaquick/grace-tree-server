@@ -224,6 +224,14 @@ describe('test auth process end-to-end', () => {
               expect(data).to.have.property('status', 200);
               expect(data).to.have.property('error', false);
               expect(data).to.have.property('body');
+              const { user } = data.body;
+              expect(user).to.be.an('object');
+              expect(user).to.have.property('profileId').to.be.a('number');
+              expect(user).to.have.property('userId').to.be.a('number');
+              expect(user).to.have.property('firstName');
+              expect(user).to.have.property('lastName');
+              expect(user).to.have.property('status');
+              expect(user).to.have.property('primary');
             });
         });
     });
@@ -245,7 +253,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - velidate sms token successful', () => {
+    it('/api/v1/auth/validate - velidate email token failed if token expired', () => {
       return knex(USER_EMAIL_TABLE)
         .where({
           userId,
@@ -291,6 +299,14 @@ describe('test auth process end-to-end', () => {
               expect(data).to.have.property('status', 200);
               expect(data).to.have.property('error', false);
               expect(data).to.have.property('body');
+              const { user } = data.body;
+              expect(user).to.be.an('object');
+              expect(user).to.have.property('profileId').to.be.a('number');
+              expect(user).to.have.property('userId').to.be.a('number');
+              expect(user).to.have.property('firstName');
+              expect(user).to.have.property('lastName');
+              expect(user).to.have.property('status');
+              expect(user).to.have.property('primary');
             });
         });
     });
@@ -312,7 +328,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - velidate sms token successful', () => {
+    it('/api/v1/auth/validate - velidate sms token failed if token', () => {
       return knex(USER_PHONE_TABLE)
         .where({
           userId,

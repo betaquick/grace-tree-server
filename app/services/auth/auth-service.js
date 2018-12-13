@@ -150,7 +150,7 @@ const validateEmailToken = async token => {
     const params = {
       verificationCode: null,
       verificationCodeExpiry: null,
-      isVerified: 1
+      isVerified: true
     };
     const where = {
       userId: user.userId,
@@ -179,7 +179,7 @@ const validatePhoneToken = async token => {
     const params = {
       verificationCode: null,
       verificationCodeExpiry: null,
-      isVerified: 1
+      isVerified: true
     };
     const where = {
       userId: user.userId,

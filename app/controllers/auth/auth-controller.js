@@ -23,7 +23,7 @@ module.exports = {
     let verifySvc;
     if (verifyType === verificationTypes.Email) {
       verifySvc = authSvc.verifyEmail(userId, req.body);
-    } else {
+    } else if (verifyType === verificationTypes.SMS) {
       verifySvc = authSvc.verifyPhone(userId, req.body);
     }
 
@@ -39,7 +39,7 @@ module.exports = {
     let validateSvc;
     if (verifyType === verificationTypes.Email) {
       validateSvc = authSvc.validateEmailToken(token);
-    } else {
+    } else if (verifyType === verificationTypes.SMS) {
       validateSvc = authSvc.validatePhoneToken(token);
     }
 
