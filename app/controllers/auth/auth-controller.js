@@ -6,6 +6,11 @@ const verificationTypes = require('@betaquick/grace-tree-constants').Verificatio
 
 const authSvc = require('../../services/auth/auth-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
+const verificationError = {
+  name: 'ValidationError',
+  code: 422,
+  message: 'The verification type doesn\'t exist'
+};
 
 module.exports = {
   register(req, res) {
@@ -25,6 +30,8 @@ module.exports = {
       verifySvc = authSvc.verifyEmail(userId, req.body);
     } else if (verifyType === verificationTypes.SMS) {
       verifySvc = authSvc.verifyPhone(userId, req.body);
+    } else {
+      handleError(verificationError, res, verificationError.message, error);
     }
 
     verifySvc
@@ -41,6 +48,8 @@ module.exports = {
       validateSvc = authSvc.validateEmailToken(token);
     } else if (verifyType === verificationTypes.SMS) {
       validateSvc = authSvc.validatePhoneToken(token);
+    } else {
+      handleError(verificationError, res, verificationError.message, error);
     }
 
     validateSvc

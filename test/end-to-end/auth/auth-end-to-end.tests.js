@@ -204,6 +204,26 @@ describe('test auth process end-to-end', () => {
         });
     });
 
+    it('/api/v1/auth/verify - returns 422 on invalid verification type', () => {
+      const params = {
+        verifyType: 'call',
+        phoneNumber: validUserData.phones[0].phoneNumber
+      };
+      return request
+        .post('/api/v1/auth/verify')
+        .send(params)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .then(res => {
+          const { body: data } = res;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('error', true);
+          expect(data).to.have.property('status', 422);
+          expect(data).to.have.property('message').to.be.a('string');
+        });
+    });
+
     it('/api/v1/auth/validate - velidate email token successful', () => {
       return knex(USER_EMAIL_TABLE)
         .first()
@@ -324,6 +344,23 @@ describe('test auth process end-to-end', () => {
           expect(body).to.have.property('error', true);
           expect(body).to.have.property('message').to.be.a('string');
           expect(body).to.have.property('status', 404);
+          return done();
+        });
+    });
+
+    it('/api/v1/auth/validate - validate sms token failed on wrong verification type', (done) => {
+      request
+        .put('/api/v1/auth/validate/call/invalid')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 422);
           return done();
         });
     });
