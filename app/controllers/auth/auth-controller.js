@@ -41,7 +41,7 @@ module.exports = {
 
   validateToken(req, res) {
     const { token, verifyType } = req.params;
-    debug('Validate a token' + token);
+    debug('Validate a token: ' + token);
 
     let validateSvc;
     if (verifyType === verificationTypes.Email) {

@@ -13,11 +13,10 @@ module.exports = function(req, res, next) {
   auth(req, res, async request => {
     const { userId } = request.user;
     const params = {
-      userId,
       primary: 1
     };
-    const email = await userData.getUserByParam('user_email', params);
-    const phone = await userData.getUserByParam('user_phone', params);
+    const email = await userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
+    const phone = await userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });
 
     if (email.isVerified === 1 && phone.isVerified === 1) {
       debug('Verification successful:', stringify(email), stringify(phone));

@@ -51,7 +51,7 @@ const register = async data => {
     await Joi.validate(data, registrationValidator);
 
     const emailAddress = _.get(data.emails[0], 'emailAddress');
-    let user = await userData.getUserByParam(USER_EMAIL_TABLE, { emailAddress });
+    const user = await userData.getUserByParam(USER_EMAIL_TABLE, { emailAddress });
     if (user) {
       throwError(422, 'Email address has already been taken');
     }
