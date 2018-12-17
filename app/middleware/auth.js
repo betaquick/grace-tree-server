@@ -41,7 +41,7 @@ module.exports = function(req, res, next) {
         return res.status(404).send({
           status: 404,
           error: true,
-          message: 'Failed to authenticate token'
+          message: 'User not found'
         });
       }
 
