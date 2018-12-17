@@ -10,6 +10,7 @@ const statusTypes = require('@betaquick/grace-tree-constants').StatusTypes;
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
 const { userData, validUserData } = require('../../mock-data/user-mock-data');
+const userDt = require('../../../app/services/user/user-data');
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
@@ -56,10 +57,10 @@ describe('test user process end-to-end', () => {
     return Promise.all([user, userEmail, userPhone, userProfile]);
   });
 
-  describe('/api/v1/users', () => {
-    it('/api/v1/users/onboarding - return error if email and phone is not verified', done => {
+  describe('/api/v1/', () => {
+    it('/api/v1/user/onboarding - return error if email and phone is not verified', done => {
       request
-        .get('/api/v1/users/onboarding')
+        .get('/api/v1/user/onboarding')
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
         .expect(401)
@@ -74,7 +75,27 @@ describe('test user process end-to-end', () => {
         });
     });
 
-    it('/api/v1/users/onboarding - return success if email and phone is verified', () => {
+    it('/api/v1/user/onboarding - return error if user doesn\'t exist', done => {
+      userData.userId = -1;
+      sandbox.restore();
+      sandbox.stub(jwt, 'verify').callsArgWith(2, null, userData);
+      request
+        .get('/api/v1/user/onboarding')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(404)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 404);
+          return done();
+        });
+    });
+
+    it('/api/v1/user/onboarding - return success if email and phone is verified', () => {
       const userEmail = knex(USER_EMAIL_TABLE).where({ userId, primary: 1 }).update({ isVerified: true });
       const userPhone = knex(USER_PHONE_TABLE).where({ userId, primary: 1 }).update({ isVerified: true });
 
@@ -82,7 +103,7 @@ describe('test user process end-to-end', () => {
         .all([userEmail, userPhone])
         .then(() => {
           return request
-            .get('/api/v1/users/onboarding')
+            .get('/api/v1/user/onboarding')
             .set('Accept', 'application/json')
             .set('Authorization', 'auth')
             .expect(200)
@@ -102,9 +123,9 @@ describe('test user process end-to-end', () => {
         });
     });
 
-    it('/api/v1/users/agreement - return success if agreement is successful', () => {
+    it('/api/v1/user/agreement - return success if agreement is successful', () => {
       return request
-        .post('/api/v1/users/agreement')
+        .post('/api/v1/user/agreement')
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
         .expect(200)
@@ -124,9 +145,9 @@ describe('test user process end-to-end', () => {
         });
     });
 
-    it('/api/v1/users/status - return success if status updated', () => {
+    it('/api/v1/user/status - return success if status updated', () => {
       return request
-        .put(`/api/v1/users/status/${statusTypes.Ready}`)
+        .put(`/api/v1/user/status/${statusTypes.Ready}`)
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
         .expect(200)
@@ -146,13 +167,30 @@ describe('test user process end-to-end', () => {
         });
     });
 
-    it('/api/v1/users/onboarding - return error in agreement if user is inactive', done => {
+    it('/api/v1/user/status - return failure if status doesn\'t exist', done => {
+      request
+        .put('/api/v1/user/status/invalid')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 422);
+          return done();
+        });
+    });
+
+    it('/api/v1/user/onboarding - return error in agreement if user is inactive', done => {
       knex(USER_TABLE)
         .where({ userId })
         .update({ active: false })
         .then(() => {
           request
-            .post('/api/v1/users/agreement')
+            .post('/api/v1/user/agreement')
             .set('Accept', 'application/json')
             .set('Authorization', 'auth')
             .expect(422)
@@ -168,9 +206,9 @@ describe('test user process end-to-end', () => {
         });
     });
 
-    it('/api/v1/users/status - return error in status if user is inactive', done => {
+    it('/api/v1/user/status - return error in status if user is inactive', done => {
       request
-        .put(`/api/v1/users/status/${statusTypes.Ready}`)
+        .put(`/api/v1/user/status/${statusTypes.Ready}`)
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
         .expect(422)
@@ -182,6 +220,39 @@ describe('test user process end-to-end', () => {
           expect(body).to.have.property('message').to.be.a('string');
           expect(body).to.have.property('status', 422);
           return done();
+        });
+    });
+  });
+
+  describe('Failure tests', () => {
+    beforeEach(() => {
+      // mock db
+      sandbox.stub(userDt, 'updateUserByParams').resolves(Promise.reject(new Error()));
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('/api/v1/user/agreement - return failure if query failed', done => {
+      knex(USER_TABLE)
+        .where({ userId })
+        .update({ active: true })
+        .then(() => {
+          request
+            .post('/api/v1/user/agreement')
+            .set('Accept', 'application/json')
+            .set('Authorization', 'auth')
+            .expect(500)
+            .end((err, res) => {
+              expect(err).to.a.null;
+              const { body } = res;
+              expect(body).to.be.an('object');
+              expect(body).to.have.property('error', true);
+              expect(body).to.have.property('message').to.be.a('string');
+              expect(body).to.have.property('status', 500);
+              return done();
+            });
         });
     });
   });

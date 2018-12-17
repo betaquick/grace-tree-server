@@ -5,6 +5,10 @@ const error = require('debug')('grace-tree:server:error');
 
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
+const userData = require('../services/user/user-data');
+const {
+  USER_TABLE
+} = require('../../constants/table.constants');
 
 module.exports = function(req, res, next) {
   if (!req.headers.authorization) {
@@ -19,7 +23,7 @@ module.exports = function(req, res, next) {
   const token = req.headers.authorization;
 
   // verifies secret and checks exp
-  jwt.verify(token, config.SECRET_KEY, function(err, decoded) {
+  jwt.verify(token, config.SECRET_KEY, async(err, decoded) => {
     if (err) {
       error('Authentication failed');
       return res.status(401).send({
@@ -30,6 +34,26 @@ module.exports = function(req, res, next) {
     } else {
       debug('Authorization success');
       // if everything is good, save to request for use in other routes
+
+      const user = await userData.getUserByParam(USER_TABLE, { [`${USER_TABLE}.userId`]: decoded.userId });
+      if (!user) {
+        error('Error: User not found');
+        return res.status(404).send({
+          status: 404,
+          error: true,
+          message: 'Failed to authenticate token'
+        });
+      }
+
+      if (user.active === 0) {
+        error('Error: User\'s account has been disabled.');
+        return res.status(422).send({
+          status: 422,
+          error: true,
+          message: 'User\'s account has been disabled.'
+        });
+      }
+
       req.user = decoded;
 
       if (req.fromVerify) {

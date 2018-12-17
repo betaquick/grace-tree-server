@@ -8,7 +8,6 @@ const userData = require('../user/user-data');
 const {
   statusValidator
 } = require('./user-validation');
-const { isUserValid } = require('./../../controllers/util/controller-util');
 const {
   USER_TABLE,
   USER_PROFILE_TABLE
@@ -24,7 +23,6 @@ const acceptAgreement = async userId => {
       [`${USER_PROFILE_TABLE}.userId`]: userId
     };
     const user = await userData.getUserByParam(USER_TABLE, where);
-    isUserValid(user);
 
     const params = {
       agreement: true
@@ -48,7 +46,6 @@ const updateStatus = async(userId, status) => {
       [`${USER_TABLE}.userId`]: userId
     };
     const user = await userData.getUserByParam(USER_TABLE, where);
-    isUserValid(user);
 
     await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, { status });
     user.status = status;

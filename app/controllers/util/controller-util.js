@@ -47,9 +47,5 @@ module.exports = {
     if (!data) {
       throwError(404, 'User not found');
     }
-
-    if (data.active === 0) {
-      throwError(422, 'Your account has been disabled.');
-    }
   }
 };

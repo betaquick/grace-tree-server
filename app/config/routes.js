@@ -17,8 +17,8 @@ router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', auth, authController.validateToken);
 
 // User API
-router.get('/users/onboarding', verify, userController.onboarding);
-router.post('/users/agreement', auth, userController.acceptAgreement);
-router.put('/users/status/:status', auth, userController.updateStatus);
+router.get('/user/onboarding', verify, userController.onboarding);
+router.post('/user/agreement', auth, userController.acceptAgreement);
+router.put('/user/status/:status', auth, userController.updateStatus);
 
 module.exports = router;
