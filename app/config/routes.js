@@ -20,5 +20,6 @@ router.put('/auth/validate/:verifyType/:token', auth, authController.validateTok
 router.get('/user/onboarding', verify, userController.onboarding);
 router.post('/user/agreement', auth, userController.acceptAgreement);
 router.put('/user/status/:status', auth, userController.updateStatus);
+router.put('/user', auth, userController.updateProfile);
 
 module.exports = router;

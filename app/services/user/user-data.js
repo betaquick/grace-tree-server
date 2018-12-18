@@ -6,6 +6,7 @@ const {
   USER_TABLE,
   USER_EMAIL_TABLE,
   USER_PHONE_TABLE,
+  USER_ADDRESS_TABLE,
   USER_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
@@ -66,6 +67,36 @@ module.exports = {
           };
           const profileIds = knex(USER_PROFILE_TABLE).transacting(trx).insert(profile);
           return Promise.all([userId, profileIds]);
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  editUser(userId, user) {
+    return knex.transaction(trx => {
+      const {
+        firstName,
+        lastName,
+        password,
+        addresses
+      } = user;
+
+      return knex(USER_PROFILE_TABLE)
+        .transacting(trx)
+        .where({ userId })
+        .update({ firstName, lastName })
+        .then(() => knex(USER_TABLE).transacting(trx).where({ userId }).update({ password }))
+        .then(() => knex(USER_ADDRESS_TABLE).transacting(trx).where({ userId }).del())
+        .then(() => {
+          const addressMap = addresses.map(address => {
+            return {
+              userId,
+              ...address
+            };
+          });
+          const addressIds = knex(USER_ADDRESS_TABLE).transacting(trx).insert(addressMap);
+          return Promise.all([userId, addressIds]);
         })
         .then(trx.commit)
         .catch(trx.rollback);
