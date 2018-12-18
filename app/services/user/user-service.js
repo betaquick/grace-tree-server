@@ -3,10 +3,12 @@
 const error = require('debug')('grace-tree:auth-service:error');
 const debug = require('debug')('grace-tree:auth-service:debug');
 const Joi = require('joi');
+const bcrypt = require('bcryptjs');
 
 const userData = require('../user/user-data');
 const {
-  statusValidator
+  statusValidator,
+  userValidator
 } = require('./user-validation');
 const {
   USER_TABLE,
@@ -56,4 +58,19 @@ const updateStatus = async(userId, status) => {
   }
 };
 
-module.exports = { acceptAgreement, updateStatus };
+const editUser = async(userId, data) => {
+  const { password } = data;
+  try {
+    await Joi.validate({ userId, ...data }, userValidator);
+
+    data.password = await bcrypt.hash(password, 10);
+    const userIds = await userData.editUser(userId, data);
+
+    return userIds[0];
+  } catch (err) {
+    error('Error editing user ' + err.message);
+    throw err;
+  }
+};
+
+module.exports = { acceptAgreement, updateStatus, editUser };

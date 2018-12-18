@@ -22,6 +22,19 @@ const validUserData = {
   }]
 };
 
+const completeUserData = {
+  firstName: 'Test',
+  lastName: 'User',
+  password: '1q2w3e4r5t',
+  addresses: [{
+    userAddress: '1, Moses Adebayo Street',
+    city: 'Ojodu',
+    state: 'Lagos',
+    zip: '23401',
+    deliveryInstruction: 'Call me when you get to this address'
+  }]
+};
+
 const invalidUserData = {
   firstName: 'Invalid',
   lastName: 'Invalid'
@@ -30,5 +43,6 @@ const invalidUserData = {
 module.exports = {
   userData,
   validUserData,
-  invalidUserData
+  invalidUserData,
+  completeUserData
 };

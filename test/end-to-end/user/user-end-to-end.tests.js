@@ -9,7 +9,12 @@ const statusTypes = require('@betaquick/grace-tree-constants').StatusTypes;
 
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
-const { userData, validUserData } = require('../../mock-data/user-mock-data');
+const {
+  userData,
+  validUserData,
+  completeUserData,
+  invalidUserData
+} = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
 const {
   USER_TABLE,
@@ -222,6 +227,46 @@ describe('test user process end-to-end', () => {
           return done();
         });
     });
+
+    it('/api/v1/user - return success if user profile is valid', () => {
+      return knex(USER_TABLE)
+        .where({ userId })
+        .update({ active: true })
+        .then(() => {
+          return request
+            .put('/api/v1/user')
+            .send(completeUserData)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'auth')
+            .expect(200)
+            .then(res => {
+              const data = res.body;
+              expect(data).to.be.an('object');
+              expect(data).to.have.property('status', 200);
+              expect(data).to.have.property('error', false);
+              expect(data).to.have.property('body');
+              expect(data.body).to.have.property('user');
+            });
+        });
+    });
+
+    it('/api/v1/user - return failure if user profile is invalid', done => {
+      request
+        .put('/api/v1/user')
+        .send(invalidUserData)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 422);
+          return done();
+        });
+    });
   });
 
   describe('Failure tests', () => {
@@ -235,24 +280,19 @@ describe('test user process end-to-end', () => {
     });
 
     it('/api/v1/user/agreement - return failure if query failed', done => {
-      knex(USER_TABLE)
-        .where({ userId })
-        .update({ active: true })
-        .then(() => {
-          request
-            .post('/api/v1/user/agreement')
-            .set('Accept', 'application/json')
-            .set('Authorization', 'auth')
-            .expect(500)
-            .end((err, res) => {
-              expect(err).to.a.null;
-              const { body } = res;
-              expect(body).to.be.an('object');
-              expect(body).to.have.property('error', true);
-              expect(body).to.have.property('message').to.be.a('string');
-              expect(body).to.have.property('status', 500);
-              return done();
-            });
+      request
+        .post('/api/v1/user/agreement')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(500)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 500);
+          return done();
         });
     });
   });

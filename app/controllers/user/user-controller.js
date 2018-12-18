@@ -1,6 +1,8 @@
 'use strict';
 
 const error = require('debug')('grace-tree:user-controller:error');
+const debug = require('debug')('grace-tree:user-controller:debug');
+const stringify = require('json-stringify-safe');
 
 const userSvc = require('../../services/user/user-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
@@ -26,5 +28,19 @@ module.exports = {
       .updateStatus(userId, status)
       .then(user => handleSuccess(res, 'User status updated successful', { user }))
       .catch(err => handleError(err, res, err.message, error));
+  },
+
+  updateProfile(req, res) {
+    const { userId } = req.user;
+    const { body } = req;
+
+    debug('Updating user with data: ', stringify(body));
+
+    userSvc
+      .editUser(userId, body)
+      .then(user =>
+        handleSuccess(res, 'User updated successfully', { user })
+      )
+      .catch(err => handleError(err, res, 'Error updating user', error));
   }
 };
