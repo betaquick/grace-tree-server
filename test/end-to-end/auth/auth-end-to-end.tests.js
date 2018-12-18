@@ -160,7 +160,7 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('error', false);
           expect(data).to.have.property('body');
         });
-    }).timeout(30000);
+    }).timeout(60000);
 
     it('/api/v1/auth/verify - verify phone failed', done => {
       const params = {
@@ -271,7 +271,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - velidate email token failed if token expired', () => {
+    it('/api/v1/auth/validate - validate email token failed if token expired', () => {
       return knex(USER_EMAIL_TABLE)
         .where({
           userId,
@@ -297,7 +297,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - velidate sms token successful', () => {
+    it('/api/v1/auth/validate - validate sms token successful', () => {
       return knex(USER_PHONE_TABLE)
         .first()
         .where({
@@ -363,7 +363,7 @@ describe('test auth process end-to-end', () => {
         });
     });
 
-    it('/api/v1/auth/validate - velidate sms token failed if token', () => {
+    it('/api/v1/auth/validate - validate sms token failed if token', () => {
       return knex(USER_PHONE_TABLE)
         .where({
           userId,
