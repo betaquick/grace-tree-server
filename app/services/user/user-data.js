@@ -26,13 +26,14 @@ module.exports = {
         phones,
         email,
         emails,
-        password
+        password,
+        userType
       } = user;
       let userId;
 
       return knex(USER_TABLE)
         .transacting(trx)
-        .insert({ email, password, userType: constants.UserTypes.General })
+        .insert({ email, password, userType })
         .then(userIds => {
           userId = userIds[0];
 

@@ -45,20 +45,19 @@ const generateTokenFromUser = async user => {
 };
 
 const register = async data => {
+  const { password, emails } = data;
   debug('Starting registration process: ' + stringify(data));
 
   try {
     await Joi.validate(data, registrationValidator);
 
-    const emailAddress = _.get(data.emails[0], 'emailAddress');
+    const emailAddress = _.get(emails[0], 'emailAddress');
     const user = await userData.getUserByParam(USER_EMAIL_TABLE, { emailAddress });
     if (user) {
       throwError(422, 'Email address has already been taken');
     }
 
-    const randomBytes = await randomBytesAsync(16);
-    const hex = randomBytes.toString('hex');
-    data.password = await bcrypt.hash(hex, 10);
+    data.password = await bcrypt.hash(password, 10);
     data.email = emailAddress;
 
     const userIds = await userData.insertUser(data);
