@@ -3,6 +3,13 @@
 const Joi = require('joi');
 const userTypes = require('@betaquick/grace-tree-constants').UserTypes;
 
+const loginValidator = Joi.object().keys({
+  email: Joi.string()
+    .email()
+    .required(),
+  password: Joi.string().required()
+});
+
 const registrationValidator = Joi.object().keys({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
@@ -34,6 +41,7 @@ const phoneValidator = Joi.object().keys({
 });
 
 module.exports = {
+  loginValidator,
   registrationValidator,
   emailValidator,
   phoneValidator

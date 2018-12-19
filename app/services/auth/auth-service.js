@@ -14,6 +14,7 @@ const emailService = require('../util/email-service');
 const smsService = require('../util/sms-service');
 
 const {
+  loginValidator,
   registrationValidator,
   emailValidator,
   phoneValidator
@@ -42,6 +43,29 @@ const generateTokenFromUser = async user => {
   const tokenUser = _.pick(user, ['userId', 'email', 'firstName', 'lastName']);
 
   return createJWT({ ...tokenUser });
+};
+
+const login = async data => {
+  const { email, password } = data;
+  debug('Starting login process for email: ' + email);
+
+  try {
+    await Joi.validate(data, loginValidator);
+
+    const user = await userData.getUserByParam(USER_TABLE, { email });
+    isUserValid(user);
+
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+      const token = await generateTokenFromUser(user);
+
+      return { token, user };
+    }
+    throwError(422, 'Incorrect login credentials');
+  } catch (err) {
+    error('Error logging in user', err);
+    throw err;
+  }
 };
 
 const register = async data => {
@@ -194,4 +218,4 @@ const validatePhoneToken = async token => {
 };
 
 
-module.exports = { register, verifyEmail, verifyPhone, validateEmailToken, validatePhoneToken };
+module.exports = { login, register, verifyEmail, verifyPhone, validateEmailToken, validatePhoneToken };
