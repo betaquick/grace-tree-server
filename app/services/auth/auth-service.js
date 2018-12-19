@@ -20,7 +20,8 @@ const {
   phoneValidator
 } = require('./auth-validator');
 const { SECRET_KEY } = require('./../../config/config');
-const { randomBytesAsync, throwError, isUserValid } = require('./../../controllers/util/controller-util');
+const { randomBytesAsync, throwError } = require('./../../controllers/util/controller-util');
+const { isUserValid } = require('../user/user-service');
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
