@@ -100,6 +100,75 @@ describe('test auth process end-to-end', () => {
         });
     });
 
+    it('/api/v1/auth/login - valid login successful', done => {
+      request
+        .post('/api/v1/auth/login')
+        .send({
+          email: validUserData.emails[0].emailAddress,
+          password: validUserData.password
+        })
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('body');
+          expect(data.body).to.have.property('token');
+          expect(data.body).to.have.property('user');
+          const { user } = data.body;
+          expect(user).to.have.property('userId');
+          expect(user).to.have.property('email');
+          expect(user).to.have.property('active');
+          expect(user).to.have.property('userType');
+          return done();
+        });
+    });
+
+    it('/api/v1/auth/login - failure on invalid password', done => {
+      request
+        .post('/api/v1/auth/login')
+        .send({
+          email: validUserData.emails[0].emailAddress,
+          password: '1q23sd'
+        })
+        .set('Accept', 'application/json')
+        .expect(422)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property(
+            'message',
+            'System Error: Incorrect login credentials'
+          );
+          expect(body).to.have.property('status', 422);
+          return done();
+        });
+    });
+
+    it('/api/v1/auth/login - failure on email with no user', done => {
+      request
+        .post('/api/v1/auth/login')
+        .send({ email: 'email@test.com', password: validUserData.password })
+        .set('Accept', 'application/json')
+        .expect(404)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property(
+            'message',
+            'System Error: User not found'
+          );
+          expect(body).to.have.property('status', 404);
+          return done();
+        });
+    });
+
     it('/api/v1/auth/verify - verify email successful', () => {
       const params = {
         verifyType: 'email',
@@ -414,6 +483,31 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('status', 401);
           expect(data).to.have.property('message').to.be.a('string');
           return done();
+        });
+    });
+
+    it('/api/v1/auth/login - failure if account is disabled', done => {
+      knex(USER_TABLE)
+        .where({ userId })
+        .update({ active: false })
+        .then(() => {
+          request
+            .post('/api/v1/auth/login')
+            .send({
+              email: validUserData.emails[0].emailAddress,
+              password: validUserData.password
+            })
+            .set('Accept', 'application/json')
+            .expect(422)
+            .end((err, res) => {
+              expect(err).to.a.null;
+              const { body } = res;
+              expect(body).to.be.an('object');
+              expect(body).to.have.property('error', true);
+              expect(body).to.have.property('message').to.be.a('string');
+              expect(body).to.have.property('status', 422);
+              return done();
+            });
         });
     });
   });

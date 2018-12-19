@@ -1,5 +1,7 @@
 'use strict';
 
+const userTypes = require('@betaquick/grace-tree-constants').UserTypes;
+
 const userData = {
   email: 'user@gmail.com',
   first_name: 'Test',
@@ -22,7 +24,7 @@ const validUserData = {
     emailAddress: 'test@gracetreeservices.com',
     primary: true
   }],
-  userType: 'General'
+  userType: userTypes.General
 };
 
 const completeUserData = {

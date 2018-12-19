@@ -41,11 +41,5 @@ module.exports = {
       message: 'System Error: ' + message,
       body: err.message || err
     });
-  },
-
-  isUserValid(data) {
-    if (!data) {
-      throwError(404, 'User not found');
-    }
   }
 };

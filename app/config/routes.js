@@ -12,6 +12,7 @@ const userController = require('../controllers/user/user-controller');
 router.get('/', (req, res) => res.json({ title: 'Application API' }));
 
 // Auth API
+router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
 router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', auth, authController.validateToken);

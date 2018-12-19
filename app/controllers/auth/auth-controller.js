@@ -13,6 +13,13 @@ const verificationError = {
 };
 
 module.exports = {
+  login(req, res) {
+    authSvc
+      .login(req.body)
+      .then(token => handleSuccess(res, 'Login successful', token))
+      .catch(err => handleError(err, res, err.message, error));
+  },
+
   register(req, res) {
     authSvc
       .register(req.body)
