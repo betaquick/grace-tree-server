@@ -49,7 +49,7 @@ describe('test user process end-to-end', () => {
       .expect(200)
       .then(res => {
         const data = res.body;
-        userId = data.body.userId;
+        userId = data.body.user.userId;
       });
   });
 

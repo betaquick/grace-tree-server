@@ -61,8 +61,12 @@ describe('test auth process end-to-end', () => {
           expect(data).to.have.property('error', false);
           expect(data).to.have.property('body');
           expect(data.body).to.have.property('token');
-          expect(data.body).to.have.property('userId');
-          userId = data.body.userId;
+          const { user } = data.body;
+          expect(user).to.have.property('userId');
+          expect(user).to.have.property('firstName');
+          expect(user).to.have.property('lastName');
+          expect(user).to.have.property('email');
+          userId = user.userId;
         });
     });
 
