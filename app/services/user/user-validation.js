@@ -1,7 +1,7 @@
 'use strict';
 
 const Joi = require('joi');
-const statusTypes = require('@betaquick/grace-tree-constants').StatusTypes;
+const { StatusTypes, RoleTypes } = require('@betaquick/grace-tree-constants');
 
 const userValidator = Joi.object().keys({
   userId: Joi.number().required(),
@@ -11,16 +11,31 @@ const userValidator = Joi.object().keys({
   addresses: Joi.array().required()
 });
 
+const businessInfoValidator = Joi.object().keys({
+  userId: Joi.number().required(),
+  companyName: Joi.string().required(),
+  companyAddress: Joi.string().required(),
+  userRole: Joi.string().valid([
+    RoleTypes.Admin,
+    RoleTypes.Staff
+  ]).required(),
+  city: Joi.string().required(),
+  state: Joi.string().required(),
+  zip: Joi.string().required(),
+  website: Joi.string().required()
+});
+
 const statusValidator = Joi.object().keys({
   userId: Joi.number().required(),
   status: Joi.string().valid([
-    statusTypes.Pause,
-    statusTypes.Ready,
-    statusTypes.Stop
+    StatusTypes.Pause,
+    StatusTypes.Ready,
+    StatusTypes.Stop
   ]).required()
 });
 
 module.exports = {
   userValidator,
+  businessInfoValidator,
   statusValidator
 };

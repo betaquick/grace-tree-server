@@ -42,5 +42,19 @@ module.exports = {
         handleSuccess(res, 'User updated successfully', { user })
       )
       .catch(err => handleError(err, res, 'Error updating user', error));
+  },
+
+  addBusinessInfo(req, res) {
+    const { userId } = req.user;
+    const { body } = req;
+
+    debug('Updating business info with data: ', stringify(body));
+
+    userSvc
+      .addBusinessInfo(userId, body)
+      .then(company =>
+        handleSuccess(res, 'Business info updated successfully', { company })
+      )
+      .catch(err => handleError(err, res, 'Error updating business info', error));
   }
 };

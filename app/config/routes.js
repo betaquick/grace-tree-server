@@ -22,5 +22,6 @@ router.get('/user/onboarding', verify, userController.onboarding);
 router.post('/user/agreement', auth, userController.acceptAgreement);
 router.put('/user/status/:status', auth, userController.updateStatus);
 router.put('/user', auth, userController.updateProfile);
+router.post('/user/business', auth, userController.addBusinessInfo);
 
 module.exports = router;

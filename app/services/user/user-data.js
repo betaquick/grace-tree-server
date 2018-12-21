@@ -7,7 +7,10 @@ const {
   USER_EMAIL_TABLE,
   USER_PHONE_TABLE,
   USER_ADDRESS_TABLE,
-  USER_PROFILE_TABLE
+  USER_PROFILE_TABLE,
+  USER_COMPANY_TABLE,
+  COMPANY_ADDRESS_TABLE,
+  COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
 module.exports = {
@@ -98,6 +101,35 @@ module.exports = {
           });
           const addressIds = knex(USER_ADDRESS_TABLE).transacting(trx).insert(addressMap);
           return Promise.all([userId, addressIds]);
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  addBusinessInfo(userId, businessInfo) {
+    return knex.transaction(trx => {
+      const {
+        companyName,
+        companyAddress,
+        city,
+        state,
+        zip,
+        website,
+        userRole
+      } = businessInfo;
+      let companyId;
+
+      return knex(COMPANY_PROFILE_TABLE)
+        .transacting(trx)
+        .insert({ companyName, website })
+        .then(companyIds => {
+          companyId = companyIds[0];
+          knex(COMPANY_ADDRESS_TABLE).transacting(trx).insert({ companyId, companyAddress, city, state, zip });
+        })
+        .then(() => {
+          const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole });
+          return Promise.all([companyId, userCompanyIds]);
         })
         .then(trx.commit)
         .catch(trx.rollback);

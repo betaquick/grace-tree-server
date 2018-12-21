@@ -1,6 +1,6 @@
 'use strict';
 
-const userTypes = require('@betaquick/grace-tree-constants').UserTypes;
+const { RoleTypes, UserTypes } = require('@betaquick/grace-tree-constants');
 
 const userData = {
   email: 'user@gmail.com',
@@ -24,7 +24,7 @@ const validUserData = {
     emailAddress: 'test@gracetreeservices.com',
     primary: true
   }],
-  userType: userTypes.General
+  userType: UserTypes.General
 };
 
 const completeUserData = {
@@ -40,6 +40,23 @@ const completeUserData = {
   }]
 };
 
+const validBusinessData = {
+  companyName: 'Damildinho',
+  companyAddress: 'No 7 Mother Theresa street Badore',
+  city: 'Ajah',
+  state: 'AL',
+  userRole: RoleTypes.Admin,
+  website: 'Damildinho',
+  zip: '23401'
+};
+
+const invalidBusinessData = {
+  companyName: 'Invalid',
+  companyAddress: 'Invalid Address',
+  city: 'Invalid',
+  state: 'AL'
+};
+
 const invalidUserData = {
   firstName: 'Invalid',
   lastName: 'Invalid'
@@ -49,5 +66,7 @@ module.exports = {
   userData,
   validUserData,
   invalidUserData,
-  completeUserData
+  completeUserData,
+  validBusinessData,
+  invalidBusinessData
 };
