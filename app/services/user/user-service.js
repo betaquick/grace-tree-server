@@ -9,6 +9,7 @@ const userData = require('../user/user-data');
 const { throwError } = require('./../../controllers/util/controller-util');
 const {
   statusValidator,
+  businessInfoValidator,
   userValidator
 } = require('./user-validation');
 const {
@@ -84,4 +85,17 @@ const editUser = async(userId, data) => {
   }
 };
 
-module.exports = { isUserValid, acceptAgreement, updateStatus, editUser };
+const addBusinessInfo = async(userId, data) => {
+  try {
+    await Joi.validate({ userId, ...data }, businessInfoValidator);
+
+    const companyIds = await userData.addBusinessInfo(userId, data);
+
+    return { companyId: companyIds[0], ...data };
+  } catch (err) {
+    error('Error updating business ' + err.message);
+    throw err;
+  }
+};
+
+module.exports = { isUserValid, acceptAgreement, updateStatus, editUser, addBusinessInfo };

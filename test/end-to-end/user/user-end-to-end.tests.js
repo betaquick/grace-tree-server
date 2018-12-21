@@ -13,7 +13,9 @@ const {
   userData,
   validUserData,
   completeUserData,
-  invalidUserData
+  invalidUserData,
+  validBusinessData,
+  invalidBusinessData
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
 const {
@@ -254,6 +256,41 @@ describe('test user process end-to-end', () => {
       request
         .put('/api/v1/user')
         .send(invalidUserData)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .end((err, res) => {
+          expect(err).to.a.null;
+          const { body } = res;
+          expect(body).to.be.an('object');
+          expect(body).to.have.property('error', true);
+          expect(body).to.have.property('message').to.be.a('string');
+          expect(body).to.have.property('status', 422);
+          return done();
+        });
+    });
+
+    it('/api/v1/user - return success if business info is valid', () => {
+      return request
+        .post('/api/v1/user/business')
+        .send(validBusinessData)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(200)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 200);
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('body');
+          expect(data.body).to.have.property('company');
+        });
+    });
+
+    it('/api/v1/user - return failure if business info is invalid', done => {
+      request
+        .post('/api/v1/user/business')
+        .send(invalidBusinessData)
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
         .expect(422)
