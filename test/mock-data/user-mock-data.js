@@ -57,6 +57,24 @@ const invalidBusinessData = {
   state: 'AL'
 };
 
+const validDeliveryData = {
+  address: {
+    userAddress: '1, Moses Adebayo Street',
+    city: 'Ojodu',
+    state: 'LA',
+    zip: '23401'
+  },
+  description: {
+    chips: 'Yes',
+    fillDirt: 'Yes',
+    grindings: 'Yes',
+    logs: 'Yes',
+    pine: 'No',
+    poplar: 'No',
+    rounds: 'Yes'
+  }
+};
+
 const invalidUserData = {
   firstName: 'Invalid',
   lastName: 'Invalid'
@@ -68,5 +86,6 @@ module.exports = {
   invalidUserData,
   completeUserData,
   validBusinessData,
-  invalidBusinessData
+  invalidBusinessData,
+  validDeliveryData
 };

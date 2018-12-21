@@ -1,5 +1,6 @@
 'use strict';
 const constants = require('@betaquick/grace-tree-constants');
+const stringify = require('json-stringify-safe');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -9,6 +10,7 @@ const {
   USER_ADDRESS_TABLE,
   USER_PROFILE_TABLE,
   USER_COMPANY_TABLE,
+  SCHEDULED_DELIVERY_TABLE,
   COMPANY_ADDRESS_TABLE,
   COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
@@ -130,6 +132,31 @@ module.exports = {
         .then(() => {
           const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole });
           return Promise.all([companyId, userCompanyIds]);
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  addDeliveryInfo(userId, businessInfo) {
+    return knex.transaction(trx => {
+      const {
+        description,
+        address
+      } = businessInfo;
+
+      return knex(USER_ADDRESS_TABLE)
+        .transacting(trx)
+        .insert({ userId, ...address })
+        .then(addressIds => {
+          const delivery = {
+            userId,
+            userAddressId: addressIds[0],
+            deliveryPosition: '',
+            description: stringify(description),
+            deliveryStatus: ''
+          };
+          return knex(SCHEDULED_DELIVERY_TABLE).transacting(trx).insert(delivery);
         })
         .then(trx.commit)
         .catch(trx.rollback);

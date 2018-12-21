@@ -23,5 +23,6 @@ router.post('/user/agreement', auth, userController.acceptAgreement);
 router.put('/user/status/:status', auth, userController.updateStatus);
 router.put('/user', auth, userController.updateProfile);
 router.post('/user/business', auth, userController.addBusinessInfo);
+router.post('/user/delivery', auth, userController.addDeliveryInfo);
 
 module.exports = router;

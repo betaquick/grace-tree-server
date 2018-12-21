@@ -10,6 +10,7 @@ const { throwError } = require('./../../controllers/util/controller-util');
 const {
   statusValidator,
   businessInfoValidator,
+  deliveryInfoValidator,
   userValidator
 } = require('./user-validation');
 const {
@@ -98,4 +99,17 @@ const addBusinessInfo = async(userId, data) => {
   }
 };
 
-module.exports = { isUserValid, acceptAgreement, updateStatus, editUser, addBusinessInfo };
+const addDeliveryInfo = async(userId, data) => {
+  try {
+    await Joi.validate({ userId, ...data }, deliveryInfoValidator);
+
+    const deliveryIds = await userData.addDeliveryInfo(userId, data);
+
+    return { deliveryId: deliveryIds[0], ...data };
+  } catch (err) {
+    error('Error updating delivery info ' + err.message);
+    throw err;
+  }
+};
+
+module.exports = { isUserValid, acceptAgreement, updateStatus, editUser, addBusinessInfo, addDeliveryInfo };
