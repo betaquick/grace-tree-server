@@ -90,7 +90,7 @@ const register = async data => {
 
     const token = await generateTokenFromUser(data);
 
-    return { token, userId: userIds[0] };
+    return { token, user: data };
   } catch (err) {
     error('Error registering user', err);
     throw err;
