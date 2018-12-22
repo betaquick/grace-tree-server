@@ -382,6 +382,27 @@ describe('test auth process end-to-end', function() {
           });
       });
 
+      it('/api/v1/auth/login - login fails bad email', done => {
+        request
+          .post('/api/v1/auth/login')
+          .send({
+            email: 'invalid@hmail.com',
+            password: '#123456'
+          })
+          .set('Accept', 'application/json')
+          .expect(422)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            console.log(body);
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', true);
+            expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
+            expect(body).to.have.property('status', 422);
+            return done();
+          });
+      });
+
       describe('Login fails when user is inactive', () => {
         before(() => {
           return knex(USER_TABLE)

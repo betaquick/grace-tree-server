@@ -8,9 +8,6 @@ module.exports = {
     if (process.env.SITE === 'production') {
       return this.production;
     }
-    if (process.env.SITE === 'test') {
-      return this.test;
-    }
     return this.development;
   },
   development: {

@@ -6,7 +6,6 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 
 const userData = require('../user/user-data');
-const { throwError } = require('./../../controllers/util/controller-util');
 const {
   statusValidator,
   businessInfoValidator,
@@ -17,16 +16,6 @@ const {
   USER_TABLE,
   USER_PROFILE_TABLE
 } = require('../../../constants/table.constants');
-
-const isUserValid = (data) => {
-  if (!data) {
-    throwError(404, 'User not found');
-  }
-
-  if (data.active === 0) {
-    throwError(422, 'User account has been disabled');
-  }
-};
 
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
@@ -112,4 +101,4 @@ const addDeliveryInfo = async(userId, data) => {
   }
 };
 
-module.exports = { isUserValid, acceptAgreement, updateStatus, editUser, addBusinessInfo, addDeliveryInfo };
+module.exports = { acceptAgreement, updateStatus, editUser, addBusinessInfo, addDeliveryInfo };

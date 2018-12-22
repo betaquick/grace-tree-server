@@ -32,7 +32,7 @@ const completeUserData = {
   lastName: 'User',
   password: '1q2w3e4r5t',
   addresses: [{
-    userAddress: '1, Moses Adebayo Street',
+    street: '1, Moses Adebayo Street',
     city: 'Ojodu',
     state: 'Lagos',
     zip: '23401',
@@ -59,20 +59,12 @@ const invalidBusinessData = {
 
 const validDeliveryData = {
   address: {
-    userAddress: '1, Moses Adebayo Street',
+    street: '1, Moses Adebayo Street',
     city: 'Ojodu',
     state: 'LA',
     zip: '23401'
   },
-  description: {
-    chips: 'Yes',
-    fillDirt: 'Yes',
-    grindings: 'Yes',
-    logs: 'Yes',
-    pine: 'No',
-    poplar: 'No',
-    rounds: 'Yes'
-  }
+  products: []
 };
 
 const invalidUserData = {

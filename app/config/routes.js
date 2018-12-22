@@ -25,6 +25,6 @@ router.post('/user/agreement', auth, verify, userController.acceptAgreement);
 router.put('/user/status/:status', auth, verify, userController.updateStatus);
 router.put('/user', auth, verify, userController.updateProfile);
 
-router.get('/products', auth, productController.getProducts);
+router.get('/products', productController.getProducts);
 
 module.exports = router;
