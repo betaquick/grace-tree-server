@@ -42,7 +42,7 @@ describe('test user process end-to-end', function() {
       .set('Accept', 'application/json')
       .expect(200)
       .then(res => {
-        userData = _.get(res, 'body.body');
+        userData = _.get(res, 'body.body.user');
         // Allows middleware to always succeed
         sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
       });
@@ -154,8 +154,8 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('message', 'Onboarding loaded successful');
             const { user } = data.body;
             expect(user).to.be.an('object');
-            expect(user).to.have.property('token', userData.token);
-            expect(user).to.have.property('userId', userData.userId);
+            expect(user).to.have.property('firstName');
+            expect(user).to.have.property('lastName');
           });
       });
 
@@ -255,7 +255,7 @@ describe('test user process end-to-end', function() {
             return done();
           });
       });
-      
+
       it('/api/v1/user - return success if business info is valid', () => {
         return request
           .post('/api/v1/user/business')
@@ -272,7 +272,7 @@ describe('test user process end-to-end', function() {
             expect(data.body).to.have.property('company');
           });
       });
-      
+
       it('/api/v1/user - return failure if business info is invalid', done => {
         request
           .post('/api/v1/user/business')

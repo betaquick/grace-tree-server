@@ -30,11 +30,12 @@ module.exports = {
       .register(body)
       .then(async data => {
         try {
+          const userId = _.get(data, 'user.userId');
           debug('setting up email verification');
-          await authSvc.verifyEmail(data.userId, email);
+          await authSvc.verifyEmail(userId, email);
 
           debug('setting up phone verification');
-          await authSvc.verifyPhone(data.userId, phone);
+          await authSvc.verifyPhone(userId, phone);
 
           debug('Verification link sent successfully');
 

@@ -53,8 +53,14 @@ const login = async data => {
     await Joi.validate(data, loginValidator);
 
     const user = await userData.getUserByParam(USER_TABLE, { email });
-    isUserValid(user);
 
+    if (!_.has(user, 'userId')) {
+      throwError(422, 'Incorrect login credentials');
+    }
+
+    if (!user.active) {
+      throwError(422, 'User\'s account has been disabled.');
+    }
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = await generateTokenFromUser(user);
@@ -98,7 +104,7 @@ const register = async data => {
 };
 
 const verifyEmail = async(userId, emailAddress) => {
-  debug('Starting validation process for email: ' + emailAddress);
+  debug('Starting validation process for email: ' + emailAddress + ' with userId: ' + userId);
 
   try {
     await Joi.validate({ userId, emailAddress }, emailValidator);

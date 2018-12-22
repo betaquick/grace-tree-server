@@ -36,7 +36,7 @@ describe('test auth process end-to-end', function() {
       .set('Accept', 'application/json')
       .expect(200)
       .then(res => {
-        userData = _.get(res, 'body.body');
+        userData = _.get(res, 'body.body.user');
         // Allows middleware to always succeed
         sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
       });
@@ -53,7 +53,8 @@ describe('test auth process end-to-end', function() {
 
   describe('/api/v1/auth', () => {
     it('/api/v1/auth/register - valid register successful', () => {
-      expect(userData).to.have.property('token');
+      expect(userData).to.have.property('firstName');
+      expect(userData).to.have.property('lastName');
       expect(userData).to.have.property('userId');
     });
 
@@ -333,14 +334,68 @@ describe('test auth process end-to-end', function() {
               });
           });
       });
-
     });
 
-    it('/api/v1/auth/login - failure if account is disabled', done => {
-      knex(USER_TABLE)
-        .where({ userId })
-        .update({ active: false })
-        .then(() => {
+    describe('Login tests', () => {
+      it('/api/v1/auth/login - login succeeds', done => {
+        request
+          .post('/api/v1/auth/login')
+          .send({
+            email: validUserData.emails[0].emailAddress,
+            password: validUserData.password
+          })
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', false);
+            expect(body).to.have.property('message', 'Login successful');
+            expect(body).to.have.property('status', 200);
+            const {body: {user}} = body;
+            expect(user).to.have.property('userId', userData.userId);
+            expect(user).to.have.property('firstName', userData.firstName);
+            expect(user).to.have.property('lastName', userData.lastName);
+            return done();
+          });
+      });
+
+      it('/api/v1/auth/login - login fails bad credentials', done => {
+        request
+          .post('/api/v1/auth/login')
+          .send({
+            email: validUserData.emails[0].emailAddress,
+            password: '#123456'
+          })
+          .set('Accept', 'application/json')
+          .expect(422)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            console.log(body);
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', true);
+            expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
+            expect(body).to.have.property('status', 422);
+            return done();
+          });
+      });
+
+      describe('Login fails when user is inactive', () => {
+        before(() => {
+          return knex(USER_TABLE)
+            .where({ userId: userData.userId })
+            .update({ active: false });
+        });
+
+        after(() => {
+          return knex(USER_TABLE)
+            .where({ userId: userData.userId })
+            .update({ active: true });
+        });
+
+        it('/api/v1/auth/login - failure if account is disabled', done => {
           request
             .post('/api/v1/auth/login')
             .send({
@@ -354,11 +409,12 @@ describe('test auth process end-to-end', function() {
               const { body } = res;
               expect(body).to.be.an('object');
               expect(body).to.have.property('error', true);
-              expect(body).to.have.property('message').to.be.a('string');
+              expect(body).to.have.property('message', 'System Error: User\'s account has been disabled.');
               expect(body).to.have.property('status', 422);
               return done();
             });
         });
+      });
     });
   });
 });
