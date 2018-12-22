@@ -6,6 +6,8 @@ const USER_EMAIL_TABLE = 'user_email';
 const USER_PROFILE_TABLE = 'user_profile';
 const USER_ADDRESS_TABLE = 'user_address';
 const USER_COMPANY_TABLE = 'user_company';
+const USER_PRODUCT_TABLE = 'user_product';
+const PRODUCT_TABLE = 'product';
 const SCHEDULED_DELIVERY_TABLE = 'scheduled_delivery';
 const COMPANY_ADDRESS_TABLE = 'company_address';
 const COMPANY_PROFILE_TABLE = 'company_profile';
@@ -17,6 +19,8 @@ module.exports = {
   USER_PROFILE_TABLE,
   USER_ADDRESS_TABLE,
   USER_COMPANY_TABLE,
+  USER_PRODUCT_TABLE,
+  PRODUCT_TABLE,
   SCHEDULED_DELIVERY_TABLE,
   COMPANY_ADDRESS_TABLE,
   COMPANY_PROFILE_TABLE

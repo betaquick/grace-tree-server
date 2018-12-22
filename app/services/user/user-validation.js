@@ -25,10 +25,20 @@ const businessInfoValidator = Joi.object().keys({
   website: Joi.string().required()
 });
 
+const productsValidator = Joi.object().keys({
+  productId: Joi.number().required(),
+  status: Joi.boolean().required()
+});
+
 const deliveryInfoValidator = Joi.object().keys({
   userId: Joi.number().required(),
-  description: Joi.object().required(),
-  address: Joi.object().required()
+  products: Joi.array().items(productsValidator),
+  address: Joi.object().keys({
+    street: Joi.string().required(),
+    city: Joi.string().required(),
+    state: Joi.string().required(),
+    zip: Joi.string().required()
+  })
 });
 
 const statusValidator = Joi.object().keys({
