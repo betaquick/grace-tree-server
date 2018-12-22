@@ -12,4 +12,4 @@ module.exports = {
       .then(products => handleSuccess(res, 'Products retrieved successful', { products }))
       .catch(err => handleError(err, res, err.message, error));
   }
-}
+};

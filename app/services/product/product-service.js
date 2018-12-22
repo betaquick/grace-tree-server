@@ -9,5 +9,5 @@ module.exports = {
     debug('Retrieving products');
 
     return productData.getProducts();
-  },
-}
+  }
+};
