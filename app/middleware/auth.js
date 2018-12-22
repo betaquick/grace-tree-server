@@ -56,10 +56,6 @@ module.exports = function(req, res, next) {
 
       req.user = decoded;
 
-      if (req.fromVerify) {
-        return next(req);
-      }
-
       return next();
     }
   });

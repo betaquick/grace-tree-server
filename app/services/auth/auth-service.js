@@ -21,7 +21,6 @@ const {
 } = require('./auth-validator');
 const { SECRET_KEY } = require('./../../config/config');
 const { randomBytesAsync, throwError } = require('./../../controllers/util/controller-util');
-const { isUserValid } = require('../user/user-service');
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
@@ -54,8 +53,14 @@ const login = async data => {
     await Joi.validate(data, loginValidator);
 
     const user = await userData.getUserByParam(USER_TABLE, { email });
-    isUserValid(user);
 
+    if (!_.has(user, 'userId')) {
+      throwError(422, 'Incorrect login credentials');
+    }
+
+    if (!user.active) {
+      throwError(422, 'User\'s account has been disabled.');
+    }
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = await generateTokenFromUser(user);
@@ -79,6 +84,7 @@ const register = async data => {
     const emailAddress = _.get(emails[0], 'emailAddress');
     const user = await userData.getUserByParam(USER_EMAIL_TABLE, { emailAddress });
     if (user) {
+      debug('Email address has already been taken');
       throwError(422, 'Email address has already been taken');
     }
 
@@ -97,9 +103,8 @@ const register = async data => {
   }
 };
 
-const verifyEmail = async(userId, data) => {
-  const { emailAddress } = data;
-  debug('Starting validation process for email: ' + emailAddress);
+const verifyEmail = async(userId, emailAddress) => {
+  debug('Starting validation process for email: ' + emailAddress + ' with userId: ' + userId);
 
   try {
     await Joi.validate({ userId, emailAddress }, emailValidator);
@@ -129,8 +134,7 @@ const verifyEmail = async(userId, data) => {
   }
 };
 
-const verifyPhone = async(userId, data) => {
-  const { phoneNumber } = data;
+const verifyPhone = async(userId, phoneNumber) => {
   debug('Starting validation process for phone: ' + phoneNumber);
 
   try {
@@ -164,10 +168,13 @@ const validateEmailToken = async token => {
   try {
     await Joi.validate(token, Joi.string().required());
 
-    const user = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
-    isUserValid(user);
+    const email = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
 
-    if (moment().isAfter(user.verificationCodeExpiry)) {
+    if (!_.has(email, 'verificationCodeExpiry')) {
+      throwError(422, 'Token is not valid');
+    }
+
+    if (moment().isAfter(email.verificationCodeExpiry)) {
       throwError(422, 'Token provided has expired');
     }
 
@@ -177,12 +184,12 @@ const validateEmailToken = async token => {
       isVerified: true
     };
     const where = {
-      userId: user.userId,
-      emailAddress: user.emailAddress
+      userId: email.userId,
+      emailAddress: email.emailAddress
     };
     await userData.updateUserByParams(USER_EMAIL_TABLE, where, params);
 
-    return user;
+    return email;
   } catch (err) {
     error('Error validating email', err);
     throw err;
@@ -193,10 +200,13 @@ const validatePhoneToken = async token => {
   try {
     await Joi.validate(token, Joi.string().required());
 
-    const user = await userData.getUserByParam(USER_PHONE_TABLE, { verificationCode: token });
-    isUserValid(user);
+    const phone = await userData.getUserByParam(USER_PHONE_TABLE, { verificationCode: token });
 
-    if (moment().isAfter(user.verificationCodeExpiry)) {
+    if (!_.has(phone, 'verificationCodeExpiry')) {
+      throwError(422, 'Token is not valid');
+    }
+
+    if (moment().isAfter(phone.verificationCodeExpiry)) {
       throwError(422, 'Token provided has expired');
     }
 
@@ -206,12 +216,12 @@ const validatePhoneToken = async token => {
       isVerified: true
     };
     const where = {
-      userId: user.userId,
-      phoneNumber: user.phoneNumber
+      userId: phone.userId,
+      phoneNumber: phone.phoneNumber
     };
     await userData.updateUserByParams(USER_PHONE_TABLE, where, params);
 
-    return user;
+    return phone;
   } catch (err) {
     error('Error validating email', err);
     throw err;

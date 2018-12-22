@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const debug = require('debug')('grace-tree:auth-controller:debug');
 const error = require('debug')('grace-tree:auth-controller:error');
 const verificationTypes = require('@betaquick/grace-tree-constants').VerificationTypes;
@@ -21,34 +22,37 @@ module.exports = {
   },
 
   register(req, res) {
+    const {body} = req;
+    const email = _.get(body, 'emails[0].emailAddress');
+    const phone = _.get(body, 'phones[0].phoneNumber');
+
     authSvc
-      .register(req.body)
-      .then(data => handleSuccess(res, 'Registration successful', data))
-      .catch(err => handleError(err, res, err.message, error));
-  },
+      .register(body)
+      .then(async data => {
+        try {
+          const userId = _.get(data, 'user.userId');
+          debug('setting up email verification');
+          await authSvc.verifyEmail(userId, email);
 
-  verify(req, res) {
-    const { verifyType } = req.body;
-    const { userId } = req.user;
-    debug('verifying for ' + verifyType);
+          debug('setting up phone verification');
+          await authSvc.verifyPhone(userId, phone);
 
-    let verifySvc;
-    if (verifyType === verificationTypes.Email) {
-      verifySvc = authSvc.verifyEmail(userId, req.body);
-    } else if (verifyType === verificationTypes.SMS) {
-      verifySvc = authSvc.verifyPhone(userId, req.body);
-    } else {
-      handleError(verificationError, res, verificationError.message, error);
-    }
+          debug('Verification link sent successfully');
 
-    verifySvc
-      .then(data => handleSuccess(res, 'Verification link sent successfully', data))
+          // send back result
+          return handleSuccess(res, 'Registration successful', data);
+
+        } catch (err) {
+          error('Error sending verification for Email/Phone: ', err);
+        }
+
+      })
       .catch(err => handleError(err, res, err.message, error));
   },
 
   validateToken(req, res) {
     const { token, verifyType } = req.params;
-    debug('Validate a token: ' + token);
+    debug('Validate a token: ' + token + ' with type: ' + verifyType);
 
     let validateSvc;
     if (verifyType === verificationTypes.Email) {
@@ -56,7 +60,7 @@ module.exports = {
     } else if (verifyType === verificationTypes.SMS) {
       validateSvc = authSvc.validatePhoneToken(token);
     } else {
-      handleError(verificationError, res, verificationError.message, error);
+      return handleError(verificationError, res, verificationError.message, error);
     }
 
     validateSvc
