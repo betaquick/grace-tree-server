@@ -14,14 +14,13 @@ router.get('/', (req, res) => res.json({ title: 'Application API' }));
 // Auth API
 router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
-router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', auth, authController.validateToken);
 
 // User API
-router.get('/user/onboarding', verify, userController.onboarding);
-router.post('/user/agreement', auth, userController.acceptAgreement);
-router.put('/user/status/:status', auth, userController.updateStatus);
-router.put('/user', auth, userController.updateProfile);
-router.post('/user/business', auth, userController.addBusinessInfo);
+router.get('/user/onboarding', auth, verify, userController.onboarding);
+router.post('/user/agreement', auth, verify, userController.acceptAgreement);
+router.put('/user/status/:status', auth, verify, userController.updateStatus);
+router.put('/user', auth, verify, userController.updateProfile);
+router.post('/user/business', auth, verify, userController.addBusinessInfo);
 
 module.exports = router;
