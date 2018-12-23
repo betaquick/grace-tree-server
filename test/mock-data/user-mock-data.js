@@ -32,7 +32,7 @@ const completeUserData = {
   lastName: 'User',
   password: '1q2w3e4r5t',
   addresses: [{
-    userAddress: '1, Moses Adebayo Street',
+    street: '1, Moses Adebayo Street',
     city: 'Ojodu',
     state: 'Lagos',
     zip: '23401',
@@ -57,6 +57,16 @@ const invalidBusinessData = {
   state: 'AL'
 };
 
+const validDeliveryData = {
+  address: {
+    street: '1, Moses Adebayo Street',
+    city: 'Ojodu',
+    state: 'LA',
+    zip: '23401'
+  },
+  products: []
+};
+
 const invalidUserData = {
   firstName: 'Invalid',
   lastName: 'Invalid'
@@ -68,5 +78,6 @@ module.exports = {
   invalidUserData,
   completeUserData,
   validBusinessData,
-  invalidBusinessData
+  invalidBusinessData,
+  validDeliveryData
 };

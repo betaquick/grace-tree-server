@@ -12,7 +12,7 @@ pipelines:
       script: # Modify the commands below to build your repository.
       - npm install
       - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
-      # - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
+      - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
       - npm run test-coverage
       services:
       - mysql
@@ -24,7 +24,7 @@ pipelines:
         script:
         - npm install
         - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
-        # - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
+        - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
         - npm run test-coverage
         services:
         - mysql

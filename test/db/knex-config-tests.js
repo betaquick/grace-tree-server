@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const { test, production, development } = require('../../db/knexfile');
+const { production, development } = require('../../db/knexfile');
 const knexFile = require('../../db/knexfile');
 const SITE = process.env.SITE;
 
@@ -16,20 +16,6 @@ describe('test knexfile initializes with proper env', () => {
     });
     it('valid development environment', done => {
       expect(knexFile.getKnexInstance()).to.deep.equal(development);
-      done();
-    });
-  });
-
-  describe('verify test env', () => {
-    before(() => {
-      process.env.SITE = 'test';
-    });
-
-    after(() => {
-      process.env.SITE = SITE;
-    });
-    it('valid test environment', done => {
-      expect(knexFile.getKnexInstance()).to.deep.equal(test);
       done();
     });
   });
