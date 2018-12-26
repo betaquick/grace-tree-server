@@ -6,7 +6,7 @@ const supertest = require('supertest');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
-const statusTypes = require('@betaquick/grace-tree-constants').StatusTypes;
+const {UserStatus} = require('@betaquick/grace-tree-constants');
 
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
@@ -113,7 +113,7 @@ describe('test user process end-to-end', function() {
 
       it('/api/v1/user/status - return error in status if user is inactive', done => {
         request
-          .put(`/api/v1/user/status/${statusTypes.Ready}`)
+          .put(`/api/v1/user/status/${UserStatus.Ready}`)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
           .expect(422)
@@ -190,7 +190,7 @@ describe('test user process end-to-end', function() {
 
       it('/api/v1/user/status - return success if status updated', () => {
         return request
-          .put(`/api/v1/user/status/${statusTypes.Ready}`)
+          .put(`/api/v1/user/status/${UserStatus.Ready}`)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
           .expect(200)
@@ -206,7 +206,7 @@ describe('test user process end-to-end', function() {
             expect(user).to.have.property('firstName');
             expect(user).to.have.property('lastName');
             expect(user).to.have.property('email');
-            expect(user).to.have.property('status').equals(statusTypes.Ready);
+            expect(user).to.have.property('status').equals(UserStatus.Ready);
           });
       });
 
