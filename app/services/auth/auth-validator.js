@@ -1,13 +1,28 @@
 'use strict';
 
 const Joi = require('joi');
-const userTypes = require('@betaquick/grace-tree-constants').UserTypes;
+const {UserTypes, PhoneTypes} = require('@betaquick/grace-tree-constants');
 
 const loginValidator = Joi.object().keys({
   email: Joi.string()
     .email()
     .required(),
   password: Joi.string().required()
+});
+
+const phoneListSchema = Joi.object().keys({
+  phoneNumber: Joi.string().required(),
+  primary: Joi.boolean().required(),
+  phoneType: Joi.string().valid([
+    PhoneTypes.HOME,
+    PhoneTypes.MOBILE,
+    PhoneTypes.OFFICE
+  ]).required()
+});
+
+const emailListSchema = Joi.object().keys({
+  emailAddress: Joi.string().required(),
+  primary: Joi.boolean().required()
 });
 
 const registrationValidator = Joi.object().keys({
@@ -21,12 +36,12 @@ const registrationValidator = Joi.object().keys({
       }
     }
   }),
-  phones: Joi.array().required(),
-  emails: Joi.array().required(),
+  phones: Joi.array().items(phoneListSchema).required(),
+  emails: Joi.array().items(emailListSchema).required(),
   userType: Joi.string().valid([
-    userTypes.Crew,
-    userTypes.General,
-    userTypes.TreeAdmin
+    UserTypes.Crew,
+    UserTypes.General,
+    UserTypes.TreeAdmin
   ]).required()
 });
 

@@ -1,5 +1,5 @@
 'use strict';
-const constants = require('@betaquick/grace-tree-constants');
+const {UserStatus} = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -68,7 +68,7 @@ module.exports = {
             userId,
             firstName,
             lastName,
-            status: constants.StatusTypes.Pause
+            status: UserStatus.Pause
           };
           const profileIds = knex(USER_PROFILE_TABLE).transacting(trx).insert(profile);
           return Promise.all([userId, profileIds]);

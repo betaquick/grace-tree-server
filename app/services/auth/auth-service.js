@@ -45,6 +45,19 @@ const generateTokenFromUser = async user => {
   return createJWT({ ...tokenUser });
 };
 
+// Santize user details for the UI
+function sanitizeUser(user) {
+  return {
+    email: user.email,
+    emails: user.emails,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phones: user.phones,
+    userId: user.userId,
+    userType: user.userType
+  };
+}
+
 const login = async data => {
   const { email, password } = data;
   debug('Starting login process for email: ' + email);
@@ -64,8 +77,7 @@ const login = async data => {
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = await generateTokenFromUser(user);
-
-      return { token, user };
+      return { token, user: sanitizeUser(user) };
     }
     throwError(422, 'Incorrect login credentials');
   } catch (err) {
@@ -96,7 +108,7 @@ const register = async data => {
 
     const token = await generateTokenFromUser(data);
 
-    return { token, user: data };
+    return { token, user: sanitizeUser(data) };
   } catch (err) {
     error('Error registering user', err);
     throw err;
