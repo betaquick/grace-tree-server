@@ -1,6 +1,6 @@
 'use strict';
 
-const { RoleTypes, UserTypes } = require('@betaquick/grace-tree-constants');
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const userData = {
   email: 'user@gmail.com',
@@ -45,7 +45,6 @@ const validBusinessData = {
   companyAddress: 'No 7 Mother Theresa street Badore',
   city: 'Ajah',
   state: 'AL',
-  userRole: RoleTypes.Admin,
   website: 'Damildinho',
   zip: '23401'
 };

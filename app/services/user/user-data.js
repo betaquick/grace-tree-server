@@ -1,5 +1,5 @@
 'use strict';
-const {UserStatus} = require('@betaquick/grace-tree-constants');
+const { UserStatus, RoleTypes } = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -116,8 +116,7 @@ module.exports = {
         city,
         state,
         zip,
-        website,
-        userRole
+        website
       } = businessInfo;
       let companyId;
 
@@ -129,7 +128,7 @@ module.exports = {
           knex(COMPANY_ADDRESS_TABLE).transacting(trx).insert({ companyId, companyAddress, city, state, zip });
         })
         .then(() => {
-          const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole });
+          const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole: RoleTypes.Admin });
           return Promise.all([companyId, userCompanyIds]);
         })
         .then(trx.commit)
