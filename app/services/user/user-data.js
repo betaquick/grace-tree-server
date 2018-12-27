@@ -125,7 +125,7 @@ module.exports = {
         .insert({ companyName, website })
         .then(companyIds => {
           companyId = companyIds[0];
-          knex(COMPANY_ADDRESS_TABLE).transacting(trx).insert({ companyId, companyAddress, city, state, zip });
+          return knex(COMPANY_ADDRESS_TABLE).transacting(trx).insert({ companyId, companyAddress, city, state, zip });
         })
         .then(() => {
           const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole: RoleTypes.Admin });
