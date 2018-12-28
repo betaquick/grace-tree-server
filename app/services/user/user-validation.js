@@ -28,7 +28,7 @@ const productsValidator = Joi.object().keys({
 
 const deliveryInfoValidator = Joi.object().keys({
   userId: Joi.number().required(),
-  products: Joi.array().items(productsValidator),
+  userProducts: Joi.array().items(productsValidator),
   address: Joi.object().keys({
     street: Joi.string().required(),
     city: Joi.string().required(),
