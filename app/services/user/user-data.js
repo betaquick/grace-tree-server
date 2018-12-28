@@ -139,7 +139,7 @@ module.exports = {
   addDeliveryInfo(userId, deliveryInfo) {
     return knex.transaction(trx => {
       const {
-        products,
+        userProducts,
         address
       } = deliveryInfo;
 
@@ -147,10 +147,10 @@ module.exports = {
         .transacting(trx)
         .insert({ userId, ...address })
         .then(() => {
-          const productMap = products.map(product => {
+          const userProductMap = userProducts.map(product => {
             return {userId, ...product };
           });
-          return knex(USER_PRODUCT_TABLE).transacting(trx).insert(productMap);
+          return knex(USER_PRODUCT_TABLE).transacting(trx).insert(userProductMap);
         })
         .then(trx.commit)
         .catch(trx.rollback);

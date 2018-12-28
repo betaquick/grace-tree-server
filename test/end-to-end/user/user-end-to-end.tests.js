@@ -353,7 +353,7 @@ describe('test user process end-to-end', function() {
                 productId,
                 status
               };
-              validDeliveryData.products.push(product);
+              validDeliveryData.userProducts.push(product);
             });
             return products;
           });

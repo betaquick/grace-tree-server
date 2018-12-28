@@ -63,7 +63,7 @@ const validDeliveryData = {
     state: 'LA',
     zip: '23401'
   },
-  products: []
+  userProducts: []
 };
 
 const invalidUserData = {
