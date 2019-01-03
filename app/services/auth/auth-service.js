@@ -201,9 +201,10 @@ const validateEmailToken = async token => {
     };
     await userData.updateUserByParams(USER_EMAIL_TABLE, where, params);
 
-    const userEmailAndPhone = await userData.getUserEmailAndPhone(email.userId);
+    const userPhone = await userData.getUserPhone(email.userId);
+    const userEmail = await userData.getUserEmail(email.userId);
 
-    return { email: userEmailAndPhone[0], phone: userEmailAndPhone[1] };
+    return { email: userEmail, phone: userPhone };
   } catch (err) {
     error('Error validating email', err);
     throw err;
@@ -235,9 +236,10 @@ const validatePhoneToken = async token => {
     };
     await userData.updateUserByParams(USER_PHONE_TABLE, where, params);
 
-    const userEmailAndPhone = await userData.getUserEmailAndPhone(phone.userId);
+    const userEmail = await userData.getUserEmail(phone.userId);
+    const userPhone = await userData.getUserPhone(phone.userId);
 
-    return { email: userEmailAndPhone[0], phone: userEmailAndPhone[1] };
+    return { email: userEmail, phone: userPhone };
   } catch (err) {
     error('Error validating email', err);
     throw err;

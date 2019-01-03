@@ -182,7 +182,16 @@ describe('test auth process end-to-end', function() {
             const { user } = data.body;
             expect(user).to.be.an('object');
             expect(user).to.have.property('email').to.be.an('object');
+            expect(user.email).to.have.property('userId').to.be.a('number');
+            expect(user.email).to.have.property('emailAddress').to.be.a('string');
+            expect(user.email).to.have.property('primary').to.be.a('number');
+            expect(user.email).to.have.property('isVerified').to.be.a('number');
+
             expect(user).to.have.property('phone').to.be.an('object');
+            expect(user.phone).to.have.property('userId').to.be.a('number');
+            expect(user.phone).to.have.property('phoneNumber').to.be.a('string');
+            expect(user.phone).to.have.property('primary').to.be.a('number');
+            expect(user.phone).to.have.property('isVerified').to.be.a('number');
           });
       });
 
@@ -253,7 +262,16 @@ describe('test auth process end-to-end', function() {
             const { user } = data.body;
             expect(user).to.be.an('object');
             expect(user).to.have.property('email').to.be.an('object');
+            expect(user.email).to.have.property('userId').to.be.a('number');
+            expect(user.email).to.have.property('emailAddress').to.be.a('string');
+            expect(user.email).to.have.property('primary').to.be.a('number');
+            expect(user.email).to.have.property('isVerified').to.be.a('number');
+
             expect(user).to.have.property('phone').to.be.an('object');
+            expect(user.phone).to.have.property('userId').to.be.a('number');
+            expect(user.phone).to.have.property('phoneNumber').to.be.a('string');
+            expect(user.phone).to.have.property('primary').to.be.a('number');
+            expect(user.phone).to.have.property('isVerified').to.be.a('number');
           });
       });
 

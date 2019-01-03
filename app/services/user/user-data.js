@@ -22,13 +22,16 @@ const userData = {
       .join('user_profile', `${table}.userId`, '=', 'user_profile.userId');
   },
 
-  getUserEmailAndPhone(userId) {
+  getUserEmail(userId) {
     const params = { primary: 1 };
 
-    const email = userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
-    const phone = userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });
+    return userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
+  },
 
-    return Promise.all([email, phone]);
+  getUserPhone(userId) {
+    const params = { primary: 1 };
+
+    return userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });
   },
 
   insertUser(user) {
