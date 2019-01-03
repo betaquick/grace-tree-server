@@ -50,6 +50,31 @@ module.exports = {
       .catch(err => handleError(err, res, err.message, error));
   },
 
+  /* verify(req, res) {
+    const { userId } = req.user;
+    const body = req.body;
+    const { verifyType } = body;
+
+    let verifySvc;
+    if (verifyType === verificationTypes.Email) {
+      const email = _.get(body, 'body.emailAddress');
+      verifySvc = authSvc.verifyEmail(userId, email);
+    } else if (verifyType === verificationTypes.SMS) {
+      const phone = _.get(body, 'body.phoneNumber');
+      verifySvc = authSvc.verifyPhone(userId, phone);
+    } else {
+      return handleError(verificationError, res, verificationError.message, error);
+    }
+
+    verifySvc
+      .then(user =>
+        handleSuccess(res, 'Verification sent successful', { user })
+      )
+      .catch(err =>
+        handleError(err, res, 'Error sending verification for Email/Phone', error)
+      );
+  }, */
+
   validateToken(req, res) {
     const { token, verifyType } = req.params;
     debug('Validate a token: ' + token + ' with type: ' + verifyType);

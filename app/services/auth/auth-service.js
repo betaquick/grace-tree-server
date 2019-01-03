@@ -121,7 +121,7 @@ const verifyEmail = async(userId, emailAddress) => {
   try {
     await Joi.validate({ userId, emailAddress }, emailValidator);
 
-    const randomBytes = await randomBytesAsync(10);
+    const randomBytes = await randomBytesAsync(16);
     const token = randomBytes.toString('hex');
     const params = {
       emailAddress,
@@ -180,7 +180,7 @@ const validateEmailToken = async token => {
   try {
     await Joi.validate(token, Joi.string().required());
 
-    const email = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
+    let email = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
 
     if (!_.has(email, 'verificationCodeExpiry')) {
       throwError(422, 'Token is not valid');
@@ -201,7 +201,9 @@ const validateEmailToken = async token => {
     };
     await userData.updateUserByParams(USER_EMAIL_TABLE, where, params);
 
-    return email;
+    const userEmailAndPhone = await userData.getUserEmailAndPhone(email.userId);
+
+    return { email: userEmailAndPhone[0], phone: userEmailAndPhone[1] };
   } catch (err) {
     error('Error validating email', err);
     throw err;
@@ -233,7 +235,9 @@ const validatePhoneToken = async token => {
     };
     await userData.updateUserByParams(USER_PHONE_TABLE, where, params);
 
-    return phone;
+    const userEmailAndPhone = await userData.getUserEmailAndPhone(phone.userId);
+
+    return { email: userEmailAndPhone[0], phone: userEmailAndPhone[1] };
   } catch (err) {
     error('Error validating email', err);
     throw err;

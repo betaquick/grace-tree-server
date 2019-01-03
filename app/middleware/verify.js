@@ -8,7 +8,7 @@ const userData = require('../services/user/user-data');
 
 module.exports = async function(req, res, next) {
   const { userId } = req.user;
-  const params = {primary: 1};
+  const params = { primary: 1 };
 
   const email = await userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
   const phone = await userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });

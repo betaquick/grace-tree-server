@@ -14,12 +14,21 @@ const {
   COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
-module.exports = {
+const userData = {
   getUserByParam(table, params) {
     return knex(table)
       .first()
       .where(params)
       .join('user_profile', `${table}.userId`, '=', 'user_profile.userId');
+  },
+
+  getUserEmailAndPhone(userId) {
+    const params = { primary: 1 };
+
+    const email = userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
+    const phone = userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });
+
+    return Promise.all([email, phone]);
   },
 
   insertUser(user) {
@@ -163,3 +172,5 @@ module.exports = {
       .update(params);
   }
 };
+
+module.exports = userData;

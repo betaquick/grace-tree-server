@@ -181,12 +181,8 @@ describe('test auth process end-to-end', function() {
             expect(data).to.have.property('body');
             const { user } = data.body;
             expect(user).to.be.an('object');
-            expect(user).to.have.property('profileId').to.be.a('number');
-            expect(user).to.have.property('userId').to.be.a('number');
-            expect(user).to.have.property('firstName');
-            expect(user).to.have.property('lastName');
-            expect(user).to.have.property('status');
-            expect(user).to.have.property('primary');
+            expect(user).to.have.property('email').to.be.an('object');
+            expect(user).to.have.property('phone').to.be.an('object');
           });
       });
 
@@ -256,12 +252,8 @@ describe('test auth process end-to-end', function() {
             expect(data).to.have.property('body');
             const { user } = data.body;
             expect(user).to.be.an('object');
-            expect(user).to.have.property('profileId').to.be.a('number');
-            expect(user).to.have.property('userId').to.be.a('number');
-            expect(user).to.have.property('firstName');
-            expect(user).to.have.property('lastName');
-            expect(user).to.have.property('status');
-            expect(user).to.have.property('primary');
+            expect(user).to.have.property('email').to.be.an('object');
+            expect(user).to.have.property('phone').to.be.an('object');
           });
       });
 
