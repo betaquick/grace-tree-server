@@ -365,7 +365,6 @@ describe('test auth process end-to-end', function() {
           .end((err, res) => {
             expect(err).to.a.null;
             const { body } = res;
-            console.log(body);
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
             expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
@@ -386,7 +385,6 @@ describe('test auth process end-to-end', function() {
           .end((err, res) => {
             expect(err).to.a.null;
             const { body } = res;
-            console.log(body);
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
             expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
