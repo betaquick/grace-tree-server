@@ -181,12 +181,17 @@ describe('test auth process end-to-end', function() {
             expect(data).to.have.property('body');
             const { user } = data.body;
             expect(user).to.be.an('object');
-            expect(user).to.have.property('profileId').to.be.a('number');
-            expect(user).to.have.property('userId').to.be.a('number');
-            expect(user).to.have.property('firstName');
-            expect(user).to.have.property('lastName');
-            expect(user).to.have.property('status');
-            expect(user).to.have.property('primary');
+            expect(user).to.have.property('email').to.be.an('object');
+            expect(user.email).to.have.property('userId').to.be.a('number');
+            expect(user.email).to.have.property('emailAddress').to.be.a('string');
+            expect(user.email).to.have.property('primary').to.be.a('number');
+            expect(user.email).to.have.property('isVerified').to.be.a('number');
+
+            expect(user).to.have.property('phone').to.be.an('object');
+            expect(user.phone).to.have.property('userId').to.be.a('number');
+            expect(user.phone).to.have.property('phoneNumber').to.be.a('string');
+            expect(user.phone).to.have.property('primary').to.be.a('number');
+            expect(user.phone).to.have.property('isVerified').to.be.a('number');
           });
       });
 
@@ -256,12 +261,17 @@ describe('test auth process end-to-end', function() {
             expect(data).to.have.property('body');
             const { user } = data.body;
             expect(user).to.be.an('object');
-            expect(user).to.have.property('profileId').to.be.a('number');
-            expect(user).to.have.property('userId').to.be.a('number');
-            expect(user).to.have.property('firstName');
-            expect(user).to.have.property('lastName');
-            expect(user).to.have.property('status');
-            expect(user).to.have.property('primary');
+            expect(user).to.have.property('email').to.be.an('object');
+            expect(user.email).to.have.property('userId').to.be.a('number');
+            expect(user.email).to.have.property('emailAddress').to.be.a('string');
+            expect(user.email).to.have.property('primary').to.be.a('number');
+            expect(user.email).to.have.property('isVerified').to.be.a('number');
+
+            expect(user).to.have.property('phone').to.be.an('object');
+            expect(user.phone).to.have.property('userId').to.be.a('number');
+            expect(user.phone).to.have.property('phoneNumber').to.be.a('string');
+            expect(user.phone).to.have.property('primary').to.be.a('number');
+            expect(user.phone).to.have.property('isVerified').to.be.a('number');
           });
       });
 
@@ -373,7 +383,6 @@ describe('test auth process end-to-end', function() {
           .end((err, res) => {
             expect(err).to.a.null;
             const { body } = res;
-            console.log(body);
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
             expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
@@ -394,7 +403,6 @@ describe('test auth process end-to-end', function() {
           .end((err, res) => {
             expect(err).to.a.null;
             const { body } = res;
-            console.log(body);
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
             expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
