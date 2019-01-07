@@ -1,14 +1,37 @@
 'use strict';
 
 const Joi = require('joi');
-const { UserStatus } = require('@betaquick/grace-tree-constants');
+const { UserStatus, PhoneTypes } = require('@betaquick/grace-tree-constants');
+
+const phoneListSchema = Joi.object().keys({
+  phoneNumber: Joi.string().required(),
+  primary: Joi.any().valid([true, false, 1, 0]),
+  phoneType: Joi.string().valid([
+    PhoneTypes.HOME,
+    PhoneTypes.MOBILE,
+    PhoneTypes.OFFICE
+  ]).required()
+});
+
+const emailListSchema = Joi.object().keys({
+  emailAddress: Joi.string().required(),
+  primary: Joi.any().valid([true, false, 1, 0])
+});
 
 const userValidator = Joi.object().keys({
   userId: Joi.number().required(),
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
-  password: Joi.string().required(),
-  addresses: Joi.array().required()
+  phones: Joi.array().items(phoneListSchema).required(),
+  emails: Joi.array().items(emailListSchema).required(),
+  password: Joi.string(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).options({
+    language: {
+      any: {
+        allowOnly: 'field must match password field'
+      }
+    }
+  })
 });
 
 const businessInfoValidator = Joi.object().keys({

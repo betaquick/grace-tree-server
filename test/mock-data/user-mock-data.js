@@ -30,13 +30,14 @@ const validUserData = {
 const completeUserData = {
   firstName: 'Test',
   lastName: 'User',
-  password: '1q2w3e4r5t',
-  addresses: [{
-    street: '1, Moses Adebayo Street',
-    city: 'Ojodu',
-    state: 'Lagos',
-    zip: '23401',
-    deliveryInstruction: 'Call me when you get to this address'
+  phones: [{
+    phoneNumber: '+2348143132868',
+    primary: true,
+    phoneType: 'office'
+  }],
+  emails: [{
+    emailAddress: 'test@gracetreeservices.com',
+    primary: true
   }]
 };
 
