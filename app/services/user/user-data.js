@@ -25,13 +25,25 @@ const userData = {
   getUserEmail(userId) {
     const params = { primary: 1 };
 
-    return userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
+    return userData.getUserByParam(USER_EMAIL_TABLE, { 'user_email.userId': userId, ...params });
   },
 
   getUserPhone(userId) {
     const params = { primary: 1 };
 
-    return userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });
+    return userData.getUserByParam(USER_PHONE_TABLE, { 'user_phone.userId': userId, ...params });
+  },
+
+  getUserEmails(userId) {
+    return knex(USER_EMAIL_TABLE)
+      .select('emailAddress', 'primary')
+      .where({ userId });
+  },
+
+  getUserPhones(userId) {
+    return knex(USER_PHONE_TABLE)
+      .select('phoneNumber', 'primary', 'phoneType')
+      .where({ userId });
   },
 
   insertUser(user) {
@@ -96,24 +108,42 @@ const userData = {
         firstName,
         lastName,
         password,
-        addresses
+        email,
+        phones,
+        emails
       } = user;
 
       return knex(USER_PROFILE_TABLE)
         .transacting(trx)
         .where({ userId })
         .update({ firstName, lastName })
-        .then(() => knex(USER_TABLE).transacting(trx).where({ userId }).update({ password }))
-        .then(() => knex(USER_ADDRESS_TABLE).transacting(trx).where({ userId }).del())
+        .then(() => knex(USER_TABLE).transacting(trx).where({ userId }).update({ email, password }))
+        .then(() => knex(USER_EMAIL_TABLE).transacting(trx).where({ userId }).del())
+        .then(() => knex(USER_PHONE_TABLE).transacting(trx).where({ userId }).del())
         .then(() => {
-          const addressMap = addresses.map(address => {
+          const emailMap = emails.map(e => {
+            const { emailAddress, primary } = e;
             return {
               userId,
-              ...address
+              emailAddress,
+              primary,
+              isVerified: true
             };
           });
-          const addressIds = knex(USER_ADDRESS_TABLE).transacting(trx).insert(addressMap);
-          return Promise.all([userId, addressIds]);
+          return knex(USER_EMAIL_TABLE).transacting(trx).insert(emailMap);
+        })
+        .then(() => {
+          const phoneMap = phones.map(phone => {
+            const { phoneNumber, primary, phoneType } = phone;
+            return {
+              userId,
+              phoneNumber,
+              primary,
+              phoneType,
+              isVerified: true
+            };
+          });
+          return knex(USER_PHONE_TABLE).transacting(trx).insert(phoneMap);
         })
         .then(trx.commit)
         .catch(trx.rollback);

@@ -4,6 +4,7 @@ const error = require('debug')('grace-tree:auth-service:error');
 const debug = require('debug')('grace-tree:auth-service:debug');
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
+const _ = require('lodash');
 
 const userData = require('../user/user-data');
 const {
@@ -61,14 +62,30 @@ const updateStatus = async(userId, status) => {
 };
 
 const editUser = async(userId, data) => {
-  const { password } = data;
+  const { emails, password } = data;
   try {
     await Joi.validate({ userId, ...data }, userValidator);
 
-    data.password = await bcrypt.hash(password, 10);
-    const userIds = await userData.editUser(userId, data);
+    const emailAddress = _.get(emails[0], 'emailAddress');
 
-    return userIds[0];
+    if (password) {
+      data.password = await bcrypt.hash(password, 10);
+    }
+    data.email = emailAddress;
+
+    await userData.editUser(userId, data);
+
+    const user = await userData.getUserByParam(USER_TABLE, { email: emailAddress });
+
+    return {
+      userId,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      emails,
+      phones: data.phones,
+      userType: user.userType
+    };
   } catch (err) {
     error('Error editing user ' + err.message);
     throw err;

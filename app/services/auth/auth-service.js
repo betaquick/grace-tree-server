@@ -77,6 +77,8 @@ const login = async data => {
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = await generateTokenFromUser(user);
+      user.emails = await userData.getUserEmails(user.userId);
+      user.phones = await userData.getUserPhones(user.userId);
       return { token, user: sanitizeUser(user) };
     }
     throwError(422, 'Incorrect login credentials');
