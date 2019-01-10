@@ -44,6 +44,11 @@ const businessInfoValidator = Joi.object().keys({
   website: Joi.string().required()
 });
 
+const updateBusinessValidator = businessInfoValidator.append({
+  companyAddressId: Joi.number().required(),
+  companyId: Joi.number().required()
+});
+
 const productsValidator = Joi.object().keys({
   productId: Joi.number().required(),
   status: Joi.boolean().required()
@@ -72,6 +77,7 @@ const statusValidator = Joi.object().keys({
 module.exports = {
   userValidator,
   businessInfoValidator,
+  updateBusinessValidator,
   deliveryInfoValidator,
   statusValidator
 };

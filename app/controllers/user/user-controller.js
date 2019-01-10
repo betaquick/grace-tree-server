@@ -44,17 +44,36 @@ module.exports = {
       .catch(err => handleError(err, res, 'Error updating user', error));
   },
 
-  addBusinessInfo(req, res) {
+  addCompanyInfo(req, res) {
     const { userId } = req.user;
     const { body } = req;
 
     debug('Updating business info with data: ', stringify(body));
 
     userSvc
-      .addBusinessInfo(userId, body)
+      .addCompanyInfo(userId, body)
       .then(company =>
         handleSuccess(res, 'Business info updated successfully', { company })
       )
+      .catch(err => handleError(err, res, 'Error updating business info', error));
+  },
+
+  updateCompanyInfo(req, res) {
+    const { userId } = req.user;
+    const { company, user } = req.body;
+
+    debug('Updating business info with data: ', stringify(req.body));
+
+    let userInfo = user;
+    userSvc
+      .editUser(userId, user)
+      .then(data => {
+        userInfo = data;
+        return userSvc.updateCompanyInfo(userId, company);
+      })
+      .then(data => {
+        handleSuccess(res, 'Conpany information updated successfully', { company: data, user: userInfo });
+      })
       .catch(err => handleError(err, res, 'Error updating business info', error));
   },
 
@@ -68,6 +87,19 @@ module.exports = {
       .addDeliveryInfo(userId, body)
       .then(delivery =>
         handleSuccess(res, 'Delivery info updated successfully', { delivery })
+      )
+      .catch(err => handleError(err, res, 'Error updating delivery info', error));
+  },
+
+  getCompanyInfo(req, res) {
+    const { userId } = req.user;
+
+    debug('Get business information for: ' + userId);
+
+    userSvc
+      .getCompanyInfo(userId)
+      .then(company =>
+        handleSuccess(res, 'Company info successfully', { company })
       )
       .catch(err => handleError(err, res, 'Error updating delivery info', error));
   }

@@ -267,9 +267,9 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user - return success if business info is valid', () => {
+      it('/api/v1/user - return success if company info is valid', () => {
         return request
-          .post('/api/v1/user/business')
+          .post('/api/v1/user/company')
           .send(validBusinessData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
@@ -290,9 +290,9 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user - return failure if business info is invalid', done => {
+      it('/api/v1/user - return failure if company info is invalid', done => {
         request
-          .post('/api/v1/user/business')
+          .post('/api/v1/user/company')
           .send(invalidBusinessData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')

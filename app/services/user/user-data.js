@@ -46,6 +46,13 @@ const userData = {
       .where({ userId });
   },
 
+  getCompanyInfo(companyId) {
+    return knex(COMPANY_PROFILE_TABLE)
+      .first()
+      .where({ [`${COMPANY_PROFILE_TABLE}.companyId`]: companyId })
+      .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
+  },
+
   insertUser(user) {
     return knex.transaction(trx => {
       const {
@@ -150,7 +157,7 @@ const userData = {
     });
   },
 
-  addBusinessInfo(userId, businessInfo) {
+  addCompanyInfo(userId, businessInfo) {
     return knex.transaction(trx => {
       const {
         companyName,
@@ -173,6 +180,29 @@ const userData = {
           const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole: RoleTypes.Admin });
           return Promise.all([companyId, userCompanyIds]);
         })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  updateCompanyInfo(company) {
+    return knex.transaction(trx => {
+      const {
+        companyId,
+        companyName,
+        companyAddressId,
+        companyAddress,
+        city,
+        state,
+        zip,
+        website
+      } = company;
+
+      return knex(COMPANY_PROFILE_TABLE)
+        .transacting(trx)
+        .where({ companyId })
+        .update({ companyName, website })
+        .then(() => knex(COMPANY_ADDRESS_TABLE).transacting(trx).where({ companyAddressId }).update({ companyAddress, city, state, zip }))
         .then(trx.commit)
         .catch(trx.rollback);
     });

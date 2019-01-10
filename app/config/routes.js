@@ -19,7 +19,9 @@ router.post('/auth/register', authController.register);
 router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
-router.post('/user/business', auth, userController.addBusinessInfo);
+router.get('/user/company', auth, userController.getCompanyInfo);
+router.post('/user/company', auth, userController.addCompanyInfo);
+router.put('/user/company', auth, userController.updateCompanyInfo);
 router.post('/user/new-delivery-info', auth, userController.addDeliveryInfo);
 router.get('/user/onboarding', auth, verify, userController.onboarding);
 router.post('/user/agreement', auth, userController.acceptAgreement);
