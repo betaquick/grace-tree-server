@@ -30,6 +30,8 @@ const validUserData = {
 const completeUserData = {
   firstName: 'Test',
   lastName: 'User',
+  password: '1q2w3e4r5t',
+  confirmPassword: '1q2w3e4r5t',
   phones: [{
     phoneNumber: '+2348143132868',
     primary: true,
