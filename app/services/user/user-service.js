@@ -10,12 +10,14 @@ const userData = require('../user/user-data');
 const {
   statusValidator,
   businessInfoValidator,
+  updateBusinessValidator,
   deliveryInfoValidator,
   userValidator
 } = require('./user-validation');
 const {
   USER_TABLE,
-  USER_PROFILE_TABLE
+  USER_PROFILE_TABLE,
+  USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
 
 const acceptAgreement = async userId => {
@@ -92,13 +94,26 @@ const editUser = async(userId, data) => {
   }
 };
 
-const addBusinessInfo = async(userId, data) => {
+const addCompanyInfo = async(userId, data) => {
   try {
     await Joi.validate({ userId, ...data }, businessInfoValidator);
 
-    const companyIds = await userData.addBusinessInfo(userId, data);
+    const companyIds = await userData.addCompanyInfo(userId, data);
 
     return { companyId: companyIds[0], ...data };
+  } catch (err) {
+    error('Error updating business ' + err.message);
+    throw err;
+  }
+};
+
+const updateCompanyInfo = async(userId, company) => {
+  try {
+    await Joi.validate({ userId, ...company }, updateBusinessValidator);
+
+    await userData.updateCompanyInfo(company);
+
+    return company;
   } catch (err) {
     error('Error updating business ' + err.message);
     throw err;
@@ -118,4 +133,12 @@ const addDeliveryInfo = async(userId, data) => {
   }
 };
 
-module.exports = { acceptAgreement, updateStatus, editUser, addBusinessInfo, addDeliveryInfo };
+const getCompanyInfo = async userId => {
+  await Joi.validate(userId, Joi.number().required());
+  const user = await userData.getUserByParam(USER_COMPANY_TABLE, { [`${USER_COMPANY_TABLE}.userId`]: userId });
+  const businessInfo = await userData.getCompanyInfo(user.companyId);
+
+  return businessInfo;
+};
+
+module.exports = { acceptAgreement, updateStatus, editUser, addCompanyInfo, updateCompanyInfo, addDeliveryInfo, getCompanyInfo };

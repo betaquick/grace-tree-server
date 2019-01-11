@@ -267,9 +267,9 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user - return success if business info is valid', () => {
+      it('/api/v1/user - return success if company info is valid', () => {
         return request
-          .post('/api/v1/user/business')
+          .post('/api/v1/user/company')
           .send(validBusinessData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
@@ -283,17 +283,102 @@ describe('test user process end-to-end', function() {
             expect(data.body).to.have.property('company');
             const { company } = data.body;
             return company.companyId;
-          }).then(companyId => {
+          });
+      });
+
+      it('/api/v1/user - return failure if company info is invalid', done => {
+        request
+          .post('/api/v1/user/company')
+          .send(invalidBusinessData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(422)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', true);
+            expect(body).to.have.property('message').to.be.a('string');
+            expect(body).to.have.property('status', 422);
+            return done();
+          });
+      });
+
+      it('/api/v1/user - return company information', () => {
+        return request
+          .get('/api/v1/user/company')
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('body');
+            expect(data).to.have.property('error', false);
+            expect(data.body).to.have.property('company');
+            const { company } = data.body;
+            expect(company).to.be.an('object');
+            expect(company).to.have.property('companyId').to.be.a('number');
+            expect(company).to.have.property('companyName').to.be.a('string');
+            expect(company).to.have.property('website').to.be.a('string');
+            expect(company).to.have.property('companyAddressId').to.be.a('number');
+            expect(company).to.have.property('companyAddress').to.be.a('string');
+            expect(company).to.have.property('city').to.be.a('string');
+            expect(company).to.have.property('state').to.be.a('string');
+            expect(company).to.have.property('zip').to.be.a('string');
+          });
+      });
+
+      it('/api/v1/user - return success if company info updated successfully', () => {
+        return knex(COMPANY_PROFILE_TABLE)
+          .select(`${COMPANY_PROFILE_TABLE}.companyId`, 'companyName', 'website', 'companyAddressId', 'companyAddress', 'city', 'state', 'zip')
+          .orderBy(`${COMPANY_PROFILE_TABLE}.companyId`, 'desc')
+          .first()
+          .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`)
+          .then(company => {
+            return request
+              .put('/api/v1/user/company')
+              .send({ company, user: completeUserData })
+              .set('Accept', 'application/json')
+              .set('Authorization', 'auth')
+              .expect(200);
+          })
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 200);
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('body');
+            expect(data.body).to.have.property('company');
+            expect(data.body).to.have.property('user');
+            const { company, user } = data.body;
+            expect(company).to.be.an('object');
+            expect(company).to.have.property('companyId').to.be.a('number');
+            expect(company).to.have.property('companyName').to.be.a('string');
+            expect(company).to.have.property('website').to.be.a('string');
+            expect(company).to.have.property('companyAddressId').to.be.a('number');
+            expect(company).to.have.property('companyAddress').to.be.a('string');
+            expect(company).to.have.property('city').to.be.a('string');
+            expect(company).to.have.property('state').to.be.a('string');
+            expect(company).to.have.property('zip').to.be.a('string');
+            expect(user).to.have.property('userId').to.be.a('number');
+            expect(user).to.have.property('firstName');
+            expect(user).to.have.property('lastName');
+            expect(user).to.have.property('email');
+
+            return company.companyId;
+          })
+          .then(companyId => {
             return knex(COMPANY_ADDRESS_TABLE).where('companyId', companyId).delete()
               .then(() => knex(USER_COMPANY_TABLE).where('userId', userData.userId).delete())
               .then(() => knex(COMPANY_PROFILE_TABLE).where('companyId', companyId).delete());
           });
       });
 
-      it('/api/v1/user - return failure if business info is invalid', done => {
+      it('/api/v1/user - return failure if company info is invalid', done => {
         request
-          .post('/api/v1/user/business')
-          .send(invalidBusinessData)
+          .put('/api/v1/user/company')
+          .send({ company: invalidBusinessData, user: completeUserData})
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
           .expect(422)
