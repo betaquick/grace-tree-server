@@ -54,7 +54,8 @@ function sanitizeUser(user) {
     lastName: user.lastName,
     phones: user.phones,
     userId: user.userId,
-    userType: user.userType
+    userType: user.userType,
+    status: user.status
   };
 }
 
