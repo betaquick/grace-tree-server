@@ -12,7 +12,8 @@ const {
   businessInfoValidator,
   updateBusinessValidator,
   deliveryInfoValidator,
-  userValidator
+  userValidator,
+  updateUserProductsValidator
 } = require('./user-validation');
 const {
   USER_TABLE,
@@ -141,4 +142,33 @@ const getCompanyInfo = async userId => {
   return businessInfo;
 };
 
-module.exports = { acceptAgreement, updateStatus, editUser, addCompanyInfo, updateCompanyInfo, addDeliveryInfo, getCompanyInfo };
+const getUserProducts = async userId => {
+  await Joi.validate(userId, Joi.number().required());
+  const userProducts = await userData.getUserProducts(userId);
+
+  return userProducts;
+};
+
+const updateUserProducts = async(userId, userProducts) => {
+  try {
+    await Joi.validate({ userId, userProducts }, updateUserProductsValidator);
+    await userData.updateUserProducts(userId, userProducts);
+
+    return await userData.getUserProducts(userId);
+  } catch (err) {
+    error('Error updating user products ' + err.message);
+    throw err;
+  }
+};
+
+module.exports = {
+  acceptAgreement,
+  updateStatus,
+  editUser,
+  addCompanyInfo,
+  updateCompanyInfo,
+  addDeliveryInfo,
+  getCompanyInfo,
+  getUserProducts,
+  updateUserProducts
+};

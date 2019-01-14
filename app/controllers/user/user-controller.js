@@ -101,6 +101,32 @@ module.exports = {
       .then(company =>
         handleSuccess(res, 'Company info successfully', { company })
       )
-      .catch(err => handleError(err, res, 'Error updating delivery info', error));
+      .catch(err => handleError(err, res, 'Error fetching company info', error));
+  },
+
+  getUserProducts(req, res) {
+    const { userId } = req.user;
+
+    debug('Get products for: ' + userId);
+
+    userSvc
+      .getUserProducts(userId)
+      .then(userProducts =>
+        handleSuccess(res, 'Get user products successfully', { userProducts })
+      )
+      .catch(err => handleError(err, res, 'Error fetching user products', error));
+  },
+
+  updateUserProducts(req, res) {
+    const { userId } = req.user;
+
+    debug('Updating user products: ', stringify(req.body));
+
+    userSvc
+      .updateUserProducts(userId, req.body)
+      .then(userProducts => {
+        handleSuccess(res, 'User products updated successfully', { userProducts });
+      })
+      .catch(err => handleError(err, res, 'Error updating business info', error));
   }
 };

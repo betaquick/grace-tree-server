@@ -53,6 +53,12 @@ const userData = {
       .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
   },
 
+  getUserProducts(userId) {
+    return knex(USER_PRODUCT_TABLE)
+      .where({ userId })
+      .join('product', `${USER_PRODUCT_TABLE}.productId`, '=', 'product.productId');
+  },
+
   insertUser(user) {
     return knex.transaction(trx => {
       const {
@@ -221,6 +227,20 @@ const userData = {
         .then(() => {
           const userProductMap = userProducts.map(product => {
             return {userId, ...product };
+          });
+          return knex(USER_PRODUCT_TABLE).transacting(trx).insert(userProductMap);
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  updateUserProducts(userId, userProducts) {
+    return knex.transaction(trx => {
+      return knex(USER_PRODUCT_TABLE).transacting(trx).where({ userId }).del()
+        .then(() => {
+          const userProductMap = userProducts.map(userProduct => {
+            return {userId, ...userProduct };
           });
           return knex(USER_PRODUCT_TABLE).transacting(trx).insert(userProductMap);
         })

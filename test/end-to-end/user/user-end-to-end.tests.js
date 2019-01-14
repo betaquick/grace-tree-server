@@ -424,6 +424,23 @@ describe('test user process end-to-end', function() {
     describe('Add user delivery info', () => {
       let status = false;
 
+      before(() => {
+        return knex(USER_EMAIL_TABLE)
+          .where({ userId: userData.userId, primary: 1 })
+          .update({ isVerified: true })
+          .then(() => knex(USER_PHONE_TABLE)
+            .where({ userId: userData.userId, primary: 1 })
+            .update({ isVerified: true }));
+      });
+      after(() => {
+        return knex(USER_EMAIL_TABLE)
+          .where({ userId: userData.userId, primary: 1 })
+          .update({ isVerified: false })
+          .then(() => knex(USER_PHONE_TABLE)
+            .where({ userId: userData.userId, primary: 1 })
+            .update({ isVerified: false }));
+      });
+
       beforeEach(() => {
         sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
         return knex(PRODUCT_TABLE)
@@ -464,10 +481,7 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('body');
             expect(data.body).to.have.property('delivery');
             return data.body.delivery;
-          }).then(() => {
-            return knex(USER_ADDRESS_TABLE).where('userId', userData.userId).delete()
-              .then(() => knex(USER_PRODUCT_TABLE).where('userId', userData.userId).delete());
-          });
+          }).then(() => knex(USER_ADDRESS_TABLE).where('userId', userData.userId).delete());
       });
 
       it('/api/v1/user - return failure if delivery info is invalid', done => {
@@ -487,8 +501,75 @@ describe('test user process end-to-end', function() {
             return done();
           });
       });
+
+      it('/api/v1/user - returns a list of user products', done => {
+        request
+          .get('/api/v1/user/products')
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body: data } = res;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('status', 200);
+            expect(data).to.have.property('message').to.be.a('string');
+            expect(data.body.userProducts).to.be.an('array');
+            const { userProducts } = data.body;
+            expect(userProducts[0]).to.have.property('productId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('productCode');
+            expect(userProducts[0]).to.have.property('productDesc');
+            expect(userProducts[0]).to.have.property('active');
+            expect(userProducts[0]).to.have.property('userProductId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('userId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('productId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('status').to.be.a('number');
+            return done();
+          });
+      });
+
+      it('/api/v1/user - return success if user products is valid', () => {
+        return request
+          .put('/api/v1/user/products')
+          .send(validDeliveryData.userProducts)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 200);
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('body');
+            expect(data.body).to.have.property('userProducts').to.be.an('array');
+            const { userProducts } = data.body;
+            expect(userProducts[0]).to.have.property('userProductId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('userId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('productId').to.be.a('number');
+            expect(userProducts[0]).to.have.property('status').to.be.a('number');
+            return data.body;
+          }).then(() => knex(USER_PRODUCT_TABLE).where('userId', userData.userId).delete());
+      });
+
+      it('/api/v1/user - return failure if delivery info is invalid', done => {
+        request
+          .put('/api/v1/user/products')
+          .send(invalidBusinessData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(422)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', true);
+            expect(body).to.have.property('message').to.be.a('string');
+            expect(body).to.have.property('status', 422);
+            return done();
+          });
+      });
     });
   });
-
 });
 

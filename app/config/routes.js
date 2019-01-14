@@ -27,6 +27,8 @@ router.get('/user/onboarding', auth, verify, userController.onboarding);
 router.post('/user/agreement', auth, userController.acceptAgreement);
 router.put('/user/status/:status', auth, verify, userController.updateStatus);
 router.put('/user', auth, verify, userController.updateProfile);
+router.get('/user/products', auth, verify, userController.getUserProducts);
+router.put('/user/products', auth, verify, userController.updateUserProducts);
 
 router.get('/products', productController.getProducts);
 
