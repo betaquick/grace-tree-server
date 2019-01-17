@@ -79,11 +79,27 @@ const statusValidator = Joi.object().keys({
   ]).required()
 });
 
+const crewValidator = Joi.object().keys({
+  userId: Joi.number().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
+  password: Joi.string().required(),
+  confirmPassword: Joi.string().required().valid(Joi.ref('password')).options({
+    language: {
+      any: {
+        allowOnly: 'field must match password field'
+      }
+    }
+  }),
+  email: Joi.string().email().required()
+});
+
 module.exports = {
   userValidator,
   businessInfoValidator,
   updateBusinessValidator,
   deliveryInfoValidator,
   statusValidator,
-  updateUserProductsValidator
+  updateUserProductsValidator,
+  crewValidator
 };

@@ -128,5 +128,38 @@ module.exports = {
         handleSuccess(res, 'User products updated successfully', { userProducts });
       })
       .catch(err => handleError(err, res, 'Error updating business info', error));
+  },
+
+  addCompanyCrew(req, res) {
+    const { userId } = req.user;
+    debug('Add company crew: ', stringify(req.body));
+
+    userSvc
+      .addCompanyCrew(userId, req.body)
+      .then(crew =>
+        handleSuccess(res, 'Company crew created successfully', { crew })
+      )
+      .catch(err => handleError(err, res, 'Error creating company crew', error));
+  },
+
+  getCompanyCrews(req, res) {
+    const { userId } = req.user;
+
+    debug('List company crews for: ' + userId);
+
+    userSvc
+      .getCompanyCrews(userId)
+      .then(crews =>
+        handleSuccess(res, 'Company crews successfully', { crews })
+      )
+      .catch(err => handleError(err, res, 'Error fetching company crews', error));
+  },
+
+  deleteCompanyCrew(req, res) {
+    const { crewId } = req.params;
+    userSvc
+      .deleteCompanyCrew(crewId)
+      .then(crewId => handleSuccess(res, 'User status updated successful', { crewId }))
+      .catch(err => handleError(err, res, err.message, error));
   }
 };

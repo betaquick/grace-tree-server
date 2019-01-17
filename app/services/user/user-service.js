@@ -13,13 +13,15 @@ const {
   updateBusinessValidator,
   deliveryInfoValidator,
   userValidator,
-  updateUserProductsValidator
+  updateUserProductsValidator,
+  crewValidator
 } = require('./user-validation');
 const {
   USER_TABLE,
   USER_PROFILE_TABLE,
   USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
+const { throwError } = require('./../../controllers/util/controller-util');
 
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
@@ -142,6 +144,54 @@ const getCompanyInfo = async userId => {
   return businessInfo;
 };
 
+const getCompanyCrews = async userId => {
+  await Joi.validate(userId, Joi.number().required());
+
+  const user = await userData.getUserByParam(USER_COMPANY_TABLE, { [`${USER_COMPANY_TABLE}.userId`]: userId });
+  const crews = await userData.getCompanyCrews(user.companyId);
+
+  return crews;
+};
+
+const deleteCompanyCrew = async crewId => {
+  debug('Delete crew for ' + crewId);
+
+  try {
+    await Joi.validate(crewId, Joi.number().required());
+
+    await userData.updateUserByParams(USER_TABLE, { userId: crewId }, { active: false });
+    return crewId;
+  } catch (err) {
+    error('Error deleting crew', err);
+    throw err;
+  }
+};
+
+const addCompanyCrew = async(userId, data) => {
+  const { password, email } = data;
+
+  try {
+    await Joi.validate({ userId, ...data }, crewValidator);
+
+    const user = await userData.getUserByParam(USER_TABLE, { email });
+    if (user) {
+      debug('Email address has already been taken');
+      throwError(422, 'Email address has already been taken');
+    }
+
+    data.password = await bcrypt.hash(password, 10);
+
+    const company = await userData.getUserByParam(USER_COMPANY_TABLE, { [`${USER_COMPANY_TABLE}.userId`]: userId });
+    data.companyId = company.companyId;
+
+    const userIds = await userData.addCompanyCrew(data);
+    return userIds[0];
+  } catch (err) {
+    error('Error creating company crew', err);
+    throw err;
+  }
+};
+
 const getUserProducts = async userId => {
   await Joi.validate(userId, Joi.number().required());
   const userProducts = await userData.getUserProducts(userId);
@@ -169,6 +219,9 @@ module.exports = {
   updateCompanyInfo,
   addDeliveryInfo,
   getCompanyInfo,
+  addCompanyCrew,
+  getCompanyCrews,
+  deleteCompanyCrew,
   getUserProducts,
   updateUserProducts
 };
