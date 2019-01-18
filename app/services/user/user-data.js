@@ -1,5 +1,5 @@
 'use strict';
-const { UserStatus, RoleTypes } = require('@betaquick/grace-tree-constants');
+const { UserStatus, RoleTypes, UserTypes } = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -51,6 +51,53 @@ const userData = {
       .first()
       .where({ [`${COMPANY_PROFILE_TABLE}.companyId`]: companyId })
       .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
+  },
+
+  addCompanyCrew(crew) {
+    return knex.transaction(trx => {
+      const {
+        companyId,
+        firstName,
+        lastName,
+        email,
+        password
+      } = crew;
+      let userId;
+
+      return knex(USER_TABLE)
+        .transacting(trx)
+        .insert({ email, password, userType: UserTypes.Crew })
+        .then(userIds => {
+          userId = userIds[0];
+          return knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole: RoleTypes.Staff });
+        })
+        .then(() => {
+          const profile = {
+            userId,
+            firstName,
+            lastName,
+            status: UserStatus.Pause
+          };
+          const profileIds = knex(USER_PROFILE_TABLE).transacting(trx).insert(profile);
+          return Promise.all([userId, profileIds]);
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  getCompanyCrews(companyId) {
+    const where = {
+      [`${USER_COMPANY_TABLE}.companyId`]: companyId,
+      [`${USER_TABLE}.userType`]: UserTypes.Crew,
+      [`${USER_TABLE}.active`]: 1
+    };
+
+    return knex(USER_COMPANY_TABLE)
+      .select(`${USER_TABLE}.userId`, 'firstName', 'lastName', 'email', `${USER_TABLE}.createdAt`)
+      .where(where)
+      .join(USER_TABLE, `${USER_COMPANY_TABLE}.userId`, '=', `${USER_TABLE}.userId`)
+      .join(USER_PROFILE_TABLE, `${USER_COMPANY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
   },
 
   getUserProducts(userId) {
