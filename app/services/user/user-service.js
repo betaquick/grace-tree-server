@@ -6,6 +6,7 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
+const emailService = require('../util/email-service');
 const userData = require('../user/user-data');
 const {
   statusValidator,
@@ -185,6 +186,16 @@ const addCompanyCrew = async(userId, data) => {
     data.companyId = company.companyId;
 
     const userIds = await userData.addCompanyCrew(data);
+    const companyInfo = await userData.getCompanyInfo(data.companyId);
+
+    const options = {
+      email,
+      companyName: companyInfo.companyName,
+      firstName: data.firstName,
+      password
+    };
+    await emailService.sendUserCreationMail(options);
+
     return userIds[0];
   } catch (err) {
     error('Error creating company crew', err);

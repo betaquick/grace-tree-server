@@ -54,7 +54,25 @@ The link is valid for 24 hours and can be used only once.`
   return sendMail(mailOptions);
 };
 
+const sendUserCreationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: `${options.companyName} Account Registration`,
+    text: `Hi, ${options.firstName}\n
+We created you a new crew account in the ${options.companyName}.\n
+To login, go to ${process.env.WEB_URL}/login then enter the following information:\n
+Email: ${options.email}\n
+Password: ${options.password}\n
+Please be aware that the email and password are case sensitive.\n
+If you have any problem using your credential, please contact ${options.companyName} directly.`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   sendResetMail,
-  sendVerificationMail
+  sendVerificationMail,
+  sendUserCreationMail
 };
