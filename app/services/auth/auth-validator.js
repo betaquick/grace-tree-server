@@ -10,6 +10,18 @@ const loginValidator = Joi.object().keys({
   password: Joi.string().required()
 });
 
+const resetPasswordValidator = Joi.object().keys({
+  password: Joi.string().required(),
+  confirmPassword: Joi.string().required().valid(Joi.ref('password')).options({
+    language: {
+      any: {
+        allowOnly: 'field must match password field'
+      }
+    }
+  }),
+  token: Joi.string().required()
+});
+
 const phoneListSchema = Joi.object().keys({
   phoneNumber: Joi.string().required(),
   primary: Joi.boolean().required(),
@@ -57,6 +69,7 @@ const phoneValidator = Joi.object().keys({
 
 module.exports = {
   loginValidator,
+  resetPasswordValidator,
   registrationValidator,
   emailValidator,
   phoneValidator

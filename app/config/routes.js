@@ -14,6 +14,9 @@ router.get('/', (req, res) => res.json({ title: 'Application API' }));
 
 // Auth API
 router.post('/auth/login', authController.login);
+router.post('/auth/forgot-password', authController.forgotPassword);
+router.get('/auth/reset/:token', authController.getUserByToken);
+router.post('/auth/reset-password', authController.resetPassword);
 router.post('/auth/register', authController.register);
 // router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', authController.validateToken);

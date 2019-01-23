@@ -15,6 +15,7 @@ const smsService = require('../util/sms-service');
 
 const {
   loginValidator,
+  resetPasswordValidator,
   registrationValidator,
   emailValidator,
   phoneValidator
@@ -59,6 +60,16 @@ function sanitizeUser(user) {
   };
 }
 
+function isUserValid(user) {
+  if (!_.has(user, 'userId')) {
+    throwError(422, 'Incorrect user credentials');
+  }
+
+  if (!user.active) {
+    throwError(422, 'User\'s account has been disabled.');
+  }
+}
+
 const login = async data => {
   const { email, password } = data;
   debug('Starting login process for email: ' + email);
@@ -67,14 +78,8 @@ const login = async data => {
     await Joi.validate(data, loginValidator);
 
     const user = await userData.getUserByParam(USER_TABLE, { email });
+    isUserValid(user);
 
-    if (!_.has(user, 'userId')) {
-      throwError(422, 'Incorrect login credentials');
-    }
-
-    if (!user.active) {
-      throwError(422, 'User\'s account has been disabled.');
-    }
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = await generateTokenFromUser(user);
@@ -85,6 +90,88 @@ const login = async data => {
     throwError(422, 'Incorrect login credentials');
   } catch (err) {
     error('Error logging in user', err);
+    throw err;
+  }
+};
+
+const forgotPassword = async data => {
+  const { email } = data;
+  debug('Starting reset process for email: ' + email);
+
+  try {
+    await Joi.validate(email, Joi.string().email().required());
+
+    const user = await userData.getUserByParam(USER_TABLE, { email });
+    isUserValid(user);
+
+    const randomBytes = await randomBytesAsync(16);
+    const token = randomBytes.toString('hex');
+    const params = {
+      resetPasswordToken: token,
+      resetPasswordExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
+    };
+
+    await userData.updateUserByParams(USER_TABLE, { userId: user.userId }, params);
+
+    const options = {
+      email,
+      firstName: user.firstName,
+      token
+    };
+
+    emailService.sendResetMail(options);
+
+    return user.userId;
+  } catch (err) {
+    error('Error resetting password', err);
+    throw err;
+  }
+};
+
+const findUserByToken = async token => {
+  try {
+    await Joi.validate(token, Joi.string().required());
+
+    const user = await userData.getUserByParam(USER_TABLE, { resetPasswordToken: token });
+    isUserValid(user);
+
+    if (moment().isAfter(user.resetPasswordExpiry)) {
+      throwError(422, 'Token provided has expired');
+    }
+
+    return sanitizeUser(user);
+  } catch (err) {
+    error('Error fetching user', err);
+    throw err;
+  }
+};
+
+const resetPassword = async data => {
+  const { password, token } = data;
+  debug('Starting reset process for token: ' + token);
+
+  try {
+    await Joi.validate(data, resetPasswordValidator);
+
+    const user = await userData.getUserByParam(USER_TABLE, { resetPasswordToken: token });
+    isUserValid(user);
+
+    if (moment().isAfter(user.resetPasswordExpiry)) {
+      throwError(422, 'Token provided has expired');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const params = {
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpiry: null
+    };
+    await userData.updateUserByParams(USER_TABLE, { userId: user.userId }, params);
+
+    return sanitizeUser(user);
+  } catch (err) {
+    error('Error resetting password', err);
     throw err;
   }
 };
@@ -140,7 +227,7 @@ const verifyEmail = async(userId, emailAddress) => {
       token
     };
 
-    await emailService.sendVerificationMail(options);
+    emailService.sendVerificationMail(options);
 
     return userId;
   } catch (err) {
@@ -170,7 +257,7 @@ const verifyPhone = async(userId, phoneNumber) => {
       token
     };
 
-    await smsService.sendVerificationSMS(options);
+    smsService.sendVerificationSMS(options);
 
     return userId;
   } catch (err) {
@@ -250,4 +337,14 @@ const validatePhoneToken = async token => {
 };
 
 
-module.exports = { login, register, verifyEmail, verifyPhone, validateEmailToken, validatePhoneToken };
+module.exports = {
+  login,
+  forgotPassword,
+  findUserByToken,
+  resetPassword,
+  register,
+  verifyEmail,
+  verifyPhone,
+  validateEmailToken,
+  validatePhoneToken
+};

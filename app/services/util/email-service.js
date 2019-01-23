@@ -29,7 +29,7 @@ const sendResetMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Reset your password',
-    text: `Hi ${options.first_name},\n
+    text: `Hi ${options.firstName},\n
 You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n
 Please click on the following link, or paste this into your browser to complete the process:\n
 ${process.env.WEB_URL}/reset/${options.token}\n
