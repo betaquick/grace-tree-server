@@ -10,7 +10,7 @@ const _ = require('lodash');
 
 const {VerificationTypes} = require('@betaquick/grace-tree-constants');
 
-const emailService = require('../../../app/services/util/email-service');
+const emailService = require('../../../app/services/messaging/email-service');
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
 const { validUserData, invalidUserData } = require('../../mock-data/user-mock-data');
@@ -482,7 +482,7 @@ describe('test auth process end-to-end', function() {
             const { body } = res;
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
-            expect(body).to.have.property('message', 'System Error: Incorrect user credentials');
+            expect(body).to.have.property('message', 'System Error: Email address doesn\'t exist');
             expect(body).to.have.property('status', 422);
             return done();
           });
@@ -609,7 +609,7 @@ describe('test auth process end-to-end', function() {
             });
         });
 
-        describe('Login fails when user is inactive', () => {
+        describe('Reset Password fails if token is expired', () => {
           before(() => {
             return knex(USER_TABLE)
               .where({ userId: userData.userId })

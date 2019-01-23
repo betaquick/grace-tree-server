@@ -10,8 +10,8 @@ const stringify = require('json-stringify-safe');
 const moment = require('moment');
 
 const userData = require('../user/user-data');
-const emailService = require('../util/email-service');
-const smsService = require('../util/sms-service');
+const emailService = require('../messaging/email-service');
+const smsService = require('../messaging/sms-service');
 
 const {
   loginValidator,
@@ -102,7 +102,13 @@ const forgotPassword = async data => {
     await Joi.validate(email, Joi.string().email().required());
 
     const user = await userData.getUserByParam(USER_TABLE, { email });
-    isUserValid(user);
+    if (!_.has(user, 'userId')) {
+      throwError(422, 'Email address doesn\'t exist');
+    }
+
+    if (!user.active) {
+      throwError(422, 'User\'s account has been disabled.');
+    }
 
     const randomBytes = await randomBytesAsync(16);
     const token = randomBytes.toString('hex');

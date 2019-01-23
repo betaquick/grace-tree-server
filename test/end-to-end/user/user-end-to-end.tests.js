@@ -19,7 +19,7 @@ const {
   validDeliveryData
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
-const emailService = require('../../../app/services/util/email-service');
+const emailService = require('../../../app/services/messaging/email-service');
 
 const {
   USER_TABLE,

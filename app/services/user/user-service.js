@@ -6,7 +6,7 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
-const emailService = require('../util/email-service');
+const emailService = require('../messaging/email-service');
 const userData = require('../user/user-data');
 const {
   statusValidator,
