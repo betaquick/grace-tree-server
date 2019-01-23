@@ -67,3 +67,5 @@ typings/
 package-lock.json
 .env
 
+/.vs/grace-tree-server/v15/.suo
+/.vs/slnx.sqlite
