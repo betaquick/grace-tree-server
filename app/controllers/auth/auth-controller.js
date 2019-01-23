@@ -21,6 +21,35 @@ module.exports = {
       .catch(err => handleError(err, res, err.message, error));
   },
 
+  forgotPassword(req, res) {
+    authSvc
+      .forgotPassword(req.body)
+      .then(() => handleSuccess(res, `An e-mail has been sent to ${req.body.email} with further instructions.`))
+      .catch(err => handleError(err, res, err.message, error));
+  },
+
+  getUserByToken(req, res) {
+    const token = req.params.token;
+
+    debug('Retrieve a user' + token);
+
+    authSvc
+      .findUserByToken(token)
+      .then(user =>
+        handleSuccess(res, 'Get user successful', { user })
+      )
+      .catch(err =>
+        handleError(err, res, 'Error fetching user', error)
+      );
+  },
+
+  resetPassword(req, res) {
+    authSvc
+      .resetPassword(req.body)
+      .then(() => handleSuccess(res, 'Password reset successfully'))
+      .catch(err => handleError(err, res, err.message, error));
+  },
+
   register(req, res) {
     const {body} = req;
     const email = _.get(body, 'emails[0].emailAddress');

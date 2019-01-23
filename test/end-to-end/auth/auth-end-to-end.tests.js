@@ -405,7 +405,7 @@ describe('test auth process end-to-end', function() {
             const { body } = res;
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
-            expect(body).to.have.property('message', 'System Error: Incorrect login credentials');
+            expect(body).to.have.property('message', 'System Error: Incorrect user credentials');
             expect(body).to.have.property('status', 422);
             return done();
           });
@@ -442,6 +442,227 @@ describe('test auth process end-to-end', function() {
               expect(body).to.have.property('status', 422);
               return done();
             });
+        });
+      });
+    });
+
+    describe('Forgot Password tests', () => {
+      it('/api/v1/auth/forgot-password - valid email successful', done => {
+        request
+          .post('/api/v1/auth/forgot-password')
+          .send({
+            email: validUserData.emails[0].emailAddress
+          })
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', false);
+            expect(body).to.have.property(
+              'message',
+              `An e-mail has been sent to ${validUserData.emails[0].emailAddress} with further instructions.`
+            );
+            expect(body).to.have.property('status', 200);
+            return done();
+          });
+      });
+
+      it('/api/v1/auth/forgot-password - failure if email not found', done => {
+        request
+          .post('/api/v1/auth/forgot-password')
+          .send({
+            email: 'invalid@hmail.com'
+          })
+          .set('Accept', 'application/json')
+          .expect(422)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const { body } = res;
+            expect(body).to.be.an('object');
+            expect(body).to.have.property('error', true);
+            expect(body).to.have.property('message', 'System Error: Incorrect user credentials');
+            expect(body).to.have.property('status', 422);
+            return done();
+          });
+      });
+
+      describe('Forgot Password tests', () => {
+        before(() => {
+          return knex(USER_TABLE)
+            .where({ userId: userData.userId })
+            .update({ active: false });
+        });
+
+        after(() => {
+          return knex(USER_TABLE)
+            .where({ userId: userData.userId })
+            .update({ active: true });
+        });
+
+        it('/api/v1/auth/forgot-password - failure if account is disabled', done => {
+          request
+            .post('/api/v1/auth/forgot-password')
+            .send({
+              email: validUserData.emails[0].emailAddress
+            })
+            .set('Accept', 'application/json')
+            .expect(422)
+            .end((err, res) => {
+              expect(err).to.a.null;
+              const { body } = res;
+              expect(body).to.be.an('object');
+              expect(body).to.have.property('error', true);
+              expect(body).to.have.property('message', 'System Error: User\'s account has been disabled.');
+              expect(body).to.have.property('status', 422);
+              return done();
+            });
+        });
+      });
+
+      describe('Reset Password tests', () => {
+        let token = null;
+        before(() => {
+          return knex(USER_TABLE)
+            .where({ userId: userData.userId })
+            .first()
+            .then(user => {
+              token = user.resetPasswordToken;
+              return user;
+            });
+        });
+
+        it('/api/v1/auth/reset/:token - valid token returns user object', done => {
+          request
+            .get(`/api/v1/auth/reset/${token}`)
+            .set('Accept', 'application/json')
+            .expect(200)
+            .end((err, res) => {
+              expect(err).to.a.null;
+              const { body: data } = res;
+              expect(data).to.be.an('object');
+              expect(data).to.have.property('error', false);
+              expect(data).to.have.property('status', 200);
+              expect(data).to.have.property('message').to.be.a('string');
+              expect(data.body.user).to.have.property('userId').to.be.a('number');
+              expect(data.body.user).to.have.property('email');
+              expect(data.body.user).to.have.property('firstName');
+              expect(data.body.user).to.have.property('lastName');
+              return done();
+            });
+        });
+
+        it('/api/v1/auth/reset/:token - returns 422 if token is invalid', () => {
+          return request
+            .get('/api/v1/auth/reset/invalid_token')
+            .set('Accept', 'application/json')
+            .expect(422)
+            .then(res => {
+              const { body } = res;
+              expect(body).to.be.an('object');
+              expect(body).to.have.property('error', true);
+              expect(body).to.have.property('message');
+              expect(body).to.have.property('status', 422);
+            });
+        });
+
+        it('/api/v1/auth/reset-password - reset password successful', () => {
+          const params = {
+            token,
+            password: validUserData.password,
+            confirmPassword: validUserData.confirmPassword
+          };
+          return request
+            .post('/api/v1/auth/reset-password')
+            .send(params)
+            .set('Accept', 'application/json')
+            .expect(200)
+            .then(res => {
+              const { body } = res;
+              expect(body).to.be.an('object');
+              expect(body).to.have.property('error', false);
+              expect(body).to.have.property('message');
+              expect(body).to.have.property('status', 200);
+            });
+        });
+
+        it('/api/v1/auth/reset-password - Returns 422 if passwords don\'t match', done => {
+          const params = {
+            token,
+            password: validUserData.password,
+            confirmPassword: 'mismatch'
+          };
+          request
+            .post('/api/v1/auth/reset-password')
+            .send(params)
+            .set('Accept', 'application/json')
+            .expect(422)
+            .end((err, res) => {
+              expect(err).to.a.null;
+              const { body } = res;
+              expect(body).to.be.an('object');
+              expect(body).to.have.property('error', true);
+              expect(body).to.have.property('message');
+              expect(body).to.have.property('status', 422);
+              return done();
+            });
+        });
+
+        describe('Login fails when user is inactive', () => {
+          before(() => {
+            return knex(USER_TABLE)
+              .where({ userId: userData.userId })
+              .update({
+                resetPasswordToken: token,
+                resetPasswordExpiry: moment().subtract(1, 'h').format('YYYY-MM-DD HH:mm:ss')
+              });
+          });
+
+          after(() => {
+            return knex(USER_TABLE)
+              .where({ userId: userData.userId })
+              .update({
+                resetPasswordToken: null,
+                resetPasswordExpiry: null
+              });
+          });
+
+          it('/api/v1/auth/reset/:token - returns 422 if token is expired', () => {
+            return request
+              .get(`/api/v1/auth/reset/${token}`)
+              .set('Accept', 'application/json')
+              .expect(422)
+              .then(res => {
+                const { body } = res;
+                expect(body).to.be.an('object');
+                expect(body).to.have.property('error', true);
+                expect(body).to.have.property('message');
+                expect(body).to.have.property('status', 422);
+              });
+          });
+
+          it('/api/v1/auth/reset-password - returns 422 if token is expired', done => {
+            const params = {
+              token,
+              password: validUserData.password,
+              confirmPassword: validUserData.confirmPassword
+            };
+            request
+              .post('/api/v1/auth/reset-password')
+              .send(params)
+              .set('Accept', 'application/json')
+              .expect(422)
+              .end((err, res) => {
+                expect(err).to.a.null;
+                const { body } = res;
+                expect(body).to.be.an('object');
+                expect(body).to.have.property('error', true);
+                expect(body).to.have.property('message');
+                expect(body).to.have.property('status', 422);
+                return done();
+              });
+          });
         });
       });
     });

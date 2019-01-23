@@ -194,7 +194,7 @@ const addCompanyCrew = async(userId, data) => {
       firstName: data.firstName,
       password
     };
-    await emailService.sendUserCreationMail(options);
+    emailService.sendUserCreationMail(options);
 
     return userIds[0];
   } catch (err) {
