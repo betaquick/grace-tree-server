@@ -10,7 +10,7 @@ const _ = require('lodash');
 
 const {VerificationTypes} = require('@betaquick/grace-tree-constants');
 
-const emailService = require('../../../app/services/util/email-service');
+const emailService = require('../../../app/services/messaging/email-service');
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
 const { validUserData, invalidUserData } = require('../../mock-data/user-mock-data');

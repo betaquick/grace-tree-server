@@ -10,8 +10,8 @@ const stringify = require('json-stringify-safe');
 const moment = require('moment');
 
 const userData = require('../user/user-data');
-const emailService = require('../util/email-service');
-const smsService = require('../util/sms-service');
+const emailService = require('../messaging/email-service');
+const smsService = require('../messaging/sms-service');
 
 const {
   loginValidator,
