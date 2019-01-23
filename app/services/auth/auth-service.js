@@ -102,7 +102,13 @@ const forgotPassword = async data => {
     await Joi.validate(email, Joi.string().email().required());
 
     const user = await userData.getUserByParam(USER_TABLE, { email });
-    isUserValid(user);
+    if (!_.has(user, 'userId')) {
+      throwError(422, 'Email address doesn\'t exist');
+    }
+  
+    if (!user.active) {
+      throwError(422, 'User\'s account has been disabled.');
+    }
 
     const randomBytes = await randomBytesAsync(16);
     const token = randomBytes.toString('hex');
