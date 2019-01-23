@@ -105,7 +105,7 @@ const forgotPassword = async data => {
     if (!_.has(user, 'userId')) {
       throwError(422, 'Email address doesn\'t exist');
     }
-  
+
     if (!user.active) {
       throwError(422, 'User\'s account has been disabled.');
     }
