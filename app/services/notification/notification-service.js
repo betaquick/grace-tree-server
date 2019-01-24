@@ -12,6 +12,7 @@ const { notificationValidator } = require('./notification-validation');
 const {
   USER_TABLE
 } = require('../../../constants/table.constants');
+const { throwError } = require('./../../controllers/util/controller-util');
 
 const getNotifications = async userId => {
   debug('Retrieving notification for: ' + userId);
@@ -29,7 +30,7 @@ const getNotifications = async userId => {
       return notificationData.getRecipientNotifications(userId);
     }
 
-    return notificationData.getNotifications(user);
+    return notificationData.getNotifications(userId);
   } catch (err) {
     error('Error retrieving notifications ' + err.message);
     throw err;
@@ -52,7 +53,13 @@ const getNotification = async(userId, notificationId) => {
       await notificationData.updateReadReceipt(notificationId);
     }
 
-    return notificationData.getNotification(notificationId);
+    const notification = await notificationData.getNotification(notificationId);
+
+    if (!notification) {
+      throwError(422, 'Notification doesn\'t exist');
+    }
+
+    return notification;
   } catch (err) {
     error('Error retrieving notification ' + err.message);
     throw err;
