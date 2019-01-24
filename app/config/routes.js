@@ -9,6 +9,7 @@ const verify = require('../middleware/verify');
 const authController = require('../controllers/auth/auth-controller');
 const userController = require('../controllers/user/user-controller');
 const productController = require('../controllers/product/product-controller');
+const notificationController = require('../controllers/notification/notification-controller');
 
 router.get('/', (req, res) => res.json({ title: 'Application API' }));
 
@@ -37,5 +38,8 @@ router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
 
 router.get('/products', productController.getProducts);
+
+router.get('/notifications', auth, verify, notificationController.getNotifications);
+router.get('/notifications/:notificationId', auth, verify, notificationController.getNotification);
 
 module.exports = router;

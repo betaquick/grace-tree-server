@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
 const emailService = require('../messaging/email-service');
-const userData = require('../user/user-data');
+const userData = require('./user-data');
 const {
   statusValidator,
   businessInfoValidator,

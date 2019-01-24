@@ -11,6 +11,7 @@ const PRODUCT_TABLE = 'product';
 const SCHEDULED_DELIVERY_TABLE = 'scheduled_delivery';
 const COMPANY_ADDRESS_TABLE = 'company_address';
 const COMPANY_PROFILE_TABLE = 'company_profile';
+const NOTIFICATION_TABLE = 'notification';
 
 module.exports = {
   USER_TABLE,
@@ -23,5 +24,6 @@ module.exports = {
   PRODUCT_TABLE,
   SCHEDULED_DELIVERY_TABLE,
   COMPANY_ADDRESS_TABLE,
-  COMPANY_PROFILE_TABLE
+  COMPANY_PROFILE_TABLE,
+  NOTIFICATION_TABLE
 };
