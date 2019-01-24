@@ -39,8 +39,8 @@ module.exports = {
       return res.status(err.code).json({
         status: err.code,
         error: true,
-        message: 'Oops! Something went wrong at our end',
-        body: 'Oops! Something went wrong at our end'
+        message: 'Oops! Something went wrong',
+        body: 'Oops! Something went wrong'
       });
     }
 
