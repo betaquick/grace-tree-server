@@ -1,6 +1,6 @@
 'use strict';
 
-const debug = require('debug')('application:app-config:debug');
+const debug = require('debug')('grace-tree:app-config:debug');
 
 const express = require('express');
 const application = express();
