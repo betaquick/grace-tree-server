@@ -1,5 +1,5 @@
 'use strict';
-const debug = require('debug')('fccc-server:server:debug');
+const debug = require('debug')('grace-tree:util:debug');
 const crypto = require('crypto');
 const { promisify } = require('util');
 
