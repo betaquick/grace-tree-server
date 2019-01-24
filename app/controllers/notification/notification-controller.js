@@ -11,7 +11,7 @@ module.exports = {
 
     notificationSvc
       .getNotifications(userId)
-      .then(products => handleSuccess(res, 'Notifications retrieved successful', { products }))
+      .then(notifications => handleSuccess(res, 'Notifications retrieved successful', { notifications }))
       .catch(err => handleError(err, res, err.message, error));
   },
 
@@ -21,7 +21,7 @@ module.exports = {
 
     notificationSvc
       .getNotification(userId, notificationId)
-      .then(products => handleSuccess(res, 'Notifications retrieved successful', { products }))
+      .then(notification => handleSuccess(res, 'Notification retrieved successful', { notification }))
       .catch(err => handleError(err, res, err.message, error));
   }
 };
