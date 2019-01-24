@@ -35,11 +35,19 @@ module.exports = {
     // make sure its a valid HTTP Status Code...
     err.code = typeof err.code === 'number' && err.code > 100 && err.code < 600 ? err.code : 500;
 
+    let body = err.message || err;
+    let msg = 'System Error: ' + message;
+
+    if (err.code === 500) {
+      msg = 'Oops! Something went wrong';
+      body = 'Oops! Something went wrong';
+    }
+
     return res.status(err.code).json({
       status: err.code,
       error: true,
-      message: 'System Error: ' + message,
-      body: err.message || err
+      message: msg,
+      body
     });
   }
 };
