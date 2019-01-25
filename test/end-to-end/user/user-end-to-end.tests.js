@@ -20,6 +20,7 @@ const {
   coordinatesData
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
+const emailService = require('../../../app/services/messaging/email-service');
 const locationService = require('../../../app/services/location/location-service');
 
 const {
@@ -43,6 +44,8 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
+    sinon.stub(emailService, 'sendVerificationMail');
+
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)
