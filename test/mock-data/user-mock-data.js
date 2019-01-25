@@ -74,6 +74,11 @@ const invalidUserData = {
   lastName: 'Invalid'
 };
 
+const coordinatesData = {
+  lng: -122.0850392,
+  lat: 37.4219191
+};
+
 module.exports = {
   userData,
   validUserData,
@@ -81,5 +86,6 @@ module.exports = {
   completeUserData,
   validBusinessData,
   invalidBusinessData,
-  validDeliveryData
+  validDeliveryData,
+  coordinatesData
 };

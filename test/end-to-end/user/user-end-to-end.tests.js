@@ -16,10 +16,11 @@ const {
   invalidUserData,
   validBusinessData,
   invalidBusinessData,
-  validDeliveryData
+  validDeliveryData,
+  coordinatesData
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
-const emailService = require('../../../app/services/messaging/email-service');
+const locationService = require('../../../app/services/location/location-service');
 
 const {
   USER_TABLE,
@@ -42,7 +43,6 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(emailService, 'sendVerificationMail');
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)
@@ -442,6 +442,7 @@ describe('test user process end-to-end', function() {
       });
 
       beforeEach(() => {
+        sinon.stub(locationService, 'getCoordinates').returns(coordinatesData);
         sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
         return knex(PRODUCT_TABLE)
           .where({
