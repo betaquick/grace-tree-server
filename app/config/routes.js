@@ -9,6 +9,7 @@ const verify = require('../middleware/verify');
 const authController = require('../controllers/auth/auth-controller');
 const userController = require('../controllers/user/user-controller');
 const productController = require('../controllers/product/product-controller');
+const deliveryController = require('../controllers/delivery/delivery-controller');
 
 router.get('/', (req, res) => res.json({ title: 'Application API' }));
 
@@ -37,5 +38,16 @@ router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
 
 router.get('/products', productController.getProducts);
+
+//DeliveryAPI
+router.post('/user/company/delivery', auth, deliveryController.createDelivery);
+router.get('/user/company/deliveries', auth, deliveryController.getCompanyDeliveries);
+router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
+
+router.post('/user/getdelivery', auth, deliveryController.getDelivery);
+router.post('/user/company/addtodelivery', auth, deliveryController.addUserToDelivery);
+router.post('/user/company/removefromdelivery', auth, deliveryController.removeUserFromDelivery);
+router.post('/user/company/deletedelivery', auth, deliveryController.deleteDelivery);
+
 
 module.exports = router;
