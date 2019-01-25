@@ -227,10 +227,12 @@ const userData = {
         .insert({ companyName, website })
         .then(companyIds => {
           companyId = companyIds[0];
-          return knex(COMPANY_ADDRESS_TABLE).transacting(trx).insert({ companyId, companyAddress, city, state, zip });
+          return knex(COMPANY_ADDRESS_TABLE).transacting(trx)
+            .insert({ companyId, companyAddress, city, state, zip });
         })
         .then(() => {
-          const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole: RoleTypes.Admin });
+          const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx)
+            .insert({ userId, companyId, userRole: RoleTypes.Admin });
           return Promise.all([companyId, userCompanyIds]);
         })
         .then(trx.commit)
@@ -255,7 +257,8 @@ const userData = {
         .transacting(trx)
         .where({ companyId })
         .update({ companyName, website })
-        .then(() => knex(COMPANY_ADDRESS_TABLE).transacting(trx).where({ companyAddressId }).update({ companyAddress, city, state, zip }))
+        .then(() => knex(COMPANY_ADDRESS_TABLE).transacting(trx).where({ companyAddressId })
+          .update({ companyAddress, city, state, zip }))
         .then(trx.commit)
         .catch(trx.rollback);
     });

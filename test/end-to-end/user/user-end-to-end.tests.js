@@ -222,7 +222,8 @@ describe('test user process end-to-end', function() {
             expect(body).to.be.an('object');
             expect(body).to.have.property('error', true);
             expect(body).to.have.property('message')
-              .to.match(/Validation Error: child "status" fails because \["status" must be one of \[Pause, Ready, Stop\]\]/);
+              .to
+              .match(/Validation Error: child "status" fails because \["status" must be one of \[Pause, Ready, Stop\]\]/);
             expect(body).to.have.property('status', 422);
             return done();
           });
@@ -331,7 +332,8 @@ describe('test user process end-to-end', function() {
 
       it('/api/v1/user - return success if company info updated successfully', () => {
         return knex(COMPANY_PROFILE_TABLE)
-          .select(`${COMPANY_PROFILE_TABLE}.companyId`, 'companyName', 'website', 'companyAddressId', 'companyAddress', 'city', 'state', 'zip')
+          .select(`${COMPANY_PROFILE_TABLE}.companyId`, 'companyName', 'website',
+            'companyAddressId', 'companyAddress', 'city', 'state', 'zip')
           .orderBy(`${COMPANY_PROFILE_TABLE}.companyId`, 'desc')
           .first()
           .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`)

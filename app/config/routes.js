@@ -39,7 +39,7 @@ router.put('/user/products', auth, verify, userController.updateUserProducts);
 
 router.get('/products', productController.getProducts);
 
-//DeliveryAPI
+// DeliveryAPI
 router.post('/user/company/delivery', auth, deliveryController.createDelivery);
 router.get('/user/company/deliveries', auth, deliveryController.getCompanyDeliveries);
 router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
