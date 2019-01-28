@@ -238,7 +238,7 @@ const searchUsers = async(address, radius) => {
 
     const coordinates = await locationService.getCoordinates(address);
     debug(`Google map coordinates for ${address} is: `, coordinates);
-    
+
     const longitude = coordinates.lng;
     const latitude = coordinates.lat;
 
