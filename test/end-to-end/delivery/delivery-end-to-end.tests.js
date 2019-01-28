@@ -25,7 +25,7 @@ const {
   validDeliveryData,
   updateDeliveryData
 } = require('../../mock-data/delivery-mock-data');
-const emailService = require('../../../app/services/util/email-service');
+const emailService = require('../../../app/services/messaging/email-service');
 
 const request = supertest(app);
 
