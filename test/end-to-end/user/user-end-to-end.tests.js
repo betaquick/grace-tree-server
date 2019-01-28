@@ -589,6 +589,7 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('status', 200);
 
             const { users } = data.body;
+            console.log(users);
             expect(users).to.be.an('array');
             expect(users[0]).to.have.property('userAddressId');
             expect(users[0]).to.have.property('userId');
@@ -615,6 +616,7 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('status', 200);
 
             const { users } = data.body;
+            console.log(users);
             expect(users).to.be.an('array');
             expect(users[0]).to.have.property('userAddressId');
             expect(users[0]).to.have.property('userId');
