@@ -23,6 +23,7 @@ module.exports = {
   getSingleDelivery(deliveryId) {
     return knex(DELIVERY_TABLE)
       .where({ deliveryId: deliveryId })
+      .first()
       .select('*');
   },
 

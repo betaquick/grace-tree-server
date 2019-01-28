@@ -40,7 +40,7 @@ module.exports = {
 
   getDelivery(req, res) {
     try {
-      const { deliveryId } = req.body;
+      const { deliveryId } = req.params;
 
       deliverySvc
         .getDelivery(deliveryId)

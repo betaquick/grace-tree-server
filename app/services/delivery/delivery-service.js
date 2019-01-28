@@ -38,8 +38,10 @@ const addDelivery = async(userId, data) => {
 
     await Joi.validate(deliveryItem, deliveryInfoValidator);
 
-    const companyIds = await deliveryData.addDelivery(deliveryItem);
-    return { companyId: companyIds[0], ...data };
+    const deliveryIds = await deliveryData.addDelivery(deliveryItem);
+    console.log(deliveryIds);
+
+    return {...data };
   } catch (err) {
     throw err;
   }
