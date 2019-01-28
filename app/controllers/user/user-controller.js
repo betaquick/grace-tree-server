@@ -161,5 +161,18 @@ module.exports = {
       .deleteCompanyCrew(crewId)
       .then(crewId => handleSuccess(res, 'User status updated successful', { crewId }))
       .catch(err => handleError(err, res, err.message, error));
+  },
+
+  searchUsers(req, res) {
+    const { address, radius } = req.query;
+
+    debug(`Filter users in ${address} within ${radius}`);
+
+    userSvc
+      .searchUsers(address, radius)
+      .then(users =>
+        handleSuccess(res, 'Filtered users successfully', { users })
+      )
+      .catch(err => handleError(err, res, 'Error filtering users', error));
   }
 };

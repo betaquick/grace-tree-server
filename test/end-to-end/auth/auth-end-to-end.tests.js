@@ -29,7 +29,7 @@ describe('test auth process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(transporter, 'sendMail').resolves(Promise.resolve(true));
+    sinon.stub(transporter, 'sendMail').resolves(true);
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)

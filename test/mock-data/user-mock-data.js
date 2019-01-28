@@ -61,10 +61,10 @@ const invalidBusinessData = {
 
 const validDeliveryData = {
   address: {
-    street: '1, Moses Adebayo Street',
-    city: 'Ojodu',
-    state: 'LA',
-    zip: '23401'
+    street: '1600 Amphitheatre Parkway',
+    city: 'Mountain View',
+    state: 'CA',
+    zip: '90020'
   },
   userProducts: []
 };

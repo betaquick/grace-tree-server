@@ -36,6 +36,7 @@ router.put('/user/status/:status', auth, verify, userController.updateStatus);
 router.put('/user', auth, verify, userController.updateProfile);
 router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
+router.get('/user/search', auth, verify, userController.searchUsers);
 
 router.get('/products', productController.getProducts);
 

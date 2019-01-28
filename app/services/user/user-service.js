@@ -232,6 +232,21 @@ const updateUserProducts = async(userId, userProducts) => {
   }
 };
 
+const searchUsers = async(address, radius) => {
+  try {
+    await Joi.validate(address, Joi.string().required());
+
+    const coordinates = await locationService.getCoordinates(address);
+    const longitude = coordinates.lng;
+    const latitude = coordinates.lat;
+
+    return await userData.searchUsers(latitude, longitude, radius);
+  } catch (err) {
+    error('Error updating user products ' + err.message);
+    throw err;
+  }
+};
+
 module.exports = {
   acceptAgreement,
   updateStatus,
@@ -244,5 +259,6 @@ module.exports = {
   getCompanyCrews,
   deleteCompanyCrew,
   getUserProducts,
-  updateUserProducts
+  updateUserProducts,
+  searchUsers
 };

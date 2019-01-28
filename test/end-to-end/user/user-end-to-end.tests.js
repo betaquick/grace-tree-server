@@ -44,7 +44,7 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(transporter, 'sendMail').resolves(Promise.resolve(true));
+    sinon.stub(transporter, 'sendMail').resolves(true);
 
     return request
       .post('/api/v1/auth/register')
@@ -571,6 +571,96 @@ describe('test user process end-to-end', function() {
             expect(body).to.have.property('error', true);
             expect(body).to.have.property('message').to.be.a('string');
             expect(body).to.have.property('status', 422);
+            return done();
+          });
+      });
+
+      it('/api/v1/user - returns users if address is within range', done => {
+        request
+          .get(`/api/v1/user/search?address=${validDeliveryData.address.street}`)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('status', 200);
+
+            const { users } = data.body;
+            expect(users).to.be.an('array');
+            expect(users[0]).to.have.property('userAddressId');
+            expect(users[0]).to.have.property('userId');
+            expect(users[0]).to.have.property('street');
+            expect(users[0]).to.have.property('city');
+            expect(users[0]).to.have.property('zip');
+            expect(users[0]).to.have.property('latitude');
+            expect(users[0]).to.have.property('longitude');
+            return done();
+          });
+      });
+
+      it('/api/v1/user - returns users if zip code is within range', done => {
+        request
+          .get(`/api/v1/user/search?address=${validDeliveryData.address.zip}`)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('status', 200);
+
+            const { users } = data.body;
+            expect(users).to.be.an('array');
+            expect(users[0]).to.have.property('userAddressId');
+            expect(users[0]).to.have.property('userId');
+            expect(users[0]).to.have.property('street');
+            expect(users[0]).to.have.property('city');
+            expect(users[0]).to.have.property('zip');
+            expect(users[0]).to.have.property('latitude');
+            expect(users[0]).to.have.property('longitude');
+            return done();
+          });
+      });
+
+      it('/api/v1/user - returns empty if zip code is not within range', done => {
+        request
+          .get(`/api/v1/user/search?address=${validDeliveryData.address.zip}&radius=-1`)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('status', 200);
+
+            const { users } = data.body;
+            expect(users).to.be.an('array');
+            expect(users).to.be.empty;
+            return done();
+          });
+      });
+
+      it('/api/v1/user - returns error if address is missing', done => {
+        request
+          .get('/api/v1/user/search?radius=-1')
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(422)
+          .end((err, res) => {
+            expect(err).to.a.null;
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('error', true);
+            expect(data).to.have.property('message');
+            expect(data).to.have.property('status', 422);
+
             return done();
           });
       });
