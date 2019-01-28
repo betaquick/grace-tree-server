@@ -141,7 +141,7 @@ describe('Test delivery endpoints', function() {
           userId: 999
         };
         return request
-          .put('/api/v1/user/company/addtodelivery')
+          .put('/api/v1/user/company/add-to-delivery')
           .send(addData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
@@ -167,7 +167,7 @@ describe('Test delivery endpoints', function() {
           userId: 999
         };
         return request
-          .post('/api/v1/user/company/removefromdelivery')
+          .post('/api/v1/user/company/remove-from-delivery')
           .send(addData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')

@@ -49,9 +49,9 @@ router.get('/user/company/deliveries', auth, deliveryController.getCompanyDelive
 router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
 
 router.get('/user/delivery/:deliveryId', auth, deliveryController.getDelivery);
-router.put('/user/company/addtodelivery', auth, deliveryController.addUserToDelivery);
-router.post('/user/company/removefromdelivery', auth, deliveryController.removeUserFromDelivery);
-router.post('/user/company/deletedelivery', auth, deliveryController.deleteDelivery);
+router.put('/user/company/add-to-delivery', auth, deliveryController.addUserToDelivery);
+router.post('/user/company/remove-from-delivery', auth, deliveryController.removeUserFromDelivery);
+router.post('/user/company/delete-delivery', auth, deliveryController.deleteDelivery);
 
 
 module.exports = router;

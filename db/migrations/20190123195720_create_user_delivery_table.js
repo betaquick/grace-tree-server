@@ -1,6 +1,6 @@
 'use strict';
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable('user_deliveries', function(table) {
+  return knex.schema.createTable('user_delivery', function(table) {
     table.integer('userId').notNullable();
     table.integer('deliveryId').notNullable();
     table.unique(['userId', 'deliveryId']);
@@ -9,5 +9,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTableIfExists('user_deliveries');
+  return knex.schema.dropTableIfExists('user_delivery');
 };
