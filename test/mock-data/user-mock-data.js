@@ -75,8 +75,20 @@ const invalidUserData = {
 };
 
 const coordinatesData = {
-  lng: -122.0850392,
-  lat: 37.4219191
+  json: {
+    results: [{
+      geometry: {
+        location: {
+          lng: -122.0850392,
+          lat: 37.4219191
+        }
+      }
+    }]
+  }
+};
+
+const locationServiceMock = {
+  asPromise: () => coordinatesData
 };
 
 module.exports = {
@@ -87,5 +99,5 @@ module.exports = {
   validBusinessData,
   invalidBusinessData,
   validDeliveryData,
-  coordinatesData
+  locationServiceMock
 };

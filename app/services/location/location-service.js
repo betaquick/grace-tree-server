@@ -21,5 +21,6 @@ const getCoordinates = async address => {
 };
 
 module.exports = {
+  googleMapsClient,
   getCoordinates
 };

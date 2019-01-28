@@ -10,7 +10,7 @@ const _ = require('lodash');
 
 const {VerificationTypes} = require('@betaquick/grace-tree-constants');
 
-const emailService = require('../../../app/services/messaging/email-service');
+const { transporter } = require('../../../app/services/messaging/email-service');
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
 const { validUserData, invalidUserData } = require('../../mock-data/user-mock-data');
@@ -29,7 +29,7 @@ describe('test auth process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(emailService, 'sendVerificationMail');
+    sinon.stub(transporter, 'sendMail').resolves(Promise.resolve(true));
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)
@@ -524,7 +524,6 @@ describe('test auth process end-to-end', function() {
       describe('Reset Password tests', () => {
         let token = null;
         before(() => {
-          sinon.stub(emailService, 'sendResetMail');
           return knex(USER_TABLE)
             .where({ userId: userData.userId })
             .first()
@@ -532,10 +531,6 @@ describe('test auth process end-to-end', function() {
               token = user.resetPasswordToken;
               return user;
             });
-        });
-
-        after(() => {
-          sinon.restore();
         });
 
         it('/api/v1/auth/reset/:token - valid token returns user object', done => {
