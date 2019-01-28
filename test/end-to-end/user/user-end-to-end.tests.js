@@ -16,10 +16,12 @@ const {
   invalidUserData,
   validBusinessData,
   invalidBusinessData,
-  validDeliveryData
+  validDeliveryData,
+  locationServiceMock
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
-const emailService = require('../../../app/services/messaging/email-service');
+const { transporter } = require('../../../app/services/messaging/email-service');
+const { googleMapsClient } = require('../../../app/services/location/location-service');
 
 const {
   USER_TABLE,
@@ -42,7 +44,8 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(emailService, 'sendVerificationMail');
+    sinon.stub(transporter, 'sendMail').resolves(Promise.resolve(true));
+
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)
@@ -442,6 +445,8 @@ describe('test user process end-to-end', function() {
       });
 
       beforeEach(() => {
+        sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
+
         sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
         return knex(PRODUCT_TABLE)
           .where({
