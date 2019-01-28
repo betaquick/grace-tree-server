@@ -73,6 +73,7 @@ If you have any problem using your credential, please contact ${options.companyN
 };
 
 module.exports = {
+  transporter,
   sendResetMail,
   sendVerificationMail,
   sendUserCreationMail

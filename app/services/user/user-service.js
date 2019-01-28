@@ -6,8 +6,9 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
-const emailService = require('../util/email-service');
-const userData = require('../user/user-data');
+const emailService = require('../messaging/email-service');
+const locationService = require('../location/location-service');
+const userData = require('./user-data');
 const {
   statusValidator,
   businessInfoValidator,
@@ -128,11 +129,20 @@ const addDeliveryInfo = async(userId, data) => {
   try {
     await Joi.validate({ userId, ...data }, deliveryInfoValidator);
 
+    const { street, city, state } = data.address;
+    const address = `${street}, ${city}, ${state}`;
+
+    const coordinates = await locationService.getCoordinates(address);
+
+    debug(`Google map coordinates for ${address} is: `, coordinates);
+    data.address.longitude = coordinates.lng;
+    data.address.latitude = coordinates.lat;
+
     const deliveryIds = await userData.addDeliveryInfo(userId, data);
 
     return { deliveryId: deliveryIds[0], ...data };
   } catch (err) {
-    error('Error updating delivery info ' + err.message);
+    error('Error updating delivery info ', err);
     throw err;
   }
 };

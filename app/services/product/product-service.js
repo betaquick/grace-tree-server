@@ -1,6 +1,6 @@
 'use strict';
 
-const debug = require('debug')('fccc-admin:service:debug');
+const debug = require('debug')('grace-tree:service:debug');
 
 const productData = require('./product-data');
 

@@ -7,7 +7,7 @@
     "prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER",
     "pretest": "eslint --ignore-path .gitignore . --fix",
     "test": "npm run prestart && mocha --exit",
-    "test-coverage": "npm test && istanbul cover node_modules/mocha/bin/_mocha -x **/util/**-service.js -- -R spec --exit",
+    "test-coverage": "npm test && istanbul cover node_modules/mocha/bin/_mocha -- -R spec --exit",
     "install-local": "npm install -g mocha & npm install -g node-inspector & npm install",
     "make": "knex migrate:make --env development --knexfile ./db/knexfile.js",
     "migrate": "npm run prestart && knex migrate:latest --env development --knexfile ./db/knexfile.js",
@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@betaquick/grace-tree-constants": "^1.0.6",
+    "@google/maps": "^0.5.5",
     "aws-sdk": "^2.373.0",
     "bcryptjs": "^2.4.3",
     "bitly": "^6.0.8",
