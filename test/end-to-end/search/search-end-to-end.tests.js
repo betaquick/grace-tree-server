@@ -99,7 +99,7 @@ describe('test user process end-to-end', function() {
         });
     });
 
-    it('/api/v1/user - returns 5 users if zip code is within 30 radius', done => {
+    it('/api/v1/user - returns 6 users if zip code is within 30 radius', done => {
       request
         .get(`/api/v1/search?address=${userAddressesData[0].street}`)
         .set('Accept', 'application/json')
@@ -126,7 +126,7 @@ describe('test user process end-to-end', function() {
         });
     });
 
-    it('/api/v1/user - returns 5 users if zip code is within 10 radius', done => {
+    it('/api/v1/user - returns 2 users if zip code is within 10 radius', done => {
       request
         .get(`/api/v1/search?address=${userAddressesData[0].zip}&radius=10`)
         .set('Accept', 'application/json')
@@ -153,7 +153,7 @@ describe('test user process end-to-end', function() {
         });
     });
 
-    it('/api/v1/user - returns empty if zip code is not within 0 radius', done => {
+    it('/api/v1/user - returns empty if zip code is 0 radius', done => {
       request
         .get(`/api/v1/search?address=${userAddressesData[0].zip}&radius=0`)
         .set('Accept', 'application/json')
