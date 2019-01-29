@@ -10,6 +10,7 @@ const authController = require('../controllers/auth/auth-controller');
 const userController = require('../controllers/user/user-controller');
 const productController = require('../controllers/product/product-controller');
 const notificationController = require('../controllers/notification/notification-controller');
+const searchController = require('../controllers/search/search-controller');
 
 router.get('/', (req, res) => res.json({ title: 'Application API' }));
 
@@ -36,6 +37,8 @@ router.put('/user/status/:status', auth, verify, userController.updateStatus);
 router.put('/user', auth, verify, userController.updateProfile);
 router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
+
+router.get('/search', auth, verify, searchController.searchUsers);
 
 router.get('/products', productController.getProducts);
 

@@ -44,7 +44,7 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(transporter, 'sendMail').resolves(Promise.resolve(true));
+    sinon.stub(transporter, 'sendMail').resolves(true);
 
     return request
       .post('/api/v1/auth/register')
@@ -64,7 +64,8 @@ describe('test user process end-to-end', function() {
     return knex(USER_TABLE).where('userId', userData.userId).delete()
       .then(() => knex(USER_EMAIL_TABLE).where('userId', userData.userId).delete())
       .then(() => knex(USER_PHONE_TABLE).where('userId', userData.userId).delete())
-      .then(() => knex(USER_PROFILE_TABLE).where('userId', userData.userId).delete());
+      .then(() => knex(USER_PROFILE_TABLE).where('userId', userData.userId).delete())
+      .then(() => knex(USER_ADDRESS_TABLE).where('userId', userData.userId).delete());
   });
 
   describe('User api testing', () => {
@@ -247,8 +248,6 @@ describe('test user process end-to-end', function() {
             expect(data.body).to.have.property('user');
 
             return data.body.user;
-          }).then(() => {
-            return knex(USER_ADDRESS_TABLE).where('userId', userData.userId).delete();
           });
       });
 
@@ -486,7 +485,7 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('body');
             expect(data.body).to.have.property('delivery');
             return data.body.delivery;
-          }).then(() => knex(USER_ADDRESS_TABLE).where('userId', userData.userId).delete());
+          });
       });
 
       it('/api/v1/user - return failure if delivery info is invalid', done => {
