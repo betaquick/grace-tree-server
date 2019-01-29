@@ -79,8 +79,8 @@ const coordinatesData = {
     results: [{
       geometry: {
         location: {
-          lng: -122.0850392,
-          lat: 37.4219191
+          lng: 151.235260,
+          lat: -33.737885
         }
       }
     }]
