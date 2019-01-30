@@ -3,6 +3,7 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTable('delivery', function(table) {
     table.increments('deliveryId').primary();
     table.integer('companyId').notNullable();
+    table.integer('userId').notNullable();
     table.text('details');
     table.text('additionalRecipientText');
     table.text('additionalCompanyText');

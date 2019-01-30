@@ -10,12 +10,12 @@ module.exports = {
     const { userId } = req.user;
     const { body } = req;
 
-    try {
-      const delivery = await deliverySvc.addDelivery(userId, body);
-      handleSuccess(res, 'Delivery added successfully', { delivery });
-    } catch (err) {
-      handleError(err, res, 'Error Creating Delivery', error);
-    }
+    deliverySvc
+      .addDelivery(userId, body)
+      .then(delivery => {
+        handleSuccess(res, 'Delivery added successfully', { delivery });
+      })
+      .catch(err => handleError(err, res, 'Error Creating Delivery', error));
   },
 
   getCompanyDeliveries(req, res) {

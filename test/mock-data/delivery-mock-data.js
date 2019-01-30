@@ -25,7 +25,8 @@ const validDeliveryData = {
   users: [
     1, 2, 3
   ],
-  details: ''
+  details: 'valid details',
+  userId: '1'
 };
 
 const inValidDeliveryData = {

@@ -13,13 +13,6 @@ module.exports = {
       .select('*');
   },
 
-  getDelivery(companyId, deliveryId) {
-    return knex(DELIVERY_TABLE)
-      .first()
-      .where({ companyId, deliveryId })
-      .select('*');
-  },
-
   getSingleDelivery(deliveryId) {
     return knex(DELIVERY_TABLE)
       .where({ deliveryId: deliveryId })
@@ -29,6 +22,7 @@ module.exports = {
 
   addDelivery(deliveryInfo, trx) {
     const {
+      userId,
       companyId,
       details,
       additionalCompanyText,
@@ -38,7 +32,7 @@ module.exports = {
     let deliveryId;
     return knex(DELIVERY_TABLE)
       .transacting(trx)
-      .insert({ companyId, details, additionalRecipientText, additionalCompanyText })
+      .insert({ userId, companyId, details, additionalRecipientText, additionalCompanyText })
       .then(deliveryIds => {
         deliveryId = deliveryIds[0];
         const userDeliveries = users.map(user => { return { deliveryId, userId: user }; });
