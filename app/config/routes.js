@@ -9,6 +9,7 @@ const verify = require('../middleware/verify');
 const authController = require('../controllers/auth/auth-controller');
 const userController = require('../controllers/user/user-controller');
 const productController = require('../controllers/product/product-controller');
+const deliveryController = require('../controllers/delivery/delivery-controller');
 const notificationController = require('../controllers/notification/notification-controller');
 const searchController = require('../controllers/search/search-controller');
 
@@ -44,5 +45,16 @@ router.get('/products', productController.getProducts);
 
 router.get('/notifications', auth, verify, notificationController.getNotifications);
 router.get('/notifications/:notificationId', auth, verify, notificationController.getNotification);
+
+// DeliveryAPI
+router.post('/user/company/delivery', auth, deliveryController.createDelivery);
+router.get('/user/company/deliveries', auth, deliveryController.getCompanyDeliveries);
+router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
+
+router.get('/user/delivery/:deliveryId', auth, deliveryController.getDelivery);
+router.put('/user/company/add-to-delivery', auth, deliveryController.addUserToDelivery);
+router.post('/user/company/remove-from-delivery', auth, deliveryController.removeUserFromDelivery);
+router.post('/user/company/delete-delivery', auth, deliveryController.deleteDelivery);
+
 
 module.exports = router;

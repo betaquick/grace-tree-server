@@ -45,7 +45,8 @@ const sendVerificationMail = options => {
     to: options.email,
     subject: 'GTS Email Verification',
     text: `Hi,\n
-This message has been sent to you because you entered you e-mail address on a verification form. If this wasn't you, please ignore this message.\n
+This message has been sent to you because you entered you e-mail address on a verification form. 
+If this wasn't you, please ignore this message.\n
 Please click on the following link, or paste this into your browser to complete the process:\n
 ${process.env.WEB_URL}/verification/email/${options.token}\n
 The link is valid for 24 hours and can be used only once.`
