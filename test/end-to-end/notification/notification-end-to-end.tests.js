@@ -13,7 +13,7 @@ const knex = require('knex')(require('../../../db/knexfile').development);
 const {
   validUserData
 } = require('../../mock-data/user-mock-data');
-const emailService = require('../../../app/services/messaging/email-service');
+const { transporter } = require('../../../app/services/messaging/email-service');
 
 const {
   USER_TABLE,
@@ -31,7 +31,8 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(emailService, 'sendVerificationMail');
+    sinon.stub(transporter, 'sendMail').resolves(true);
+
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)

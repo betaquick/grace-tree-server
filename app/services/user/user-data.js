@@ -1,4 +1,5 @@
 'use strict';
+
 const { UserStatus, RoleTypes, UserTypes } = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
@@ -19,19 +20,19 @@ const userData = {
     return knex(table)
       .first()
       .where(params)
-      .join('user_profile', `${table}.userId`, '=', 'user_profile.userId');
+      .join(USER_PROFILE_TABLE, `${table}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
   },
 
   getUserEmail(userId) {
     const params = { primary: 1 };
 
-    return userData.getUserByParam(USER_EMAIL_TABLE, { 'user_email.userId': userId, ...params });
+    return userData.getUserByParam(USER_EMAIL_TABLE, { [`${USER_EMAIL_TABLE}.userId`]: userId, ...params });
   },
 
   getUserPhone(userId) {
     const params = { primary: 1 };
 
-    return userData.getUserByParam(USER_PHONE_TABLE, { 'user_phone.userId': userId, ...params });
+    return userData.getUserByParam(USER_PHONE_TABLE, { [`${USER_PHONE_TABLE}.userId`]: userId, ...params });
   },
 
   getUserEmails(userId) {
