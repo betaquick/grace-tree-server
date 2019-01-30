@@ -17,7 +17,9 @@ const {
   validBusinessData,
   invalidBusinessData,
   validDeliveryData,
-  locationServiceMock
+  locationServiceMock,
+  validAddressData,
+  inValidAddressData
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
 const { transporter } = require('../../../app/services/messaging/email-service');
@@ -394,6 +396,42 @@ describe('test user process end-to-end', function() {
             expect(body).to.have.property('message').to.be.a('string');
             expect(body).to.have.property('status', 422);
             return done();
+          });
+      });
+
+      it('/api/v1/user/address - return success if address info is valid', () => {
+        return request
+          .post('/api/v1/user/address')
+          .send(validAddressData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 200);
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('body');
+            expect(data.body).to.have.property('longitude');
+            expect(data.body).to.have.property('latitude');
+            const { userId } = data.body;
+            return userId;
+          });
+      });
+
+      it('/api/v1/user/address - Fails if adress info is invalid', () => {
+        return request
+          .post('/api/v1/user/address')
+          .send(inValidAddressData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(422)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 422);
+            expect(data).to.have.property('error', true);
+            return data;
           });
       });
 

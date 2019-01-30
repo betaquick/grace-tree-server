@@ -87,6 +87,22 @@ const coordinatesData = {
   }
 };
 
+const validAddressData = {
+  street: '1 Prince Way',
+  zip: '100102',
+  city: 'Yaba',
+  state: 'Lagos',
+  deliveryInstruction: 'Please drop it by the door'
+};
+
+const inValidAddressData = {
+  street: '',
+  zip: '100102',
+  city: '',
+  state: 'Lagos',
+  deliveryInstruction: ''
+};
+
 const locationServiceMock = {
   asPromise: () => coordinatesData
 };
@@ -99,5 +115,7 @@ module.exports = {
   validBusinessData,
   invalidBusinessData,
   validDeliveryData,
-  locationServiceMock
+  locationServiceMock,
+  validAddressData,
+  inValidAddressData
 };

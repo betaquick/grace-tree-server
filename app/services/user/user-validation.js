@@ -94,6 +94,15 @@ const crewValidator = Joi.object().keys({
   email: Joi.string().email().required()
 });
 
+const updateAddressValidator = Joi.object().keys({
+  userId: Joi.number().required(),
+  street: Joi.string().required(),
+  city: Joi.string().required(),
+  state: Joi.string().required(),
+  zip: Joi.string().required(),
+  deliveryInstruction: Joi.string().required()
+});
+
 module.exports = {
   userValidator,
   businessInfoValidator,
@@ -101,5 +110,6 @@ module.exports = {
   deliveryInfoValidator,
   statusValidator,
   updateUserProductsValidator,
-  crewValidator
+  crewValidator,
+  updateAddressValidator
 };
