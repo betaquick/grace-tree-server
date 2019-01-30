@@ -17,7 +17,9 @@ const searchUsers = async(address, radius) => {
     const longitude = coordinates.lng;
     const latitude = coordinates.lat;
 
-    return await searchData.searchUsers(latitude, longitude, radius);
+    const users = await searchData.searchUsers(latitude, longitude, radius);
+
+    return { users, coordinates };
   } catch (err) {
     error('Error updating user products ' + err.message);
     throw err;

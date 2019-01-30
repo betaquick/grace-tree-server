@@ -14,8 +14,8 @@ module.exports = {
 
     searchSvc
       .searchUsers(address, radius)
-      .then(users =>
-        handleSuccess(res, 'Filtered users successfully', { users })
+      .then(searchData =>
+        handleSuccess(res, 'Filtered users successfully', searchData)
       )
       .catch(err => handleError(err, res, 'Error filtering users', error));
   }

@@ -2,7 +2,9 @@
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
+  USER_TABLE,
   USER_ADDRESS_TABLE,
+  USER_PHONE_TABLE,
   USER_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
@@ -10,8 +12,20 @@ const searchData = {
   searchUsers(latitude, longitude, radius = 30) {
     return knex(USER_ADDRESS_TABLE)
       .select(
+        `${USER_TABLE}.userId`,
+        'email',
+        'phoneNumber',
+        'firstName',
+        'lastName',
+        'street',
+        'city',
+        'state',
+        'zip',
+        'deliveryInstruction',
+        'longitude',
+        'latitude',
+        'status',
         knex.raw(`
-          *,
           (
             6371 *
             acos(
@@ -28,7 +42,14 @@ const searchData = {
       )
       .orderBy('distance')
       .having('distance', '<', radius)
-      .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
+      .join(USER_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_TABLE}.userId`)
+      .leftJoin(USER_PHONE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PHONE_TABLE}.userId`)
+      .where(`${USER_PHONE_TABLE}.primary`, true)
+      .where({
+        [`${USER_PHONE_TABLE}.primary`]: true,
+        [`${USER_TABLE}.active`]: true
+      });
   }
 };
 
