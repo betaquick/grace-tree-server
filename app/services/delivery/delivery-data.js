@@ -31,13 +31,15 @@ module.exports = {
     const {
       companyId,
       details,
+      additionalCompanyText,
+      additionalRecipientText,
       users
     } = deliveryInfo;
     let deliveryId;
 
     return knex(DELIVERY_TABLE)
       .transacting(trx)
-      .insert({ companyId, details })
+      .insert({ companyId, details, additionalRecipientText, additionalCompanyText })
       .then(deliveryIds => {
         deliveryId = deliveryIds[0];
         const userDeliveries = users.map(user => { return { deliveryId, userId: user }; });
@@ -48,13 +50,15 @@ module.exports = {
   updateDelivery(deliveryInfo, trx) {
     const {
       deliveryId,
-      details
+      details,
+      additionalCompanyText,
+      additionalRecipientText
     } = deliveryInfo;
 
     return knex(DELIVERY_TABLE)
       .transacting(trx)
       .where({ deliveryId })
-      .update({ details });
+      .update({ details, additionalRecipientText, additionalCompanyText });
   },
 
   addUserToDelivery(deliveryId, userId, trx) {

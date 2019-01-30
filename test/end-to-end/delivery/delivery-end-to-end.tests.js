@@ -23,7 +23,8 @@ const {
   companyUserData,
   validCompanyData,
   validDeliveryData,
-  updateDeliveryData
+  updateDeliveryData,
+  inValidDeliveryData
 } = require('../../mock-data/delivery-mock-data');
 const emailService = require('../../../app/services/messaging/email-service');
 
@@ -130,7 +131,6 @@ describe('Test delivery endpoints', function() {
       });
   });
 
-
   it('can add user to delivery', () => {
     return knex(DELIVERY_TABLE)
       .orderBy('createdAt', 'desc')
@@ -224,4 +224,22 @@ describe('Test delivery endpoints', function() {
       });
   });
 
+  describe('Failure Tests', () => {
+    it('Fails to add new delivery when delivery data is invalid', done => {
+      request
+        .post('/api/v1/user/company/delivery')
+        .send(inValidDeliveryData)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(422)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 422);
+          expect(data).to.have.property('error', true);
+          expect(data).to.have.property('message', 'Validation Error: child \"users\" fails because [\"users\" is required]');
+          done();
+        });
+    });
+  });
 });

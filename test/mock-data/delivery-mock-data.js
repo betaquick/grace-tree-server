@@ -31,9 +31,6 @@ const validDeliveryData = {
 const inValidDeliveryData = {
   userId: '1',
   companyId: '15',
-  users: [
-    1, 2, 3
-  ],
   details: 'This is a delivery.'
 };
 
