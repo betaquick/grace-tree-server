@@ -6,17 +6,16 @@ const deliverySvc = require('../../services/delivery/delivery-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
 module.exports = {
-  createDelivery(req, res) {
+  async createDelivery(req, res) {
     const { userId } = req.user;
     const { body } = req;
 
-    deliverySvc
-      .addDelivery(userId, body)
-      .then(delivery => {
-        handleSuccess(res, 'Delivery added successfully', { delivery });
-
-      })
-      .catch(err => handleError(err, res, 'Error Creating Delivery', error));
+    try {
+      const delivery = await deliverySvc.addDelivery(userId, body);
+      handleSuccess(res, 'Delivery added successfully', { delivery });
+    } catch (err) {
+      handleError(err, res, 'Error Creating Delivery', error);
+    }
   },
 
   getCompanyDeliveries(req, res) {

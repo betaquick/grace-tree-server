@@ -1,5 +1,6 @@
 'use strict';
 
+const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const Joi = require('joi');
 
 const deliveryData = require('./delivery-data');
@@ -38,10 +39,11 @@ const addDelivery = async(userId, data) => {
 
     await Joi.validate(deliveryItem, deliveryInfoValidator);
 
-    const deliveryIds = await deliveryData.addDelivery(deliveryItem);
-    console.log(deliveryIds);
-
-    return {...data };
+    await knex.transaction(trx => {
+      deliveryData.addDelivery(deliveryItem, trx)
+        .then(trx.commit);
+    });
+    return { ...data };
   } catch (err) {
     throw err;
   }
@@ -50,12 +52,14 @@ const addDelivery = async(userId, data) => {
 const updateDelivery = async(userId, deliveryInfo) => {
   try {
     const { companyId } = await userSvc.getCompanyInfo(userId);
-
     deliveryInfo.companyId = companyId;
 
     await Joi.validate(deliveryInfo, updateDeliveryInfoValidator);
 
-    return await deliveryData.updateDelivery(deliveryInfo);
+    return knex.transaction(trx => {
+      deliveryData.updateDelivery(deliveryInfo, trx)
+        .then(trx.commit);
+    });
   } catch (err) {
     throw err;
   }
@@ -63,7 +67,10 @@ const updateDelivery = async(userId, deliveryInfo) => {
 
 const addUserToDelivery = async(deliveryId, userId) => {
   try {
-    return await deliveryData.addUserToDelivery(deliveryId, userId);
+    return knex.transaction(trx => {
+      deliveryData.addUserToDelivery(deliveryId, userId, trx)
+        .then(trx.commit);
+    });
   } catch (err) {
     throw err;
   }
@@ -72,7 +79,10 @@ const addUserToDelivery = async(deliveryId, userId) => {
 
 const removeUserFromDelivery = async(deliveryId, userId) => {
   try {
-    return await deliveryData.removeUserFromDelivery(deliveryId, userId);
+    return knex.transaction(trx => {
+      deliveryData.removeUserFromDelivery(deliveryId, userId, trx)
+        .then(trx.commit);
+    });
   } catch (err) {
     throw err;
   }
@@ -80,7 +90,10 @@ const removeUserFromDelivery = async(deliveryId, userId) => {
 
 const deleteDelivery = async(deliveryId) => {
   try {
-    return await deliveryData.deleteDelivery(deliveryId);
+    return knex.transaction(trx => {
+      deliveryData.deleteDelivery(deliveryId, trx)
+        .then(trx.commit);
+    });
   } catch (err) {
     throw err;
   }

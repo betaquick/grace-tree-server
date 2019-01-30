@@ -27,77 +27,55 @@ module.exports = {
       .select('*');
   },
 
-  addDelivery(deliveryInfo) {
-    return knex.transaction(trx => {
-      const {
-        companyId,
-        details,
-        users
-      } = deliveryInfo;
-      let deliveryId;
+  addDelivery(deliveryInfo, trx) {
+    const {
+      companyId,
+      details,
+      users
+    } = deliveryInfo;
+    let deliveryId;
 
-      return knex(DELIVERY_TABLE)
-        .transacting(trx)
-        .insert({ companyId, details })
-        .then(deliveryIds => {
-          deliveryId = deliveryIds[0];
-          const userDeliveries = users.map(user => { return { deliveryId, userId: user }; });
-          return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
-        })
-        .then(trx.commit)
-        .catch(trx.rollback);
-    });
+    return knex(DELIVERY_TABLE)
+      .transacting(trx)
+      .insert({ companyId, details })
+      .then(deliveryIds => {
+        deliveryId = deliveryIds[0];
+        const userDeliveries = users.map(user => { return { deliveryId, userId: user }; });
+        return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
+      });
   },
 
-  updateDelivery(deliveryInfo) {
-    return knex.transaction(trx => {
-      const {
-        deliveryId,
-        details
-      } = deliveryInfo;
+  updateDelivery(deliveryInfo, trx) {
+    const {
+      deliveryId,
+      details
+    } = deliveryInfo;
 
-      return knex(DELIVERY_TABLE)
-        .transacting(trx)
-        .where({ deliveryId })
-        .update({ details })
-        .then(trx.commit)
-        .catch(trx.rollback);
-    });
+    return knex(DELIVERY_TABLE)
+      .transacting(trx)
+      .where({ deliveryId })
+      .update({ details });
   },
 
-
-  addUserToDelivery(deliveryId, userId) {
-    return knex.transaction(trx => {
-      return knex(USER_DELIVERY_TABLE)
-        .transacting(trx)
-        .insert({ deliveryId, userId })
-        .then(trx.commit)
-        .catch(trx.rollback);
-    });
+  addUserToDelivery(deliveryId, userId, trx) {
+    return knex(USER_DELIVERY_TABLE)
+      .transacting(trx)
+      .insert({ deliveryId, userId });
   },
 
-  removeUserFromDelivery(deliveryId, userId) {
-    return knex.transaction(trx => {
-      return knex(USER_DELIVERY_TABLE)
-        .transacting(trx)
-        .where({ deliveryId, userId })
-        .del()
-        .then(trx.commit)
-        .catch(trx.rollback);
-    });
+  removeUserFromDelivery(deliveryId, userId, trx) {
+    return knex(USER_DELIVERY_TABLE)
+      .transacting(trx)
+      .where({ deliveryId, userId })
+      .del();
   },
 
-  deleteDelivery(deliveryId) {
-    return knex.transaction(trx => {
-
-      return knex(DELIVERY_TABLE)
-        .transacting(trx)
-        .where({ deliveryId })
-        .del()
-        .then(() => knex(USER_DELIVERY_TABLE).transacting(trx).where({ deliveryId }).del())
-        .then(trx.commit)
-        .catch(trx.rollback);
-    });
+  deleteDelivery(deliveryId, trx) {
+    return knex(DELIVERY_TABLE)
+      .transacting(trx)
+      .where({ deliveryId })
+      .del()
+      .then(() => knex(USER_DELIVERY_TABLE).transacting(trx).where({ deliveryId }).del());
   }
 
 };
