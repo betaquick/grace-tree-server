@@ -88,7 +88,6 @@ describe('test user process end-to-end', function() {
           const { users } = data.body;
           expect(users).to.be.an('array');
           expect(users.length).to.equals(10);
-          expect(users[0]).to.have.property('userAddressId');
           expect(users[0]).to.have.property('userId');
           expect(users[0]).to.have.property('street');
           expect(users[0]).to.have.property('city');
@@ -115,7 +114,6 @@ describe('test user process end-to-end', function() {
           const { users } = data.body;
           expect(users).to.be.an('array');
           expect(users.length).to.equals(6);
-          expect(users[0]).to.have.property('userAddressId');
           expect(users[0]).to.have.property('userId');
           expect(users[0]).to.have.property('street');
           expect(users[0]).to.have.property('city');
@@ -142,7 +140,6 @@ describe('test user process end-to-end', function() {
           const { users } = data.body;
           expect(users).to.be.an('array');
           expect(users.length).to.equals(2);
-          expect(users[0]).to.have.property('userAddressId');
           expect(users[0]).to.have.property('userId');
           expect(users[0]).to.have.property('street');
           expect(users[0]).to.have.property('city');
