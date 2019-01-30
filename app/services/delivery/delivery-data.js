@@ -36,7 +36,6 @@ module.exports = {
       users
     } = deliveryInfo;
     let deliveryId;
-
     return knex(DELIVERY_TABLE)
       .transacting(trx)
       .insert({ companyId, details, additionalRecipientText, additionalCompanyText })
