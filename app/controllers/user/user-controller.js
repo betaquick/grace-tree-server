@@ -230,6 +230,16 @@ module.exports = {
       .catch(err => handleError(err, res, err.message, error));
   },
 
+  getUserAddress(req, res) {
+    const { userId } = req.user;
+    userSvc
+      .getUserAddress(userId)
+      .then(addy => {
+        handleSuccess(res, 'Successfully fetched User address.', addy);
+      })
+      .catch(err => handleError(err, res, 'Error fetching user address', error));
+  },
+
   updateUserAddress(req, res) {
     const {
       userId

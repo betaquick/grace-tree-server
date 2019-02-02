@@ -311,6 +311,14 @@ const updateUserAddress = async(data) => {
   }
 };
 
+const getUserAddress = async (userId) => {
+  try{
+    return await userData.getAddressInfo(userId);
+  } catch (err) {
+    throw err;
+  }
+}
+
 async function GetCoordinates(street, city, state) {
   let coordData = {};
   try {
@@ -341,5 +349,6 @@ module.exports = {
   deleteCompanyCrew,
   getUserProducts,
   updateUserProducts,
+  getUserAddress,
   updateUserAddress
 };

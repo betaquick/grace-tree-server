@@ -387,6 +387,12 @@ const userData = {
       .update(params);
   },
 
+  getAddressInfo(userId) {
+    return knex(USER_ADDRESS_TABLE)
+      .where({userId})
+      .first();
+  },
+
   addOrUpdateAddressInfo(addressInfo) {
     const {
       userId,
