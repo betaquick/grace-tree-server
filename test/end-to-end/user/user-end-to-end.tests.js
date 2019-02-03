@@ -6,7 +6,7 @@ const supertest = require('supertest');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
-const {UserStatus} = require('@betaquick/grace-tree-constants');
+const { UserStatus } = require('@betaquick/grace-tree-constants');
 
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
@@ -24,7 +24,6 @@ const {
 const userDt = require('../../../app/services/user/user-data');
 const { transporter } = require('../../../app/services/messaging/email-service');
 const { googleMapsClient } = require('../../../app/services/location/location-service');
-
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
@@ -47,7 +46,6 @@ describe('test user process end-to-end', function() {
 
   before(() => {
     sinon.stub(transporter, 'sendMail').resolves(true);
-
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)
@@ -91,7 +89,7 @@ describe('test user process end-to-end', function() {
     describe('User testing - Active false', () => {
       before(() => {
         return knex(USER_TABLE)
-          .where({ userId: userData.userId})
+          .where({ userId: userData.userId })
           .update({ active: false });
       });
 
@@ -137,6 +135,7 @@ describe('test user process end-to-end', function() {
 
     describe('User testing - Verified true', () => {
       before(() => {
+        sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
         return knex(USER_EMAIL_TABLE)
           .where({ userId: userData.userId, primary: 1 })
           .update({ isVerified: true })
@@ -384,7 +383,7 @@ describe('test user process end-to-end', function() {
       it('/api/v1/user - return failure if company info is invalid', done => {
         request
           .put('/api/v1/user/company')
-          .send({ company: invalidBusinessData, user: completeUserData})
+          .send({ company: invalidBusinessData, user: completeUserData })
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
           .expect(422)
@@ -401,7 +400,7 @@ describe('test user process end-to-end', function() {
 
       it('/api/v1/user/address - return success if address info is valid', () => {
         return request
-          .post('/api/v1/user/address')
+          .put('/api/v1/user/address')
           .send(validAddressData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')
@@ -419,9 +418,9 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user/address - Fails if adress info is invalid', () => {
+      it('/api/v1/user/address - Fails if address info is invalid', () => {
         return request
-          .post('/api/v1/user/address')
+          .put('/api/v1/user/address')
           .send(inValidAddressData)
           .set('Accept', 'application/json')
           .set('Authorization', 'auth')

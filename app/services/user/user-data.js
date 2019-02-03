@@ -389,7 +389,7 @@ const userData = {
 
   getAddressInfo(userId) {
     return knex(USER_ADDRESS_TABLE)
-      .where({userId})
+      .where({ userId })
       .first();
   },
 
@@ -404,37 +404,34 @@ const userData = {
       latitude,
       longitude
     } = addressInfo;
-    return knex.transaction(trx => {
-      return knex(USER_ADDRESS_TABLE).transacting(trx)
-        .where({
-          userId
-        })
-        .first()
-        .then((addy) => {
-          if (addy === undefined) {
-            return knex(USER_ADDRESS_TABLE).transacting(trx)
-              .insert({
-                ...addressInfo
-              });
-          } else {
-            return knex(USER_ADDRESS_TABLE).transacting(trx)
-              .where({
-                userId
-              })
-              .update({
-                zip,
-                street,
-                city,
-                state,
-                deliveryInstruction,
-                latitude,
-                longitude
-              });
-          }
-        })
-        .then(trx.commit)
-        .catch(trx.rollback);
-    });
+
+    return knex(USER_ADDRESS_TABLE)
+      .where({
+        userId
+      })
+      .first()
+      .then((addy) => {
+        if (!addy) {
+          return knex(USER_ADDRESS_TABLE)
+            .insert({
+              ...addressInfo
+            });
+        } else {
+          return knex(USER_ADDRESS_TABLE)
+            .where({
+              userId
+            })
+            .update({
+              zip,
+              street,
+              city,
+              state,
+              deliveryInstruction,
+              latitude,
+              longitude
+            });
+        }
+      });
   }
 };
 

@@ -245,10 +245,9 @@ module.exports = {
       userId
     } = req.user;
     const data = req.body;
-    data.userId = userId;
 
     userSvc
-      .updateUserAddress(data)
+      .updateUserAddress(userId, data)
       .then(addy => {
         handleSuccess(res, 'User address updated', addy);
       })

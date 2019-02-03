@@ -292,34 +292,38 @@ const updateUserProducts = async(userId, userProducts) => {
   }
 };
 
-const updateUserAddress = async(data) => {
+const updateUserAddress = async(userId, data) => {
   try {
+    data.userId = userId;
     await Joi.validate(data, updateAddressValidator);
     const {
       street,
       city,
       state
     } = data;
-    const coords = await GetCoordinates(street, city, state);
+    const coords = await getCoordinates(street, city, state);
     data.longitude = coords.longitude;
     data.latitude = coords.latitude;
 
     await userData.addOrUpdateAddressInfo(data);
     return data;
   } catch (err) {
+    error('Error updating user address ' + err.message);
     throw err;
   }
 };
 
-const getUserAddress = async (userId) => {
-  try{
+const getUserAddress = async(userId) => {
+  try {
     return await userData.getAddressInfo(userId);
   } catch (err) {
+    error('Error fetching user address ' + err.message);
     throw err;
   }
-}
+};
 
-async function GetCoordinates(street, city, state) {
+const getCoordinates = async(street, city, state) => {
+  console.log('I was called!!!!');
   let coordData = {};
   try {
     const coordinates = await locationService.getCoordinates(`${street}, ${city}, ${state}`);
@@ -328,13 +332,10 @@ async function GetCoordinates(street, city, state) {
       latitude: coordinates.lat
     };
   } catch (error) {
-    coordData = {
-      longitude: 'nan',
-      latitude: 'nan'
-    };
+    throw error;
   }
   return coordData;
-}
+};
 
 module.exports = {
   acceptAgreement,
@@ -350,5 +351,6 @@ module.exports = {
   getUserProducts,
   updateUserProducts,
   getUserAddress,
-  updateUserAddress
+  updateUserAddress,
+  getCoordinates
 };
