@@ -47,6 +47,13 @@ const userData = {
       .where({ userId });
   },
 
+  getUserAddress(userAddressId) {
+    return knex(USER_ADDRESS_TABLE)
+      .first()
+      .where({ userAddressId })
+      .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+  },
+
   getCompanyInfo(companyId) {
     return knex(COMPANY_PROFILE_TABLE)
       .first()
@@ -101,9 +108,9 @@ const userData = {
       .join(USER_PROFILE_TABLE, `${USER_COMPANY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
   },
 
-  getUserProducts(userId) {
+  getUserProducts(where) {
     return knex(USER_PRODUCT_TABLE)
-      .where({ userId })
+      .where(where)
       .join('product', `${USER_PRODUCT_TABLE}.productId`, '=', 'product.productId');
   },
 

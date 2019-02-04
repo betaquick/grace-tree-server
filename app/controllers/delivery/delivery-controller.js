@@ -6,7 +6,20 @@ const deliverySvc = require('../../services/delivery/delivery-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
 module.exports = {
-  async createDelivery(req, res) {
+  getDeliveryInfo(req, res) {
+    const { userId } = req.user;
+    const { recipientId } = req.params;
+
+    deliverySvc
+      .getDeliveryInfo(userId, recipientId)
+      .then(deliveryInfo => {
+        handleSuccess(res, 'Delivery info retrieved successfully', deliveryInfo);
+      })
+      .catch(err => handleError(err, res, 'Error fetching delivery info', error));
+
+  },
+
+  createDelivery(req, res) {
     const { userId } = req.user;
     const { body } = req;
 

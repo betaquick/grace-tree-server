@@ -50,6 +50,7 @@ router.get('/notifications/:notificationId', auth, verify, notificationControlle
 router.post('/user/company/delivery', auth, deliveryController.createDelivery);
 router.get('/user/company/deliveries', auth, deliveryController.getCompanyDeliveries);
 router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
+router.get('/user/company/delivery-info/:recipientId', auth, verify, deliveryController.getDeliveryInfo);
 
 router.get('/user/delivery/:deliveryId', auth, deliveryController.getDelivery);
 router.put('/user/company/add-to-delivery', auth, deliveryController.addUserToDelivery);
