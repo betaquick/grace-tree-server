@@ -102,7 +102,7 @@ describe('Test delivery endpoints', function() {
         } = data.body;
         expect(delivery).to.be.an('object');
         expect(delivery).to.have.property('details');
-        expect(delivery).to.have.property('companyId');
+        expect(delivery).to.have.property('assignedToUserId');
         return delivery.companyId;
       });
   });

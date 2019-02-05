@@ -1,5 +1,7 @@
 'use strict';
 
+const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
+
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
   DELIVERY_TABLE,
@@ -7,9 +9,9 @@ const {
 } = require('../../../constants/table.constants');
 
 module.exports = {
-  getDeliveries(companyId) {
+  getDeliveries(assignedByUserId) {
     return knex(DELIVERY_TABLE)
-      .where({ companyId })
+      .where({ assignedByUserId })
       .select('*');
   },
 
@@ -22,8 +24,8 @@ module.exports = {
 
   addDelivery(deliveryInfo, trx) {
     const {
-      userId,
-      companyId,
+      assignedToUserId,
+      assignedByUserId,
       details,
       additionalCompanyText,
       additionalRecipientText,
@@ -32,7 +34,14 @@ module.exports = {
     let deliveryId;
     return knex(DELIVERY_TABLE)
       .transacting(trx)
-      .insert({ userId, companyId, details, additionalRecipientText, additionalCompanyText })
+      .insert({
+        assignedToUserId,
+        assignedByUserId,
+        details,
+        additionalRecipientText,
+        additionalCompanyText,
+        statusCode: DeliveryStatusCodes.Scheduled
+      })
       .then(deliveryIds => {
         deliveryId = deliveryIds[0];
         const userDeliveries = users.map(user => { return { deliveryId, userId: user }; });

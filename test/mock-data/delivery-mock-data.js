@@ -21,22 +21,22 @@ const companyUserData = {
 
 
 const validDeliveryData = {
-  companyId: '1',
+  assignedToUserId: 1,
   users: [
     1, 2, 3
   ],
   details: 'valid details',
-  userId: '1'
+  assignedByUserId: 1
 };
 
 const inValidDeliveryData = {
-  userId: '1',
-  companyId: '15',
+  assignedByUserId: 1,
+  assignedToUserId: 15,
   details: 'This is a delivery.'
 };
 
 const updateDeliveryData = {
-  companyId: 1,
+  assignedToUserId: 1,
   details: 'New Deets'
 };
 

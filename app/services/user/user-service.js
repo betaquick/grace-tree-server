@@ -215,7 +215,7 @@ const addCompanyCrew = async(userId, data) => {
 
 const getUserProducts = async userId => {
   await Joi.validate(userId, Joi.number().required());
-  const userProducts = await userData.getUserProducts(userId);
+  const userProducts = await userData.getUserProducts({ userId });
 
   return userProducts;
 };
@@ -225,7 +225,7 @@ const updateUserProducts = async(userId, userProducts) => {
     await Joi.validate({ userId, userProducts }, updateUserProductsValidator);
     await userData.updateUserProducts(userId, userProducts);
 
-    return await userData.getUserProducts(userId);
+    return await userData.getUserProducts({ userId });
   } catch (err) {
     error('Error updating user products ' + err.message);
     throw err;

@@ -17,6 +17,7 @@ const searchData = {
         'phoneNumber',
         'firstName',
         'lastName',
+        'userAddressId',
         'street',
         'city',
         'state',

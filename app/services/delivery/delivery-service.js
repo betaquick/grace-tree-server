@@ -4,21 +4,35 @@ const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const Joi = require('joi');
 
 const deliveryData = require('./delivery-data');
+const userData = require('../user/user-data');
+const userSvc = require('../user/user-service');
 
 const {
   deliveryInfoValidator,
   updateDeliveryInfoValidator
 } = require('./delivery-validation');
 
-const userSvc = require('../../services/user/user-service');
+const {
+  USER_ADDRESS_TABLE
+} = require('../../../constants/table.constants');
 
+const getDeliveryInfo = async(userId, recipientId) => {
+  await Joi.validate(recipientId, Joi.number().required());
 
-const getCompanyDeliveries = async(userId) => {
+  const recipient = await userData.getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
+  recipient.products = await userData.getUserProducts({ userId: recipientId, status: true });
+
+  const company = await userSvc.getCompanyInfo(userId);
+  company.userId = userId;
+
+  const crews = await userSvc.getCompanyCrews(userId);
+
+  return { recipient, company, crews };
+};
+
+const getCompanyDeliveries = async userId => {
   try {
-    const {
-      companyId
-    } = await userSvc.getCompanyInfo(userId);
-    return await deliveryData.getDeliveries(companyId);
+    return await deliveryData.getDeliveries(userId);
   } catch (err) {
     throw err;
   }
@@ -32,23 +46,19 @@ const getDelivery = async(deliveryId) => {
   }
 };
 
-const addDelivery = async(userId, data) => {
+const addDelivery = async(assignedByUserId, data) => {
   let transaction;
   try {
-    const company = await userSvc.getCompanyInfo(userId);
-
-    data.companyId = company.companyId;
     const deliveryItem = {
-      userId,
+      assignedByUserId,
       ...data
     };
-
     await Joi.validate(deliveryItem, deliveryInfoValidator);
 
     transaction = await getTransaction();
-
     await deliveryData.addDelivery(deliveryItem, transaction);
     transaction.commit();
+
     return deliveryItem;
   } catch (err) {
     if (transaction) transaction.rollback();
@@ -62,7 +72,7 @@ const updateDelivery = async(userId, deliveryInfo) => {
     const {
       companyId
     } = await userSvc.getCompanyInfo(userId);
-    deliveryInfo.companyId = companyId;
+    deliveryInfo.assignedToUserId = companyId;
 
     await Joi.validate(deliveryInfo, updateDeliveryInfoValidator);
 
@@ -122,6 +132,7 @@ async function getTransaction() {
 };
 
 module.exports = {
+  getDeliveryInfo,
   addDelivery,
   getCompanyDeliveries,
   getDelivery,
