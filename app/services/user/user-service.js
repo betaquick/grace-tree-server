@@ -294,7 +294,6 @@ const updateUserProducts = async(userId, userProducts) => {
 
 const updateUserAddress = async(userId, data) => {
   try {
-    data.userId = userId;
     await Joi.validate(data, updateAddressValidator);
     const {
       street,
@@ -305,6 +304,7 @@ const updateUserAddress = async(userId, data) => {
     data.longitude = coords.longitude;
     data.latitude = coords.latitude;
 
+    data.userId = userId;
     await userData.addOrUpdateAddressInfo(data);
     return data;
   } catch (err) {
@@ -323,7 +323,6 @@ const getUserAddress = async(userId) => {
 };
 
 const getCoordinates = async(street, city, state) => {
-  console.log('I was called!!!!');
   let coordData = {};
   try {
     const coordinates = await locationService.getCoordinates(`${street}, ${city}, ${state}`);
