@@ -5,14 +5,16 @@ const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
   DELIVERY_TABLE,
-  USER_DELIVERY_TABLE
+  USER_DELIVERY_TABLE,
+  USER_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
 module.exports = {
   getDeliveries(assignedByUserId) {
     return knex(DELIVERY_TABLE)
       .where({ assignedByUserId })
-      .select('*');
+      .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
+      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
   },
 
   getSingleDelivery(deliveryId) {

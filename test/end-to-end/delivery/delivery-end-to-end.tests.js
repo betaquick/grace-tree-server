@@ -195,7 +195,7 @@ describe('Test delivery endpoints', function() {
         expect(data).to.have.property('status', 200);
         expect(data).to.have.property('error', false);
         expect(data).to.have.property('message', 'Deliveries retrieved successfully');
-        expect(data.body).to.be.an('array');
+        expect(data.body.deliveries).to.be.an('array');
         return data;
       });
   });
