@@ -37,7 +37,7 @@ module.exports = {
     deliverySvc
       .getCompanyDeliveries(userId)
       .then(deliveries => {
-        handleSuccess(res, 'Deliveries retrieved successfully', deliveries);
+        handleSuccess(res, 'Deliveries retrieved successfully', { deliveries });
       })
       .catch(err => handleError(err, res, 'Error Fetching Deliveries', error));
   },
