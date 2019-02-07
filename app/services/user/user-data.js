@@ -1,6 +1,10 @@
 'use strict';
 
-const { UserStatus, RoleTypes, UserTypes } = require('@betaquick/grace-tree-constants');
+const {
+  UserStatus,
+  RoleTypes,
+  UserTypes
+} = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -24,27 +28,41 @@ const userData = {
   },
 
   getUserEmail(userId) {
-    const params = { primary: 1 };
+    const params = {
+      primary: 1
+    };
 
-    return userData.getUserByParam(USER_EMAIL_TABLE, { [`${USER_EMAIL_TABLE}.userId`]: userId, ...params });
+    return userData.getUserByParam(USER_EMAIL_TABLE, {
+      [`${USER_EMAIL_TABLE}.userId`]: userId,
+      ...params
+    });
   },
 
   getUserPhone(userId) {
-    const params = { primary: 1 };
+    const params = {
+      primary: 1
+    };
 
-    return userData.getUserByParam(USER_PHONE_TABLE, { [`${USER_PHONE_TABLE}.userId`]: userId, ...params });
+    return userData.getUserByParam(USER_PHONE_TABLE, {
+      [`${USER_PHONE_TABLE}.userId`]: userId,
+      ...params
+    });
   },
 
   getUserEmails(userId) {
     return knex(USER_EMAIL_TABLE)
       .select('emailAddress', 'primary')
-      .where({ userId });
+      .where({
+        userId
+      });
   },
 
   getUserPhones(userId) {
     return knex(USER_PHONE_TABLE)
       .select('phoneNumber', 'primary', 'phoneType')
-      .where({ userId });
+      .where({
+        userId
+      });
   },
 
   getUserAddress(userAddressId) {
@@ -57,7 +75,9 @@ const userData = {
   getCompanyInfo(companyId) {
     return knex(COMPANY_PROFILE_TABLE)
       .first()
-      .where({ [`${COMPANY_PROFILE_TABLE}.companyId`]: companyId })
+      .where({
+        [`${COMPANY_PROFILE_TABLE}.companyId`]: companyId
+      })
       .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
   },
 
@@ -74,10 +94,18 @@ const userData = {
 
       return knex(USER_TABLE)
         .transacting(trx)
-        .insert({ email, password, userType: UserTypes.Crew })
+        .insert({
+          email,
+          password,
+          userType: UserTypes.Crew
+        })
         .then(userIds => {
           userId = userIds[0];
-          return knex(USER_COMPANY_TABLE).transacting(trx).insert({ userId, companyId, userRole: RoleTypes.Staff });
+          return knex(USER_COMPANY_TABLE).transacting(trx).insert({
+            userId,
+            companyId,
+            userRole: RoleTypes.Staff
+          });
         })
         .then(() => {
           const profile = {
@@ -129,12 +157,19 @@ const userData = {
 
       return knex(USER_TABLE)
         .transacting(trx)
-        .insert({ email, password, userType })
+        .insert({
+          email,
+          password,
+          userType
+        })
         .then(userIds => {
           userId = userIds[0];
 
           const emailMap = emails.map(e => {
-            const { emailAddress, primary } = e;
+            const {
+              emailAddress,
+              primary
+            } = e;
             return {
               userId,
               emailAddress,
@@ -145,7 +180,11 @@ const userData = {
         })
         .then(() => {
           const phoneMap = phones.map(phone => {
-            const { phoneNumber, primary, phoneType } = phone;
+            const {
+              phoneNumber,
+              primary,
+              phoneType
+            } = phone;
             return {
               userId,
               phoneNumber,
@@ -183,14 +222,31 @@ const userData = {
 
       return knex(USER_PROFILE_TABLE)
         .transacting(trx)
-        .where({ userId })
-        .update({ firstName, lastName })
-        .then(() => knex(USER_TABLE).transacting(trx).where({ userId }).update({ email, password }))
-        .then(() => knex(USER_EMAIL_TABLE).transacting(trx).where({ userId }).del())
-        .then(() => knex(USER_PHONE_TABLE).transacting(trx).where({ userId }).del())
+        .where({
+          userId
+        })
+        .update({
+          firstName,
+          lastName
+        })
+        .then(() => knex(USER_TABLE).transacting(trx).where({
+          userId
+        }).update({
+          email,
+          password
+        }))
+        .then(() => knex(USER_EMAIL_TABLE).transacting(trx).where({
+          userId
+        }).del())
+        .then(() => knex(USER_PHONE_TABLE).transacting(trx).where({
+          userId
+        }).del())
         .then(() => {
           const emailMap = emails.map(e => {
-            const { emailAddress, primary } = e;
+            const {
+              emailAddress,
+              primary
+            } = e;
             return {
               userId,
               emailAddress,
@@ -202,7 +258,11 @@ const userData = {
         })
         .then(() => {
           const phoneMap = phones.map(phone => {
-            const { phoneNumber, primary, phoneType } = phone;
+            const {
+              phoneNumber,
+              primary,
+              phoneType
+            } = phone;
             return {
               userId,
               phoneNumber,
@@ -232,7 +292,10 @@ const userData = {
 
       return knex(COMPANY_PROFILE_TABLE)
         .transacting(trx)
-        .insert({ companyName, website })
+        .insert({
+          companyName,
+          website
+        })
         .then(companyIds => {
           companyId = companyIds[0];
           return knex(COMPANY_ADDRESS_TABLE).transacting(trx)
@@ -281,10 +344,16 @@ const userData = {
 
       return knex(USER_ADDRESS_TABLE)
         .transacting(trx)
-        .insert({ userId, ...address })
+        .insert({
+          userId,
+          ...address
+        })
         .then(() => {
           const userProductMap = userProducts.map(product => {
-            return {userId, ...product };
+            return {
+              userId,
+              ...product
+            };
           });
           return knex(USER_PRODUCT_TABLE).transacting(trx).insert(userProductMap);
         })
@@ -295,10 +364,15 @@ const userData = {
 
   updateUserProducts(userId, userProducts) {
     return knex.transaction(trx => {
-      return knex(USER_PRODUCT_TABLE).transacting(trx).where({ userId }).del()
+      return knex(USER_PRODUCT_TABLE).transacting(trx).where({
+        userId
+      }).del()
         .then(() => {
           const userProductMap = userProducts.map(userProduct => {
-            return {userId, ...userProduct };
+            return {
+              userId,
+              ...userProduct
+            };
           });
           return knex(USER_PRODUCT_TABLE).transacting(trx).insert(userProductMap);
         })
@@ -311,6 +385,53 @@ const userData = {
     return knex(table)
       .where(where)
       .update(params);
+  },
+
+  getAddressInfo(userId) {
+    return knex(USER_ADDRESS_TABLE)
+      .where({ userId })
+      .first();
+  },
+
+  addOrUpdateAddressInfo(addressInfo) {
+    const {
+      userId,
+      zip,
+      street,
+      city,
+      state,
+      deliveryInstruction,
+      latitude,
+      longitude
+    } = addressInfo;
+
+    return knex(USER_ADDRESS_TABLE)
+      .where({
+        userId
+      })
+      .first()
+      .then((addy) => {
+        if (!addy) {
+          return knex(USER_ADDRESS_TABLE)
+            .insert({
+              ...addressInfo
+            });
+        } else {
+          return knex(USER_ADDRESS_TABLE)
+            .where({
+              userId
+            })
+            .update({
+              zip,
+              street,
+              city,
+              state,
+              deliveryInstruction,
+              latitude,
+              longitude
+            });
+        }
+      });
   }
 };
 

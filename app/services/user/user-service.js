@@ -16,14 +16,17 @@ const {
   deliveryInfoValidator,
   userValidator,
   updateUserProductsValidator,
-  crewValidator
+  crewValidator,
+  updateAddressValidator
 } = require('./user-validation');
 const {
   USER_TABLE,
   USER_PROFILE_TABLE,
   USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
-const { throwError } = require('./../../controllers/util/controller-util');
+const {
+  throwError
+} = require('./../../controllers/util/controller-util');
 
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
@@ -40,7 +43,9 @@ const acceptAgreement = async userId => {
       agreement: true
     };
 
-    await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, params);
+    await userData.updateUserByParams(USER_PROFILE_TABLE, {
+      userId
+    }, params);
     return user;
   } catch (err) {
     error('Error accepting agreement', err);
@@ -52,14 +57,21 @@ const updateStatus = async(userId, status) => {
   debug('Update status for ' + userId);
 
   try {
-    await Joi.validate({ userId, status }, statusValidator);
+    await Joi.validate({
+      userId,
+      status
+    }, statusValidator);
 
     const where = {
       [`${USER_TABLE}.userId`]: userId
     };
     const user = await userData.getUserByParam(USER_TABLE, where);
 
-    await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, { status });
+    await userData.updateUserByParams(USER_PROFILE_TABLE, {
+      userId
+    }, {
+      status
+    });
     user.status = status;
     return user;
   } catch (err) {
@@ -69,9 +81,15 @@ const updateStatus = async(userId, status) => {
 };
 
 const editUser = async(userId, data) => {
-  const { emails, password } = data;
+  const {
+    emails,
+    password
+  } = data;
   try {
-    await Joi.validate({ userId, ...data }, userValidator);
+    await Joi.validate({
+      userId,
+      ...data
+    }, userValidator);
 
     const emailAddress = _.get(emails[0], 'emailAddress');
 
@@ -82,7 +100,9 @@ const editUser = async(userId, data) => {
 
     await userData.editUser(userId, data);
 
-    const user = await userData.getUserByParam(USER_TABLE, { email: emailAddress });
+    const user = await userData.getUserByParam(USER_TABLE, {
+      email: emailAddress
+    });
 
     return {
       userId,
@@ -101,11 +121,17 @@ const editUser = async(userId, data) => {
 
 const addCompanyInfo = async(userId, data) => {
   try {
-    await Joi.validate({ userId, ...data }, businessInfoValidator);
+    await Joi.validate({
+      userId,
+      ...data
+    }, businessInfoValidator);
 
     const companyIds = await userData.addCompanyInfo(userId, data);
 
-    return { companyId: companyIds[0], ...data };
+    return {
+      companyId: companyIds[0],
+      ...data
+    };
   } catch (err) {
     error('Error updating business ' + err.message);
     throw err;
@@ -114,7 +140,10 @@ const addCompanyInfo = async(userId, data) => {
 
 const updateCompanyInfo = async(userId, company) => {
   try {
-    await Joi.validate({ userId, ...company }, updateBusinessValidator);
+    await Joi.validate({
+      userId,
+      ...company
+    }, updateBusinessValidator);
 
     await userData.updateCompanyInfo(company);
 
@@ -127,9 +156,16 @@ const updateCompanyInfo = async(userId, company) => {
 
 const addDeliveryInfo = async(userId, data) => {
   try {
-    await Joi.validate({ userId, ...data }, deliveryInfoValidator);
+    await Joi.validate({
+      userId,
+      ...data
+    }, deliveryInfoValidator);
 
-    const { street, city, state } = data.address;
+    const {
+      street,
+      city,
+      state
+    } = data.address;
     const address = `${street}, ${city}, ${state}`;
 
     const coordinates = await locationService.getCoordinates(address);
@@ -140,7 +176,10 @@ const addDeliveryInfo = async(userId, data) => {
 
     const deliveryIds = await userData.addDeliveryInfo(userId, data);
 
-    return { deliveryId: deliveryIds[0], ...data };
+    return {
+      deliveryId: deliveryIds[0],
+      ...data
+    };
   } catch (err) {
     error('Error updating delivery info ', err);
     throw err;
@@ -149,7 +188,9 @@ const addDeliveryInfo = async(userId, data) => {
 
 const getCompanyInfo = async userId => {
   await Joi.validate(userId, Joi.number().required());
-  const user = await userData.getUserByParam(USER_COMPANY_TABLE, { [`${USER_COMPANY_TABLE}.userId`]: userId });
+  const user = await userData.getUserByParam(USER_COMPANY_TABLE, {
+    [`${USER_COMPANY_TABLE}.userId`]: userId
+  });
   const businessInfo = await userData.getCompanyInfo(user.companyId);
 
   return businessInfo;
@@ -158,7 +199,9 @@ const getCompanyInfo = async userId => {
 const getCompanyCrews = async userId => {
   await Joi.validate(userId, Joi.number().required());
 
-  const user = await userData.getUserByParam(USER_COMPANY_TABLE, { [`${USER_COMPANY_TABLE}.userId`]: userId });
+  const user = await userData.getUserByParam(USER_COMPANY_TABLE, {
+    [`${USER_COMPANY_TABLE}.userId`]: userId
+  });
   const crews = await userData.getCompanyCrews(user.companyId);
 
   return crews;
@@ -170,7 +213,11 @@ const deleteCompanyCrew = async crewId => {
   try {
     await Joi.validate(crewId, Joi.number().required());
 
-    await userData.updateUserByParams(USER_TABLE, { userId: crewId }, { active: false });
+    await userData.updateUserByParams(USER_TABLE, {
+      userId: crewId
+    }, {
+      active: false
+    });
     return crewId;
   } catch (err) {
     error('Error deleting crew', err);
@@ -179,12 +226,20 @@ const deleteCompanyCrew = async crewId => {
 };
 
 const addCompanyCrew = async(userId, data) => {
-  const { password, email } = data;
+  const {
+    password,
+    email
+  } = data;
 
   try {
-    await Joi.validate({ userId, ...data }, crewValidator);
+    await Joi.validate({
+      userId,
+      ...data
+    }, crewValidator);
 
-    const user = await userData.getUserByParam(USER_TABLE, { email });
+    const user = await userData.getUserByParam(USER_TABLE, {
+      email
+    });
     if (user) {
       debug('Email address has already been taken');
       throwError(422, 'Email address has already been taken');
@@ -192,7 +247,9 @@ const addCompanyCrew = async(userId, data) => {
 
     data.password = await bcrypt.hash(password, 10);
 
-    const company = await userData.getUserByParam(USER_COMPANY_TABLE, { [`${USER_COMPANY_TABLE}.userId`]: userId });
+    const company = await userData.getUserByParam(USER_COMPANY_TABLE, {
+      [`${USER_COMPANY_TABLE}.userId`]: userId
+    });
     data.companyId = company.companyId;
 
     const userIds = await userData.addCompanyCrew(data);
@@ -222,7 +279,10 @@ const getUserProducts = async userId => {
 
 const updateUserProducts = async(userId, userProducts) => {
   try {
-    await Joi.validate({ userId, userProducts }, updateUserProductsValidator);
+    await Joi.validate({
+      userId,
+      userProducts
+    }, updateUserProductsValidator);
     await userData.updateUserProducts(userId, userProducts);
 
     return await userData.getUserProducts({ userId });
@@ -230,6 +290,44 @@ const updateUserProducts = async(userId, userProducts) => {
     error('Error updating user products ' + err.message);
     throw err;
   }
+};
+
+const updateUserAddress = async(userId, data) => {
+  try {
+    await Joi.validate(data, updateAddressValidator);
+    const {
+      street,
+      city,
+      state
+    } = data;
+    const coords = await getCoordinates(street, city, state);
+    data.longitude = coords.longitude;
+    data.latitude = coords.latitude;
+
+    data.userId = userId;
+    await userData.addOrUpdateAddressInfo(data);
+    return data;
+  } catch (err) {
+    error('Error updating user address ' + err.message);
+    throw err;
+  }
+};
+
+const getUserAddress = async(userId) => {
+  try {
+    return await userData.getAddressInfo(userId);
+  } catch (err) {
+    error('Error fetching user address ' + err.message);
+    throw err;
+  }
+};
+
+const getCoordinates = async(street, city, state) => {
+  const coordinates = await locationService.getCoordinates(`${street}, ${city}, ${state}`);
+  return {
+    longitude: coordinates.lng,
+    latitude: coordinates.lat
+  };
 };
 
 module.exports = {
@@ -244,5 +342,8 @@ module.exports = {
   getCompanyCrews,
   deleteCompanyCrew,
   getUserProducts,
-  updateUserProducts
+  updateUserProducts,
+  getUserAddress,
+  updateUserAddress,
+  getCoordinates
 };

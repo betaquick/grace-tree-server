@@ -38,6 +38,8 @@ router.put('/user/status/:status', auth, verify, userController.updateStatus);
 router.put('/user', auth, verify, userController.updateProfile);
 router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
+router.get('/user/address', auth, verify, userController.getUserAddress);
+router.put('/user/address', auth, verify, userController.updateUserAddress);
 
 router.get('/search', auth, verify, searchController.searchUsers);
 
