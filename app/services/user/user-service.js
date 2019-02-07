@@ -323,17 +323,11 @@ const getUserAddress = async(userId) => {
 };
 
 const getCoordinates = async(street, city, state) => {
-  let coordData = {};
-  try {
-    const coordinates = await locationService.getCoordinates(`${street}, ${city}, ${state}`);
-    coordData = {
-      longitude: coordinates.lng,
-      latitude: coordinates.lat
-    };
-  } catch (error) {
-    throw error;
-  }
-  return coordData;
+  const coordinates = await locationService.getCoordinates(`${street}, ${city}, ${state}`);
+  return {
+    longitude: coordinates.lng,
+    latitude: coordinates.lat
+  };
 };
 
 module.exports = {
