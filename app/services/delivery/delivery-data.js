@@ -6,7 +6,9 @@ const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
   DELIVERY_TABLE,
   USER_DELIVERY_TABLE,
-  USER_PROFILE_TABLE
+  USER_PROFILE_TABLE,
+  USER_COMPANY_TABLE,
+  COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
 module.exports = {
@@ -15,6 +17,20 @@ module.exports = {
       .where({ assignedByUserId })
       .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+  },
+
+  getUserDeliveries(userId) {
+    return knex(USER_DELIVERY_TABLE)
+      .where({ [`${USER_DELIVERY_TABLE}.userId`]: userId })
+      .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
+      .join(USER_COMPANY_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_COMPANY_TABLE}.userId`)
+      .join(COMPANY_PROFILE_TABLE, `${USER_COMPANY_TABLE}.companyId`, '=', `${COMPANY_PROFILE_TABLE}.companyId`);
+  },
+
+  updateDeliveryStatus(deliveryId, statusCode) {
+    return knex(DELIVERY_TABLE)
+      .where({ deliveryId })
+      .update({ statusCode });
   },
 
   getSingleDelivery(deliveryId) {

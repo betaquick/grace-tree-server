@@ -2,6 +2,8 @@
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const Joi = require('joi');
+const error = require('debug')('grace-tree:delivery-service:error');
+const debug = require('debug')('grace-tree:delivery-service:debug');
 
 const deliveryData = require('./delivery-data');
 const userData = require('../user/user-data');
@@ -9,7 +11,8 @@ const userSvc = require('../user/user-service');
 
 const {
   deliveryInfoValidator,
-  updateDeliveryInfoValidator
+  updateDeliveryInfoValidator,
+  updateDeliveryStatusValidator
 } = require('./delivery-validation');
 
 const {
@@ -33,6 +36,14 @@ const getDeliveryInfo = async(userId, recipientId) => {
 const getCompanyDeliveries = async userId => {
   try {
     return await deliveryData.getDeliveries(userId);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const getUserDeliveries = async userId => {
+  try {
+    return await deliveryData.getUserDeliveries(userId);
   } catch (err) {
     throw err;
   }
@@ -86,6 +97,20 @@ const updateDelivery = async(userId, deliveryInfo) => {
   }
 };
 
+const updateDeliveryStatus = async(deliveryId, statusCode) => {
+  debug('Updating status', deliveryId, statusCode);
+  try {
+    await Joi.validate({ deliveryId, statusCode }, updateDeliveryStatusValidator);
+
+    await deliveryData.updateDeliveryStatus(deliveryId, statusCode);
+
+    return deliveryId;
+  } catch (err) {
+    error('Error updating status', err);
+    throw err;
+  }
+};
+
 const addUserToDelivery = async(deliveryId, userId) => {
   let transaction;
   try {
@@ -135,9 +160,11 @@ module.exports = {
   getDeliveryInfo,
   addDelivery,
   getCompanyDeliveries,
+  getUserDeliveries,
   getDelivery,
   updateDelivery,
   addUserToDelivery,
+  updateDeliveryStatus,
   removeUserFromDelivery,
   deleteDelivery
 };
