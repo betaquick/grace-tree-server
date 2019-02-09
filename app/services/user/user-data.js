@@ -286,6 +286,8 @@ const userData = {
         city,
         state,
         zip,
+        latitude,
+        longitude,
         website
       } = businessInfo;
       let companyId;
@@ -299,7 +301,7 @@ const userData = {
         .then(companyIds => {
           companyId = companyIds[0];
           return knex(COMPANY_ADDRESS_TABLE).transacting(trx)
-            .insert({ companyId, companyAddress, city, state, zip });
+            .insert({ companyId, companyAddress, city, state, zip, latitude, longitude });
         })
         .then(() => {
           const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx)
@@ -321,6 +323,8 @@ const userData = {
         city,
         state,
         zip,
+        longitude,
+        latitude,
         website
       } = company;
 
@@ -329,7 +333,7 @@ const userData = {
         .where({ companyId })
         .update({ companyName, website })
         .then(() => knex(COMPANY_ADDRESS_TABLE).transacting(trx).where({ companyAddressId })
-          .update({ companyAddress, city, state, zip }))
+          .update({ companyAddress, city, state, zip, latitude, longitude }))
         .then(trx.commit)
         .catch(trx.rollback);
     });

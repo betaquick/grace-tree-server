@@ -121,10 +121,15 @@ const editUser = async(userId, data) => {
 
 const addCompanyInfo = async(userId, data) => {
   try {
-    await Joi.validate({
-      userId,
-      ...data
-    }, businessInfoValidator);
+    await Joi.validate({ userId, ...data }, businessInfoValidator);
+
+    const { companyAddress, city, state } = data;
+    const address = `${companyAddress}, ${city}, ${state}`;
+    const coordinates = await locationService.getCoordinates(address);
+
+    debug(`Google map coordinates for ${address} is: `, coordinates);
+    data.longitude = coordinates.lng;
+    data.latitude = coordinates.lat;
 
     const companyIds = await userData.addCompanyInfo(userId, data);
 
@@ -140,10 +145,15 @@ const addCompanyInfo = async(userId, data) => {
 
 const updateCompanyInfo = async(userId, company) => {
   try {
-    await Joi.validate({
-      userId,
-      ...company
-    }, updateBusinessValidator);
+    await Joi.validate({ userId, ...company }, updateBusinessValidator);
+
+    const { companyAddress, city, state } = company;
+    const address = `${companyAddress}, ${city}, ${state}`;
+    const coordinates = await locationService.getCoordinates(address);
+
+    debug(`Google map coordinates for ${address} is: `, coordinates);
+    company.longitude = coordinates.lng;
+    company.latitude = coordinates.lat;
 
     await userData.updateCompanyInfo(company);
 
