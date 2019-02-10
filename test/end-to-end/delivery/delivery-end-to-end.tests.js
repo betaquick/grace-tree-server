@@ -19,6 +19,7 @@ const {
   USER_DELIVERY_TABLE
 } = require('../../../constants/table.constants');
 
+const { locationServiceMock } = require('../../mock-data/user-mock-data');
 const {
   companyUserData,
   validCompanyData,
@@ -27,6 +28,7 @@ const {
   inValidDeliveryData
 } = require('../../mock-data/delivery-mock-data');
 const emailService = require('../../../app/services/messaging/email-service');
+const { googleMapsClient } = require('../../../app/services/location/location-service');
 
 const request = supertest(app);
 
@@ -37,6 +39,7 @@ describe('Test delivery endpoints', function() {
 
   before(() => {
     sinon.stub(emailService, 'sendVerificationMail');
+    sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
     return request
       .post('/api/v1/auth/register')
       .send(companyUserData)
