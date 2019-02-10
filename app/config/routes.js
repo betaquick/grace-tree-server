@@ -55,6 +55,8 @@ router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
 router.get('/user/company/delivery-info/:recipientId', auth, verify, deliveryController.getDeliveryInfo);
 
 router.get('/user/delivery/:deliveryId', auth, deliveryController.getDelivery);
+router.get('/user/deliveries', auth, deliveryController.getUserDeliveries);
+router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
 router.put('/user/company/add-to-delivery', auth, deliveryController.addUserToDelivery);
 router.post('/user/company/remove-from-delivery', auth, deliveryController.removeUserFromDelivery);
 router.post('/user/company/delete-delivery', auth, deliveryController.deleteDelivery);

@@ -19,7 +19,13 @@ const updateDeliveryInfoValidator = Joi.object().keys({
   additionalCompanyText: Joi.string().allow('').optional()
 });
 
+const updateDeliveryStatusValidator = Joi.object().keys({
+  deliveryId: Joi.number().required(),
+  statusCode: Joi.string().required()
+});
+
 module.exports = {
   deliveryInfoValidator,
-  updateDeliveryInfoValidator
+  updateDeliveryInfoValidator,
+  updateDeliveryStatusValidator
 };
