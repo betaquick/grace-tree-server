@@ -49,6 +49,22 @@ const getUserDeliveries = async userId => {
   }
 };
 
+const getUserPendingDeliveries = async userId => {
+  try {
+    return await deliveryData.getUserPendingDeliveries(userId);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const getUserRecentDeliveries = async userId => {
+  try {
+    return await deliveryData.getUserRecentDeliveries(userId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 const getDelivery = async(deliveryId) => {
   try {
     return await deliveryData.getSingleDelivery(deliveryId);
@@ -161,6 +177,8 @@ module.exports = {
   addDelivery,
   getCompanyDeliveries,
   getUserDeliveries,
+  getUserPendingDeliveries,
+  getUserRecentDeliveries,
   getDelivery,
   updateDelivery,
   addUserToDelivery,

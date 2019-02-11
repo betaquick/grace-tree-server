@@ -86,6 +86,10 @@ describe('Test delivery endpoints', function() {
   });
 
   it('creates delivery when info is correct', () => {
+    validDeliveryData.users.push(userData.userId);
+    validDeliveryData.assignedByUserId = userData.userId;
+    validDeliveryData.assignedToUserId = userData.userId;
+
     return request
       .post('/api/v1/user/company/delivery')
       .send(validDeliveryData)
@@ -199,6 +203,58 @@ describe('Test delivery endpoints', function() {
         expect(data).to.have.property('error', false);
         expect(data).to.have.property('message', 'Deliveries retrieved successfully');
         expect(data.body.deliveries).to.be.an('array');
+        return data;
+      });
+  });
+
+  it('can get all pending deliveries of logged in user', () => {
+    return request
+      .get('/api/v1/user/deliveries/pending')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'auth')
+      .expect(200)
+      .then(res => {
+        const data = res.body;
+        expect(data).to.be.an('object');
+        expect(data).to.have.property('status', 200);
+        expect(data).to.have.property('error', false);
+        expect(data).to.have.property('message', 'Deliveries retrieved successfully');
+
+        const { deliveries } = data.body;
+        expect(deliveries).to.be.an('array');
+        expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+        expect(deliveries[0]).to.have.property('deliveryId');
+        expect(deliveries[0]).to.have.property('assignedToUserId');
+        expect(deliveries[0]).to.have.property('assignedByUserId');
+        expect(deliveries[0]).to.have.property('companyName');
+        expect(deliveries[0]).to.have.property('companyId');
+        expect(deliveries[0]).to.have.property('statusCode');
+        return data;
+      });
+  });
+
+  it('can get recent deliveries of logged in user', () => {
+    return request
+      .get('/api/v1/user/deliveries/recent')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'auth')
+      .expect(200)
+      .then(res => {
+        const data = res.body;
+        expect(data).to.be.an('object');
+        expect(data).to.have.property('status', 200);
+        expect(data).to.have.property('error', false);
+        expect(data).to.have.property('message', 'Deliveries retrieved successfully');
+
+        const { deliveries } = data.body;
+        expect(deliveries).to.be.an('array');
+        expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+        expect(deliveries[0]).to.have.property('deliveryId');
+        expect(deliveries[0]).to.have.property('assignedToUserId');
+        expect(deliveries[0]).to.have.property('assignedByUserId');
+        expect(deliveries[0]).to.have.property('companyName');
+        expect(deliveries[0]).to.have.property('companyId');
+        expect(deliveries[0]).to.have.property('statusCode');
         return data;
       });
   });
