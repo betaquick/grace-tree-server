@@ -79,10 +79,8 @@ describe('Test delivery endpoints', function() {
       .then(() => knex(USER_COMPANY_TABLE).where('userId', userData.userId).delete())
       .then(() => knex(COMPANY_ADDRESS_TABLE).where('companyId', companyData.companyId).delete())
       .then(() => knex(COMPANY_PROFILE_TABLE).where('companyId', companyData.companyId).delete())
-      .then(() => knex(DELIVERY_TABLE).delete())
-      .then(() => knex(USER_DELIVERY_TABLE).where({
-        deliveryId
-      }).delete());
+      .then(() => knex(DELIVERY_TABLE).where({ deliveryId }).delete())
+      .then(() => knex(USER_DELIVERY_TABLE).where({ deliveryId }).delete());
   });
 
   it('creates delivery when info is correct', () => {
