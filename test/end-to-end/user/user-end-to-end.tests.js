@@ -47,7 +47,6 @@ describe('test user process end-to-end', function() {
 
   before(() => {
     sinon.stub(twilioClient.messages, 'create').resolves(true);
-    sinon.stub(transporter, 'sendMail').resolves(true);
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)
@@ -137,7 +136,12 @@ describe('test user process end-to-end', function() {
 
     describe('User testing - Verified true', () => {
       before(() => {
+        sinon.restore();
+        sinon.stub(twilioClient.messages, 'create').resolves(true);
+        sinon.stub(transporter, 'sendMail').resolves(true);
+        sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
         sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
+
         return knex(USER_EMAIL_TABLE)
           .where({ userId: userData.userId, primary: 1 })
           .update({ isVerified: true })
@@ -146,6 +150,8 @@ describe('test user process end-to-end', function() {
             .update({ isVerified: true }));
       });
       after(() => {
+        sinon.restore();
+
         return knex(USER_EMAIL_TABLE)
           .where({ userId: userData.userId, primary: 1 })
           .update({ isVerified: false })
@@ -214,7 +220,7 @@ describe('test user process end-to-end', function() {
             expect(user).to.have.property('lastName');
             expect(user).to.have.property('email');
             expect(user).to.have.property('status').equals(UserStatus.Ready);
-            sinon.assert.callCount(transporter.sendMail, 2);
+            sinon.assert.callCount(transporter.sendMail, 1);
             setTimeout(() => sinon.assert.callCount(twilioClient.messages.create, 1), 1000);
           });
       });
