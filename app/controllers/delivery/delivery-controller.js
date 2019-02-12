@@ -53,6 +53,28 @@ module.exports = {
       .catch(err => handleError(err, res, 'Error Fetching Deliveries', error));
   },
 
+  getUserPendingDeliveries(req, res) {
+    const { userId } = req.user;
+
+    deliverySvc
+      .getUserPendingDeliveries(userId)
+      .then(deliveries => {
+        handleSuccess(res, 'Deliveries retrieved successfully', { deliveries });
+      })
+      .catch(err => handleError(err, res, 'Error Fetching Deliveries', error));
+  },
+
+  getUserRecentDeliveries(req, res) {
+    const { userId } = req.user;
+
+    deliverySvc
+      .getUserRecentDeliveries(userId)
+      .then(deliveries => {
+        handleSuccess(res, 'Deliveries retrieved successfully', { deliveries });
+      })
+      .catch(err => handleError(err, res, 'Error Fetching Deliveries', error));
+  },
+
   updateDeliveryStatus(req, res) {
     const { deliveryId } = req.params;
     const { statusCode } = req.body;

@@ -53,13 +53,14 @@ router.post('/user/company/delivery', auth, deliveryController.createDelivery);
 router.get('/user/company/deliveries', auth, deliveryController.getCompanyDeliveries);
 router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
 router.get('/user/company/delivery-info/:recipientId', auth, verify, deliveryController.getDeliveryInfo);
-
-router.get('/user/delivery/:deliveryId', auth, deliveryController.getDelivery);
-router.get('/user/deliveries', auth, deliveryController.getUserDeliveries);
-router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
 router.put('/user/company/add-to-delivery', auth, deliveryController.addUserToDelivery);
 router.post('/user/company/remove-from-delivery', auth, deliveryController.removeUserFromDelivery);
 router.post('/user/company/delete-delivery', auth, deliveryController.deleteDelivery);
 
+router.get('/user/delivery/:deliveryId', auth, deliveryController.getDelivery);
+router.get('/user/deliveries', auth, deliveryController.getUserDeliveries);
+router.get('/user/deliveries/pending', auth, deliveryController.getUserPendingDeliveries);
+router.get('/user/deliveries/recent', auth, deliveryController.getUserRecentDeliveries);
+router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
 
 module.exports = router;
