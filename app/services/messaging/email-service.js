@@ -72,9 +72,23 @@ If you have any problem using your credential, please contact ${options.companyN
   return sendMail(mailOptions);
 };
 
+const sendStatusNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Status notification on GTS',
+    text: `Hi, ${options.firstName}\n
+This is to notify you that you moved your status from PAUSE to READY, we'll start assigning deliveries to you.
+If you did not request this, please ignore this email and your password will remain unchanged.`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   transporter,
   sendResetMail,
   sendVerificationMail,
-  sendUserCreationMail
+  sendUserCreationMail,
+  sendStatusNotificationMail
 };

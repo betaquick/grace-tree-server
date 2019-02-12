@@ -5,8 +5,10 @@ const debug = require('debug')('grace-tree:auth-service:debug');
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
+const { UserStatus } = require('@betaquick/grace-tree-constants');
 
 const emailService = require('../messaging/email-service');
+const smsService = require('../messaging/sms-service');
 const locationService = require('../location/location-service');
 const userData = require('./user-data');
 const {
@@ -24,9 +26,7 @@ const {
   USER_PROFILE_TABLE,
   USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
-const {
-  throwError
-} = require('./../../controllers/util/controller-util');
+const { throwError } = require('./../../controllers/util/controller-util');
 
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
@@ -57,22 +57,27 @@ const updateStatus = async(userId, status) => {
   debug('Update status for ' + userId);
 
   try {
-    await Joi.validate({
-      userId,
-      status
-    }, statusValidator);
+    await Joi.validate({ userId, status }, statusValidator);
 
     const where = {
       [`${USER_TABLE}.userId`]: userId
     };
     const user = await userData.getUserByParam(USER_TABLE, where);
 
-    await userData.updateUserByParams(USER_PROFILE_TABLE, {
-      userId
-    }, {
-      status
-    });
+    await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, { status });
     user.status = status;
+
+    if (status === UserStatus.Ready) {
+      const { phoneNumber } = await userData.getUserPhone(userId);
+      const options = {
+        email: user.email,
+        firstName: user.firstName
+      };
+
+      emailService.sendStatusNotificationMail(options);
+      smsService.sendVerificationSMS({ phoneNumber });
+    }
+
     return user;
   } catch (err) {
     error('Error updating user status', err);

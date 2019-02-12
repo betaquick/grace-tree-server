@@ -33,12 +33,9 @@ module.exports = {
   },
 
   updateStatus(req, res) {
-    const {
-      status
-    } = req.params;
-    const {
-      userId
-    } = req.user;
+    const { status } = req.params;
+    const { userId } = req.user;
+
     userSvc
       .updateStatus(userId, status)
       .then(user => handleSuccess(res, 'User status updated successful', {
