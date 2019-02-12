@@ -5,6 +5,7 @@ const client = require('twilio')(
   process.env.TWILIO_AUTH_TOKEN
 );
 const { BitlyClient } = require('bitly');
+const error = require('debug')('grace-tree:sms-service:error');
 
 const { throwError } = require('../../controllers/util/controller-util');
 
@@ -15,24 +16,42 @@ const sendSMS = async smsOptions => {
     const response = await client.messages.create(smsOptions);
     return response;
   } catch (err) {
+    error('Error sending sms', err);
     throwError(422, err.message);
   }
 };
 
 const sendVerificationSMS = async options => {
   try {
-    const result = await bitly.shorten(`${process.env.WEB_URL}/verification/sms/${options.token}`);
+    const result = await bitly.shorten(`${process.env.WEB_URL}/${options.path}/verification/sms/${options.token}`);
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.phoneNumber,
       body: `Click ${result.url} to verify your phone number on Grace Tree Services`
     };
     return sendSMS(smsOptions);
-  } catch (e) {
-    throw e;
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
+const sendStatusNotificationSMS = async options => {
+  try {
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: options.phoneNumber,
+      body: 'This is to notify that you are READY to start receiving deliveries.'
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
   }
 };
 
 module.exports = {
-  sendVerificationSMS
+  twilioClient: client,
+  sendVerificationSMS,
+  sendStatusNotificationSMS
 };

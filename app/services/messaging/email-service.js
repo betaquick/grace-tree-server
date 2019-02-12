@@ -2,6 +2,7 @@
 
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
+const error = require('debug')('grace-tree:email-service:error');
 
 const { throwError } = require('../../controllers/util/controller-util');
 
@@ -20,6 +21,7 @@ const sendMail = async mailOptions => {
     const response = await transporter.sendMail(mailOptions);
     return response;
   } catch (err) {
+    error('Error sending email', err);
     throwError(422, err.message);
   }
 };
@@ -48,7 +50,7 @@ const sendVerificationMail = options => {
 This message has been sent to you because you entered you e-mail address on a verification form. 
 If this wasn't you, please ignore this message.\n
 Please click on the following link, or paste this into your browser to complete the process:\n
-${process.env.WEB_URL}/verification/email/${options.token}\n
+${process.env.WEB_URL}/${options.path}/verification/email/${options.token}\n
 The link is valid for 24 hours and can be used only once.`
   };
 
@@ -72,9 +74,22 @@ If you have any problem using your credential, please contact ${options.companyN
   return sendMail(mailOptions);
 };
 
+const sendStatusNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Status notification on GTS',
+    text: `Hi, ${options.firstName}\n
+This is to notify you that you moved your status from PAUSE to READY, we'll start assigning deliveries to you.`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   transporter,
   sendResetMail,
   sendVerificationMail,
-  sendUserCreationMail
+  sendUserCreationMail,
+  sendStatusNotificationMail
 };

@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const stringify = require('json-stringify-safe');
 const moment = require('moment');
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const userData = require('../user/user-data');
 const emailService = require('../messaging/email-service');
@@ -211,7 +212,7 @@ const register = async data => {
   }
 };
 
-const verifyEmail = async(userId, emailAddress) => {
+const verifyEmail = async(userId, emailAddress, userType) => {
   debug('Starting validation process for email: ' + emailAddress + ' with userId: ' + userId);
 
   try {
@@ -230,7 +231,8 @@ const verifyEmail = async(userId, emailAddress) => {
 
     const options = {
       email: emailAddress,
-      token
+      token,
+      path: userType === UserTypes.General ? 'user-registration' : 'company-registration'
     };
 
     emailService.sendVerificationMail(options);
@@ -242,7 +244,7 @@ const verifyEmail = async(userId, emailAddress) => {
   }
 };
 
-const verifyPhone = async(userId, phoneNumber) => {
+const verifyPhone = async(userId, phoneNumber, userType) => {
   debug('Starting validation process for phone: ' + phoneNumber);
 
   try {
@@ -260,7 +262,8 @@ const verifyPhone = async(userId, phoneNumber) => {
 
     const options = {
       phoneNumber,
-      token
+      token,
+      path: userType === UserTypes.General ? 'user-registration' : 'company-registration'
     };
 
     smsService.sendVerificationSMS(options);
@@ -276,7 +279,7 @@ const validateEmailToken = async token => {
   try {
     await Joi.validate(token, Joi.string().required());
 
-    let email = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
+    const email = await userData.getUserByParam(USER_EMAIL_TABLE, { verificationCode: token });
 
     if (!_.has(email, 'verificationCodeExpiry')) {
       throwError(422, 'Token is not valid');
