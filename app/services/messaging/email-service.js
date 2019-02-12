@@ -80,8 +80,7 @@ const sendStatusNotificationMail = options => {
     to: options.email,
     subject: 'Status notification on GTS',
     text: `Hi, ${options.firstName}\n
-This is to notify you that you moved your status from PAUSE to READY, we'll start assigning deliveries to you.
-If you did not request this, please ignore this email and your password will remain unchanged.`
+This is to notify you that you moved your status from PAUSE to READY, we'll start assigning deliveries to you.`
   };
 
   return sendMail(mailOptions);
