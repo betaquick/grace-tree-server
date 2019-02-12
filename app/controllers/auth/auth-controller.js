@@ -51,9 +51,10 @@ module.exports = {
   },
 
   register(req, res) {
-    const {body} = req;
+    const { body } = req;
     const email = _.get(body, 'emails[0].emailAddress');
     const phone = _.get(body, 'phones[0].phoneNumber');
+    const userType = _.get(body, 'userType');
 
     authSvc
       .register(body)
@@ -61,10 +62,10 @@ module.exports = {
         try {
           const userId = _.get(data, 'user.userId');
           debug('setting up email verification');
-          await authSvc.verifyEmail(userId, email);
+          await authSvc.verifyEmail(userId, email, userType);
 
           debug('setting up phone verification');
-          await authSvc.verifyPhone(userId, phone);
+          await authSvc.verifyPhone(userId, phone, userType);
 
           debug('Verification link sent successfully');
 
