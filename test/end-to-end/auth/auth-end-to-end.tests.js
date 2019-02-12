@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const _ = require('lodash');
 
-const {VerificationTypes} = require('@betaquick/grace-tree-constants');
+const { VerificationTypes } = require('@betaquick/grace-tree-constants');
 
 const { transporter } = require('../../../app/services/messaging/email-service');
 const app = require('../../../app/config/app-config')();

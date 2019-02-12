@@ -23,6 +23,7 @@ const {
 } = require('../../mock-data/user-mock-data');
 const userDt = require('../../../app/services/user/user-data');
 const { transporter } = require('../../../app/services/messaging/email-service');
+const { twilioClient } = require('../../../app/services/messaging/sms-service');
 const { googleMapsClient } = require('../../../app/services/location/location-service');
 const {
   USER_TABLE,
@@ -45,6 +46,7 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
+    sinon.stub(twilioClient.messages, 'create').resolves(true);
     sinon.stub(transporter, 'sendMail').resolves(true);
     return request
       .post('/api/v1/auth/register')
@@ -212,6 +214,8 @@ describe('test user process end-to-end', function() {
             expect(user).to.have.property('lastName');
             expect(user).to.have.property('email');
             expect(user).to.have.property('status').equals(UserStatus.Ready);
+            sinon.assert.callCount(transporter.sendMail, 2);
+            setTimeout(() => sinon.assert.callCount(twilioClient.messages.create, 1), 1000);
           });
       });
 

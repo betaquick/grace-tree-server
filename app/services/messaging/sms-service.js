@@ -51,6 +51,7 @@ const sendStatusNotificationSMS = async options => {
 };
 
 module.exports = {
+  twilioClient: client,
   sendVerificationSMS,
   sendStatusNotificationSMS
 };
