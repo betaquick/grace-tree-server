@@ -86,10 +86,43 @@ This is to notify you that you moved your status from PAUSE to READY, we'll star
   return sendMail(mailOptions);
 };
 
+const sendUserDeliveryNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Scheduled Delivery Notification',
+    text: `Hi, ${options.firstName}\n
+This is to notify you that your products have been assigned to the company/crew with the details below:\n
+Company Name: ${options.companyName}\n
+Phone Number: ${options.phoneNumber}\n
+Additional Information: ${options.additionalRecipientText}`
+  };
+
+  return sendMail(mailOptions);
+};
+
+const sendCompanyDeliveryNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Scheduled Delivery Notification',
+    text: `Hi, ${options.firstName}\n
+This is to notify you that the products of the user with the details below have been assigned to you.\n
+Recipient Name: ${options.recipientName}\n
+Phone Number: ${options.phoneNumber}\n
+Address: ${options.address}\n
+Additional Information: ${options.additionalCompanyText}`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   transporter,
   sendResetMail,
   sendVerificationMail,
   sendUserCreationMail,
-  sendStatusNotificationMail
+  sendStatusNotificationMail,
+  sendUserDeliveryNotificationMail,
+  sendCompanyDeliveryNotificationMail
 };
