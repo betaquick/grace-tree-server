@@ -23,16 +23,15 @@ module.exports = {
     const { userId } = req.user;
     const { body } = req;
 
+    let delivery;
+
     deliverySvc
       .addDelivery(userId, body)
-      .then(async delivery => {
-        try {
-          await deliverySvc.sendDeliveryNotification(delivery);
-          handleSuccess(res, 'Delivery added successfully', { delivery });
-        } catch (err) {
-          error('Error sending verification for Email/Phone: ', err);
-        }
+      .then(response => {
+        delivery = response;
+        return deliverySvc.sendDeliveryNotification(delivery);
       })
+      .then(() => handleSuccess(res, 'Delivery added successfully', { delivery }))
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));
   },
 
