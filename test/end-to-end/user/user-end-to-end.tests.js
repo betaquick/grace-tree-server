@@ -46,7 +46,7 @@ describe('test user process end-to-end', function() {
   let userData;
 
   before(() => {
-    sinon.stub(twilioClient.messages, 'create').resolves(true);
+    sinon.stub(transporter, 'sendMail').resolves(true);
     return request
       .post('/api/v1/auth/register')
       .send(validUserData)

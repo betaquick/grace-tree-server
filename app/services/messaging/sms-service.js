@@ -50,8 +50,38 @@ const sendStatusNotificationSMS = async options => {
   }
 };
 
+const sendUserDeliveryNotificationSMS = async options => {
+  try {
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: options.toNumber,
+      body: `This is to notify you that your products have been assigned to ${options.companyName}. Please contact them via ${options.phoneNumber}`
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
+const sendCompanyDeliveryNotificationSMS = async options => {
+  try {
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: options.toNumber,
+      body: `You have been assigned ${options.recipientName} products for delivery at ${options.address}. Please contact him/her via ${options.phoneNumber}`
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
 module.exports = {
   twilioClient: client,
   sendVerificationSMS,
-  sendStatusNotificationSMS
+  sendStatusNotificationSMS,
+  sendUserDeliveryNotificationSMS,
+  sendCompanyDeliveryNotificationSMS
 };

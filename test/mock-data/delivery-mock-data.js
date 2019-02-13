@@ -23,7 +23,8 @@ const companyUserData = {
 const validDeliveryData = {
   assignedToUserId: 1,
   users: [],
-  details: 'valid details',
+  additionalRecipientText: 'valid additional info',
+  additionalCompanyText: 'valid additional info',
   assignedByUserId: 1
 };
 

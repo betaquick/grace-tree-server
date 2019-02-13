@@ -25,8 +25,13 @@ module.exports = {
 
     deliverySvc
       .addDelivery(userId, body)
-      .then(delivery => {
-        handleSuccess(res, 'Delivery added successfully', { delivery });
+      .then(async delivery => {
+        try {
+          await deliverySvc.sendDeliveryNotification(delivery);
+          handleSuccess(res, 'Delivery added successfully', { delivery });
+        } catch (err) {
+          error('Error sending verification for Email/Phone: ', err);
+        }
       })
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));
   },
