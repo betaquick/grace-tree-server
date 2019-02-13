@@ -51,7 +51,7 @@ const userData = {
 
   getUserEmails(userId) {
     return knex(USER_EMAIL_TABLE)
-      .select('emailAddress', 'primary')
+      .select('emailAddress', 'primary', 'isVerified')
       .where({
         userId
       });
@@ -59,7 +59,7 @@ const userData = {
 
   getUserPhones(userId) {
     return knex(USER_PHONE_TABLE)
-      .select('phoneNumber', 'primary', 'phoneType')
+      .select('phoneNumber', 'primary', 'phoneType', 'isVerified')
       .where({
         userId
       });
