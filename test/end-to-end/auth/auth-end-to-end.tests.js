@@ -364,10 +364,12 @@ describe('test auth process end-to-end', function() {
             expect(body).to.have.property('error', false);
             expect(body).to.have.property('message', 'Login successful');
             expect(body).to.have.property('status', 200);
-            const {body: {user}} = body;
+            const {body: { user }} = body;
             expect(user).to.have.property('userId', userData.userId);
             expect(user).to.have.property('firstName', userData.firstName);
             expect(user).to.have.property('lastName', userData.lastName);
+            expect(user.addresses).to.be.an('array');
+            expect(user.agreement).to.be.a('number');
             return done();
           });
       });

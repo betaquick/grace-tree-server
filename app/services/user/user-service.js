@@ -75,7 +75,7 @@ const updateStatus = async(userId, status) => {
       };
 
       emailService.sendStatusNotificationMail(options);
-      smsService.sendVerificationSMS({ phoneNumber });
+      smsService.sendStatusNotificationSMS({ phoneNumber });
     }
 
     return user;

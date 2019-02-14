@@ -26,7 +26,8 @@ const { randomBytesAsync, throwError } = require('./../../controllers/util/contr
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
-  USER_PHONE_TABLE
+  USER_PHONE_TABLE,
+  USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
 
 /**
@@ -57,7 +58,9 @@ function sanitizeUser(user) {
     phones: user.phones,
     userId: user.userId,
     userType: user.userType,
-    status: user.status
+    status: user.status,
+    addresses: user.address ? [user.address] : [],
+    agreement: user.agreement
   };
 }
 
@@ -86,7 +89,26 @@ const login = async data => {
       const token = await generateTokenFromUser(user);
       user.emails = await userData.getUserEmails(user.userId);
       user.phones = await userData.getUserPhones(user.userId);
-      return { token, user: sanitizeUser(user) };
+      user.address = await userData.getAddressInfo(user.userId);
+
+      const response = {
+        token,
+        user: sanitizeUser(user)
+      };
+
+      if (user.userType !== UserTypes.General) {
+        const userCompany = await userData.getUserByParam(USER_COMPANY_TABLE, {
+          [`${USER_COMPANY_TABLE}.userId`]: user.userId
+        });
+
+        if (userCompany) {
+          const company = await userData.getCompanyInfo(userCompany.companyId);
+
+          response.company = company;
+        }
+      }
+
+      return response;
     }
     throwError(422, 'Incorrect login credentials');
   } catch (err) {
@@ -204,6 +226,9 @@ const register = async data => {
     data.userId = userIds[0];
 
     const token = await generateTokenFromUser(data);
+    data.emails = await userData.getUserEmails(data.userId);
+    data.phones = await userData.getUserPhones(data.userId);
+    data.address = await userData.getAddressInfo(data.userId);
 
     return { token, user: sanitizeUser(data) };
   } catch (err) {
