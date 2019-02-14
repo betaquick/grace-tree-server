@@ -108,6 +108,7 @@ const editUser = async(userId, data) => {
     const user = await userData.getUserByParam(USER_TABLE, {
       email: emailAddress
     });
+    const address = await userData.getAddressInfo(userId);
 
     return {
       userId,
@@ -116,7 +117,10 @@ const editUser = async(userId, data) => {
       email: data.email,
       emails,
       phones: data.phones,
-      userType: user.userType
+      userType: user.userType,
+      addresses: [address],
+      agreement: user.agreement,
+      status: user.status
     };
   } catch (err) {
     error('Error editing user ' + err.message);

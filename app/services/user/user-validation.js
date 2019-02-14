@@ -11,12 +11,12 @@ const phoneListSchema = Joi.object().keys({
     PhoneTypes.MOBILE,
     PhoneTypes.OFFICE
   ]).required()
-});
+}).options({ allowUnknown: true });
 
 const emailListSchema = Joi.object().keys({
   emailAddress: Joi.string().required(),
   primary: Joi.any().valid([true, false, 1, 0])
-});
+}).options({ allowUnknown: true });
 
 const userValidator = Joi.object().keys({
   userId: Joi.number().required(),

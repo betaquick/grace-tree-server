@@ -369,6 +369,8 @@ describe('test auth process end-to-end', function() {
             expect(user).to.have.property('firstName', userData.firstName);
             expect(user).to.have.property('lastName', userData.lastName);
             expect(user.addresses).to.be.an('array');
+            expect(user.phones).to.be.a('array');
+            expect(user.emails).to.be.a('array');
             expect(user.agreement).to.be.a('number');
             return done();
           });
