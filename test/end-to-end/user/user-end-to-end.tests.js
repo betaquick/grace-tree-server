@@ -259,7 +259,13 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('body');
             expect(data.body).to.have.property('user');
 
-            return data.body.user;
+            const { user } = data.body;
+            expect(user.addresses).to.be.an('array');
+            expect(user.phones).to.be.a('array');
+            expect(user.emails).to.be.a('array');
+            expect(user.agreement).to.be.a('number');
+
+            return user;
           });
       });
 
