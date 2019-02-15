@@ -304,7 +304,7 @@ describe('Test delivery endpoints', function() {
         .first()
         .then(delivery => {
           return request
-            .get(`/api/v1/user/delivery/${delivery.deliveryId}`)
+            .get(`/api/v1/user/deliveries/${delivery.deliveryId}`)
             .set('Accept', 'application/json')
             .set('Authorization', 'auth')
             .expect(200)
@@ -316,6 +316,9 @@ describe('Test delivery endpoints', function() {
               expect(data).to.have.property('message', 'Delivery retrieved successfully');
               expect(data.body).to.be.an('object');
               expect(data.body).to.have.property('deliveryId');
+              expect(data.body).to.have.property('firstName');
+              expect(data.body).to.have.property('lastName');
+              expect(data.body).to.have.property('statusCode');
               return data;
             });
         });

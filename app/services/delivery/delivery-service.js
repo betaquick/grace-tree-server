@@ -71,7 +71,7 @@ const getUserRecentDeliveries = async userId => {
 
 const getDelivery = async(deliveryId) => {
   try {
-    return await deliveryData.getSingleDelivery(deliveryId);
+    return await deliveryData.getUserDelivery(deliveryId);
   } catch (err) {
     throw err;
   }
