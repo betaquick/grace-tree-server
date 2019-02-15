@@ -86,10 +86,7 @@ const updateStatus = async(userId, status) => {
 };
 
 const editUser = async(userId, data) => {
-  const {
-    emails,
-    password
-  } = data;
+  const { emails, password } = data;
   try {
     await Joi.validate({
       userId,
@@ -108,6 +105,8 @@ const editUser = async(userId, data) => {
     const user = await userData.getUserByParam(USER_TABLE, {
       email: emailAddress
     });
+    user.emails = await userData.getUserEmails(userId);
+    user.phones = await userData.getUserPhones(userId);
     const address = await userData.getAddressInfo(userId);
 
     return {
@@ -115,10 +114,10 @@ const editUser = async(userId, data) => {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      emails,
-      phones: data.phones,
+      emails: user.emails,
+      phones: user.phones,
       userType: user.userType,
-      addresses: [address],
+      addresses: address ? [address] : [],
       agreement: user.agreement,
       status: user.status
     };
