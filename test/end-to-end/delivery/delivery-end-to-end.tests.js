@@ -4,6 +4,7 @@ const supertest = require('supertest');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const expect = require('chai').expect;
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
@@ -321,6 +322,66 @@ describe('Test delivery endpoints', function() {
               expect(data.body).to.have.property('statusCode');
               return data;
             });
+        });
+    });
+  });
+
+  describe('Delivery testing for Company', () => {
+    before(() => {
+      sinon.restore();
+      userData.userType = UserTypes.TreeAdmin;
+      sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
+    });
+
+    it('can get all pending deliveries of company', () => {
+      return request
+        .get('/api/v1/user/company/deliveries/pending')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(200)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 200);
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('message', 'Deliveries retrieved successfully');
+
+          const { deliveries } = data.body;
+          expect(deliveries).to.be.an('array');
+          expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+          expect(deliveries[0]).to.have.property('deliveryId');
+          expect(deliveries[0]).to.have.property('assignedToUserId');
+          expect(deliveries[0]).to.have.property('assignedByUserId');
+          expect(deliveries[0]).to.have.property('firstName');
+          expect(deliveries[0]).to.have.property('lastName');
+          expect(deliveries[0]).to.have.property('statusCode');
+          return data;
+        });
+    });
+
+    it('can get recent deliveries of company', () => {
+      return request
+        .get('/api/v1/user/company/deliveries/recent')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(200)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 200);
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('message', 'Deliveries retrieved successfully');
+
+          const { deliveries } = data.body;
+          expect(deliveries).to.be.an('array');
+          expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+          expect(deliveries[0]).to.have.property('deliveryId');
+          expect(deliveries[0]).to.have.property('assignedToUserId');
+          expect(deliveries[0]).to.have.property('assignedByUserId');
+          expect(deliveries[0]).to.have.property('firstName');
+          expect(deliveries[0]).to.have.property('lastName');
+          expect(deliveries[0]).to.have.property('statusCode');
+          return data;
         });
     });
   });
