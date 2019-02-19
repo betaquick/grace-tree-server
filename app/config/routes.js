@@ -51,6 +51,8 @@ router.get('/notifications/:notificationId', auth, verify, notificationControlle
 // DeliveryAPI
 router.post('/user/company/delivery', auth, deliveryController.createDelivery);
 router.get('/user/company/deliveries', auth, deliveryController.getCompanyDeliveries);
+router.get('/user/company/deliveries/pending', auth, deliveryController.getPendingDeliveries);
+router.get('/user/company/deliveries/recent', auth, deliveryController.getRecentDeliveries);
 router.put('/user/company/delivery', auth, deliveryController.updateDelivery);
 router.get('/user/company/delivery-info/:recipientId', auth, verify, deliveryController.getDeliveryInfo);
 router.put('/user/company/add-to-delivery', auth, deliveryController.addUserToDelivery);
@@ -58,8 +60,8 @@ router.post('/user/company/remove-from-delivery', auth, deliveryController.remov
 router.post('/user/company/delete-delivery', auth, deliveryController.deleteDelivery);
 
 router.get('/user/deliveries', auth, deliveryController.getUserDeliveries);
-router.get('/user/deliveries/pending', auth, deliveryController.getUserPendingDeliveries);
-router.get('/user/deliveries/recent', auth, deliveryController.getUserRecentDeliveries);
+router.get('/user/deliveries/pending', auth, deliveryController.getPendingDeliveries);
+router.get('/user/deliveries/recent', auth, deliveryController.getRecentDeliveries);
 router.get('/user/deliveries/:deliveryId', auth, deliveryController.getDelivery);
 router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
 

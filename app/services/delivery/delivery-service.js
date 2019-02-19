@@ -4,6 +4,7 @@ const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const Joi = require('joi');
 const error = require('debug')('grace-tree:delivery-service:error');
 const debug = require('debug')('grace-tree:delivery-service:debug');
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
@@ -41,6 +42,7 @@ const getCompanyDeliveries = async userId => {
   try {
     return await deliveryData.getDeliveries(userId);
   } catch (err) {
+    error('Error getting company deliveries', err);
     throw err;
   }
 };
@@ -49,22 +51,33 @@ const getUserDeliveries = async userId => {
   try {
     return await deliveryData.getUserDeliveries(userId);
   } catch (err) {
+    error('Error getting user deliveries', err);
     throw err;
   }
 };
 
-const getUserPendingDeliveries = async userId => {
+const getPendingDeliveries = async(userId, userType) => {
   try {
-    return await deliveryData.getUserPendingDeliveries(userId);
+    if (userType === UserTypes.General) {
+      return await deliveryData.getUserPendingDeliveries(userId);
+    }
+
+    return await deliveryData.getCompanyPendingDeliveries(userId);
   } catch (err) {
+    error(`Error getting ${userType} pending deliveries`, err);
     throw err;
   }
 };
 
-const getUserRecentDeliveries = async userId => {
+const getRecentDeliveries = async(userId, userType) => {
   try {
-    return await deliveryData.getUserRecentDeliveries(userId);
+    if (userType === UserTypes.General) {
+      return await deliveryData.getUserRecentDeliveries(userId);
+    }
+
+    return await deliveryData.getCompanyRecentDeliveries(userId);
   } catch (err) {
+    error(`Error getting ${userType} recent deliveries`, err);
     throw err;
   }
 };
@@ -73,6 +86,7 @@ const getDelivery = async(deliveryId) => {
   try {
     return await deliveryData.getUserDelivery(deliveryId);
   } catch (err) {
+    error('Error getting delivery', err);
     throw err;
   }
 };
@@ -93,6 +107,7 @@ const addDelivery = async(assignedByUserId, data) => {
     return deliveryItem;
   } catch (err) {
     if (transaction) transaction.rollback();
+    error('Error adding new delivery', err);
     throw err;
   }
 };
@@ -179,6 +194,7 @@ const updateDelivery = async(userId, deliveryInfo) => {
     transaction.commit();
   } catch (err) {
     if (transaction) transaction.rollback();
+    error('Error updating delivery', err);
     throw err;
   }
 };
@@ -248,8 +264,8 @@ module.exports = {
   sendDeliveryNotification,
   getCompanyDeliveries,
   getUserDeliveries,
-  getUserPendingDeliveries,
-  getUserRecentDeliveries,
+  getPendingDeliveries,
+  getRecentDeliveries,
   getDelivery,
   updateDelivery,
   addUserToDelivery,

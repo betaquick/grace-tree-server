@@ -57,22 +57,22 @@ module.exports = {
       .catch(err => handleError(err, res, 'Error Fetching Deliveries', error));
   },
 
-  getUserPendingDeliveries(req, res) {
-    const { userId } = req.user;
+  getPendingDeliveries(req, res) {
+    const { userId, userType } = req.user;
 
     deliverySvc
-      .getUserPendingDeliveries(userId)
+      .getPendingDeliveries(userId, userType)
       .then(deliveries => {
         handleSuccess(res, 'Deliveries retrieved successfully', { deliveries });
       })
       .catch(err => handleError(err, res, 'Error Fetching Deliveries', error));
   },
 
-  getUserRecentDeliveries(req, res) {
-    const { userId } = req.user;
+  getRecentDeliveries(req, res) {
+    const { userId, userType } = req.user;
 
     deliverySvc
-      .getUserRecentDeliveries(userId)
+      .getRecentDeliveries(userId, userType)
       .then(deliveries => {
         handleSuccess(res, 'Deliveries retrieved successfully', { deliveries });
       })

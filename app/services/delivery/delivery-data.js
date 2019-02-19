@@ -19,6 +19,25 @@ module.exports = {
       .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
   },
 
+  getCompanyPendingDeliveries(assignedByUserId) {
+    return knex(DELIVERY_TABLE)
+      .where({
+        assignedByUserId,
+        statusCode: DeliveryStatusCodes.Scheduled
+      })
+      .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
+      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+  },
+
+  getCompanyRecentDeliveries(assignedByUserId) {
+    return knex(DELIVERY_TABLE)
+      .where({ assignedByUserId })
+      .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
+      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
+      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc')
+      .limit(5);
+  },
+
   getUserDeliveries(userId) {
     return knex(USER_DELIVERY_TABLE)
       .where({ [`${USER_DELIVERY_TABLE}.userId`]: userId })
