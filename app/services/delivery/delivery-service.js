@@ -101,7 +101,7 @@ const addDelivery = async(assignedByUserId, data) => {
     await Joi.validate(deliveryItem, deliveryInfoValidator);
 
     transaction = await getTransaction();
-    await deliveryData.addDelivery(deliveryItem, transaction);
+    deliveryItem.deliveryId = await deliveryData.addDelivery(deliveryItem, transaction);
     transaction.commit();
 
     return deliveryItem;
@@ -171,6 +171,48 @@ const sendDeliveryNotification = async delivery => {
         phoneNumber: companyPhone.phoneNumber
       };
       smsService.sendUserDeliveryNotificationSMS(options);
+    } catch (err) {
+      error('Error sending delivery notification', err);
+      throw err;
+    }
+  });
+};
+
+const sendRequestNotification = async delivery => {
+  const {
+    deliveryId,
+    assignedToUserId,
+    users
+  } = delivery;
+
+  users.forEach(async recipientId => {
+    try {
+      const recipient = await userData.getUserByParam(USER_TABLE, {
+        [`${USER_TABLE}.userId`]: recipientId
+      });
+      const recipientPhone = await userData.getUserPhone(recipientId);
+
+      const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
+        [`${USER_COMPANY_TABLE}.userId`]: assignedToUserId
+      });
+      const { companyName } = await userData.getCompanyInfo(companyId);
+
+      let options = {
+        userId: recipientId,
+        email: recipient.email,
+        firstName: recipient.firstName,
+        companyName,
+        deliveryId
+      };
+      emailService.sendDeliveryRequestNotificationMail(options);
+
+      options = {
+        phoneNumber: recipientPhone.phoneNumber,
+        companyName,
+        userId: recipientId,
+        deliveryId
+      };
+      smsService.sendDeliveryRequestNotificationSMS(options);
     } catch (err) {
       error('Error sending delivery notification', err);
       throw err;
@@ -262,6 +304,7 @@ module.exports = {
   getDeliveryInfo,
   addDelivery,
   sendDeliveryNotification,
+  sendRequestNotification,
   getCompanyDeliveries,
   getUserDeliveries,
   getPendingDeliveries,

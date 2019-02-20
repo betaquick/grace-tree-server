@@ -8,12 +8,12 @@ const { handleError, handleSuccess } = require('../util/controller-util');
 
 module.exports = {
   searchUsers(req, res) {
-    const { address, radius } = req.query;
+    const { address, radius, includePause } = req.query;
 
-    debug(`Filter users in ${address} within ${radius}`);
+    debug(`Filter users in ${address} within ${radius} include pause state ${includePause}`);
 
     searchSvc
-      .searchUsers(address, radius)
+      .searchUsers(address, radius, includePause)
       .then(searchData =>
         handleSuccess(res, 'Filtered users successfully', searchData)
       )

@@ -1,8 +1,9 @@
 'use strict';
 
 const error = require('debug')('grace-tree:user-controller:error');
-const deliverySvc = require('../../services/delivery/delivery-service');
+const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
 
+const deliverySvc = require('../../services/delivery/delivery-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
 module.exports = {
@@ -29,6 +30,11 @@ module.exports = {
       .addDelivery(userId, body)
       .then(response => {
         delivery = response;
+
+        if (delivery.statusCode === DeliveryStatusCodes.Requested) {
+          return deliverySvc.sendRequestNotification(delivery);
+        }
+
         return deliverySvc.sendDeliveryNotification(delivery);
       })
       .then(() => handleSuccess(res, 'Delivery added successfully', { delivery }))

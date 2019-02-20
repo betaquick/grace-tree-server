@@ -221,7 +221,7 @@ describe('test user process end-to-end', function() {
             expect(user).to.have.property('email');
             expect(user).to.have.property('status').equals(UserStatus.Ready);
             sinon.assert.callCount(transporter.sendMail, 1);
-            setTimeout(() => sinon.assert.callCount(twilioClient.messages.create, 1), 1000);
+            setTimeout(() => sinon.assert.callCount(twilioClient.messages.create, 1), 4000);
           });
       });
 

@@ -117,6 +117,21 @@ Additional Information: ${options.additionalCompanyText}`
   return sendMail(mailOptions);
 };
 
+const sendDeliveryRequestNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Delivery Request Notification',
+    text: `Hi ${options.firstName},\n
+This is to notify you that ${options.companyName} wants to deliver some products to you.\n
+Please click on the following link, or paste this into your browser to accept the request:\n
+${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}\n
+If you are not interested, please ignore this email.`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   transporter,
   sendResetMail,
@@ -124,5 +139,6 @@ module.exports = {
   sendUserCreationMail,
   sendStatusNotificationMail,
   sendUserDeliveryNotificationMail,
-  sendCompanyDeliveryNotificationMail
+  sendCompanyDeliveryNotificationMail,
+  sendDeliveryRequestNotificationMail
 };

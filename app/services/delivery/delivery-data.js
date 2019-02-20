@@ -93,9 +93,12 @@ module.exports = {
       details,
       additionalCompanyText,
       additionalRecipientText,
-      users
+      users,
+      statusCode,
+      userDeliveryStatus
     } = deliveryInfo;
     let deliveryId;
+
     return knex(DELIVERY_TABLE)
       .transacting(trx)
       .insert({
@@ -104,13 +107,21 @@ module.exports = {
         details,
         additionalRecipientText,
         additionalCompanyText,
-        statusCode: DeliveryStatusCodes.Scheduled
+        statusCode
       })
       .then(deliveryIds => {
         deliveryId = deliveryIds[0];
-        const userDeliveries = users.map(user => { return { deliveryId, userId: user }; });
+        const userDeliveries = users.map(user => {
+          return {
+            deliveryId,
+            userId: user,
+            status:
+            userDeliveryStatus
+          };
+        });
         return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
-      });
+      })
+      .then(() => deliveryId);
   },
 
   updateDelivery(deliveryInfo, trx) {

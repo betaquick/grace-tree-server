@@ -1,5 +1,7 @@
 'use strict';
 
+const { UserStatus } = require('@betaquick/grace-tree-constants');
+
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
   USER_TABLE,
@@ -9,7 +11,20 @@ const {
 } = require('../../../constants/table.constants');
 
 const searchData = {
-  searchUsers(latitude, longitude, radius = 30) {
+  searchUsers(latitude, longitude, includePause, radius = 30) {
+    let where = {
+      [`${USER_PHONE_TABLE}.primary`]: true,
+      [`${USER_TABLE}.active`]: true,
+      [`${USER_PROFILE_TABLE}.status`]: UserStatus.Ready
+    };
+
+    if (includePause === 'true') {
+      where = {
+        [`${USER_PHONE_TABLE}.primary`]: true,
+        [`${USER_TABLE}.active`]: true
+      };
+    }
+
     return knex(USER_ADDRESS_TABLE)
       .select(
         `${USER_TABLE}.userId`,
@@ -46,11 +61,7 @@ const searchData = {
       .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_TABLE}.userId`)
       .leftJoin(USER_PHONE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PHONE_TABLE}.userId`)
-      .where(`${USER_PHONE_TABLE}.primary`, true)
-      .where({
-        [`${USER_PHONE_TABLE}.primary`]: true,
-        [`${USER_TABLE}.active`]: true
-      });
+      .where(where);
   }
 };
 

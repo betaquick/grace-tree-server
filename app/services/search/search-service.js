@@ -7,7 +7,7 @@ const Joi = require('joi');
 const locationService = require('../location/location-service');
 const searchData = require('./search-data');
 
-const searchUsers = async(address, radius) => {
+const searchUsers = async(address, radius, includePause) => {
   try {
     await Joi.validate(address, Joi.string().required());
 
@@ -17,7 +17,7 @@ const searchUsers = async(address, radius) => {
     const longitude = coordinates.lng;
     const latitude = coordinates.lat;
 
-    const users = await searchData.searchUsers(latitude, longitude, radius);
+    const users = await searchData.searchUsers(latitude, longitude, includePause, radius);
 
     return { users, coordinates };
   } catch (err) {

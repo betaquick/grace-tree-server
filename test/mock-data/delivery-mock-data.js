@@ -1,6 +1,6 @@
 'use strict';
 
-const { UserTypes } = require('@betaquick/grace-tree-constants');
+const { UserTypes, DeliveryStatusCodes, UserDeliveryStatus } = require('@betaquick/grace-tree-constants');
 
 const companyUserData = {
   firstName: 'Company One',
@@ -25,7 +25,9 @@ const validDeliveryData = {
   users: [],
   additionalRecipientText: 'valid additional info',
   additionalCompanyText: 'valid additional info',
-  assignedByUserId: 1
+  assignedByUserId: 1,
+  statusCode: DeliveryStatusCodes.Scheduled,
+  userDeliveryStatus: UserDeliveryStatus.Accepted
 };
 
 const inValidDeliveryData = {
