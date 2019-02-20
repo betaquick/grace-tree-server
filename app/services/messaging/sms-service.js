@@ -78,10 +78,26 @@ const sendCompanyDeliveryNotificationSMS = async options => {
   }
 };
 
+const sendDeliveryRequestNotificationSMS = async options => {
+  try {
+    const result = await bitly.shorten(`${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}`);
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: options.phoneNumber,
+      body: `Click ${result.url} to accept the delivery request sent by ${options.companyName}`
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
 module.exports = {
   twilioClient: client,
   sendVerificationSMS,
   sendStatusNotificationSMS,
   sendUserDeliveryNotificationSMS,
-  sendCompanyDeliveryNotificationSMS
+  sendCompanyDeliveryNotificationSMS,
+  sendDeliveryRequestNotificationSMS
 };

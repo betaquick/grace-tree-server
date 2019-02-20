@@ -146,7 +146,7 @@ describe('Test delivery endpoints', function() {
           setTimeout(() => {
             sinon.assert.callCount(transporter.sendMail, 2);
             sinon.assert.callCount(twilioClient.messages.create, 2);
-          }, 2000);
+          }, 4000);
 
           return delivery.companyId;
         });
