@@ -1,8 +1,9 @@
 'use strict';
 
 const error = require('debug')('grace-tree:user-controller:error');
-const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
+const { DeliveryStatusCodes, UserStatus } = require('@betaquick/grace-tree-constants');
 
+const userSvc = require('../../services/user/user-service');
 const deliverySvc = require('../../services/delivery/delivery-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
@@ -147,6 +148,20 @@ module.exports = {
         handleSuccess(res, 'Delivery deleted.');
       })
       .catch(err => handleError(err, res, 'Error deleting delivery', error));
+  },
 
-  }
+  acceptDeliveryRequest(req, res) {
+    const { userId, deliveryId } = req.params;
+    let delivery;
+
+    deliverySvc
+      .acceptDeliveryRequest(userId, deliveryId)
+      .then(response => {
+        delivery = response;
+        return deliverySvc.sendAcceptedNotification(userId, deliveryId);
+      })
+      .then(() => userSvc.updateStatus(userId, UserStatus.Ready))
+      .then(()=> handleSuccess(res, 'Delivery request accepted successfully', delivery))
+      .catch(err => handleError(err, res, 'Error accepting delivery request', error));
+  },
 };

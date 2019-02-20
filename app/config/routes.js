@@ -64,5 +64,6 @@ router.get('/user/deliveries/pending', auth, deliveryController.getPendingDelive
 router.get('/user/deliveries/recent', auth, deliveryController.getRecentDeliveries);
 router.get('/user/deliveries/:deliveryId', auth, deliveryController.getDelivery);
 router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
+router.put('/user/deliveries/:userId/:deliveryId', deliveryController.acceptDeliveryRequest);
 
 module.exports = router;

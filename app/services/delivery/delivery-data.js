@@ -1,6 +1,6 @@
 'use strict';
 
-const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
+const { DeliveryStatusCodes, UserDeliveryStatus } = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -115,13 +115,19 @@ module.exports = {
           return {
             deliveryId,
             userId: user,
-            status:
-            userDeliveryStatus
+            status: userDeliveryStatus
           };
         });
         return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
       })
       .then(() => deliveryId);
+  },
+
+  acceptDeliveryRequest(userId, deliveryId, trx) {
+    return knex(USER_DELIVERY_TABLE)
+      .transacting(trx)
+      .where({ userId, deliveryId })
+      .update({ status: UserDeliveryStatus.Accepted, updatedAt: knex.fn.now() });
   },
 
   updateDelivery(deliveryInfo, trx) {

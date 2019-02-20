@@ -24,7 +24,7 @@ const {
   USER_TABLE
 } = require('../../../constants/table.constants');
 
-const getDeliveryInfo = async(userId, recipientId) => {
+const getDeliveryInfo = async (userId, recipientId) => {
   await Joi.validate(recipientId, Joi.number().required());
 
   const recipient = await userData.getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
@@ -82,7 +82,7 @@ const getRecentDeliveries = async(userId, userType) => {
   }
 };
 
-const getDelivery = async(deliveryId) => {
+const getDelivery = async (deliveryId) => {
   try {
     return await deliveryData.getUserDelivery(deliveryId);
   } catch (err) {
@@ -91,7 +91,7 @@ const getDelivery = async(deliveryId) => {
   }
 };
 
-const addDelivery = async(assignedByUserId, data) => {
+const addDelivery = async (assignedByUserId, data) => {
   let transaction;
   try {
     const deliveryItem = {
@@ -108,6 +108,23 @@ const addDelivery = async(assignedByUserId, data) => {
   } catch (err) {
     if (transaction) transaction.rollback();
     error('Error adding new delivery', err);
+    throw err;
+  }
+};
+
+const acceptDeliveryRequest = async (userId, deliveryId) => {
+  let transaction;
+  try {
+    await Joi.validate(userId, Joi.number().required());
+    await Joi.validate(deliveryId, Joi.number().required());
+
+    transaction = await getTransaction();
+    await deliveryData.acceptDeliveryRequest(userId, deliveryId, transaction);
+    transaction.commit();
+
+    return { userId, deliveryId };
+  } catch (err) {
+    if (transaction) transaction.rollback();
     throw err;
   }
 };
@@ -220,7 +237,36 @@ const sendRequestNotification = async delivery => {
   });
 };
 
-const updateDelivery = async(userId, deliveryInfo) => {
+const sendAcceptedNotification = async (userId, deliveryId) => {
+  try {
+    const delivery = await deliveryData.getUserDelivery(deliveryId);
+    const assignedUser = await userData.getUserByParam(USER_TABLE, {
+      [`${USER_TABLE}.userId`]: delivery.assignedToUserId
+    });
+    const recipient = await userData.getUserByParam(USER_TABLE, {
+      [`${USER_TABLE}.userId`]: userId
+    });
+    const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
+
+    let options = {
+      email: assignedUser.email,
+      firstName: assignedUser.firstName,
+      recipientName: `${recipient.firstName} ${recipient.lastName}`
+    };
+    emailService.sendDeliveryAccceptedNotificationMail(options);
+
+    options = {
+      phoneNumber: companyPhone.phoneNumber,
+      recipientName: `${recipient.firstName} ${recipient.lastName}`
+    };
+    smsService.sendDeliveryAccceptedNotificationSMS(options);
+  } catch (err) {
+    error('Error sending delivery notification', err);
+    throw err;
+  }
+};
+
+const updateDelivery = async (userId, deliveryInfo) => {
   let transaction;
   try {
     const {
@@ -241,7 +287,7 @@ const updateDelivery = async(userId, deliveryInfo) => {
   }
 };
 
-const updateDeliveryStatus = async(deliveryId, statusCode) => {
+const updateDeliveryStatus = async (deliveryId, statusCode) => {
   debug('Updating status', deliveryId, statusCode);
   try {
     await Joi.validate({ deliveryId, statusCode }, updateDeliveryStatusValidator);
@@ -255,7 +301,7 @@ const updateDeliveryStatus = async(deliveryId, statusCode) => {
   }
 };
 
-const addUserToDelivery = async(deliveryId, userId) => {
+const addUserToDelivery = async (deliveryId, userId) => {
   let transaction;
   try {
     transaction = await getTransaction();
@@ -268,7 +314,7 @@ const addUserToDelivery = async(deliveryId, userId) => {
 };
 
 
-const removeUserFromDelivery = async(deliveryId, userId) => {
+const removeUserFromDelivery = async (deliveryId, userId) => {
   let transaction;
   try {
     transaction = await getTransaction();
@@ -280,7 +326,7 @@ const removeUserFromDelivery = async(deliveryId, userId) => {
   }
 };
 
-const deleteDelivery = async(deliveryId) => {
+const deleteDelivery = async (deliveryId) => {
   let transaction;
   try {
     transaction = await getTransaction();
@@ -293,8 +339,8 @@ const deleteDelivery = async(deliveryId) => {
 };
 
 async function getTransaction() {
-  return new Promise(function(resolve, reject) {
-    knex.transaction(function(trx) {
+  return new Promise(function (resolve, reject) {
+    knex.transaction(function (trx) {
       resolve(trx);
     });
   });
@@ -303,8 +349,10 @@ async function getTransaction() {
 module.exports = {
   getDeliveryInfo,
   addDelivery,
+  acceptDeliveryRequest,
   sendDeliveryNotification,
   sendRequestNotification,
+  sendAcceptedNotification,
   getCompanyDeliveries,
   getUserDeliveries,
   getPendingDeliveries,

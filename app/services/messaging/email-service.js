@@ -132,6 +132,18 @@ If you are not interested, please ignore this email.`
   return sendMail(mailOptions);
 };
 
+const sendDeliveryAccceptedNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Delivery Request Notification',
+    text: `Hi, ${options.firstName}\n
+This is to notify you that ${options.recipientName} has accepted your delivery request.`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   transporter,
   sendResetMail,
@@ -140,5 +152,6 @@ module.exports = {
   sendStatusNotificationMail,
   sendUserDeliveryNotificationMail,
   sendCompanyDeliveryNotificationMail,
-  sendDeliveryRequestNotificationMail
+  sendDeliveryRequestNotificationMail,
+  sendDeliveryAccceptedNotificationMail
 };
