@@ -390,7 +390,7 @@ describe('Test delivery endpoints', function() {
   describe('Failure Tests', () => {
     it('Fails to add new delivery when delivery data is invalid', done => {
       request
-        .post('/api/v1/user/company/delivery')
+        .post('/api/v1/user/company/deliveries')
         .send(inValidDeliveryData)
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
