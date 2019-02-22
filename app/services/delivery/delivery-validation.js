@@ -19,7 +19,8 @@ const deliveryInfoValidator = Joi.object().keys({
   userDeliveryStatus: Joi.string().valid([
     UserDeliveryStatus.Pending,
     UserDeliveryStatus.Accepted
-  ]).required()
+  ]).required(),
+  isAssigned: Joi.any().valid([true, false, 1, 0])
 });
 
 const updateDeliveryValidator = Joi.object().keys({
@@ -34,7 +35,8 @@ const updateDeliveryValidator = Joi.object().keys({
     DeliveryStatusCodes.Scheduled,
     DeliveryStatusCodes.Delivered,
     DeliveryStatusCodes.Expired
-  ]).required()
+  ]).required(),
+  isAssigned: Joi.any().valid([true, false, 1, 0])
 });
 
 const updateDeliveryInfoValidator = Joi.object().keys({

@@ -17,7 +17,7 @@ module.exports = {
       .select(
         knex.raw('DISTINCT ud.deliveryId'),
         knex.raw(`(SELECT COUNT(*) FROM ${USER_DELIVERY_TABLE} ud1 WHERE ud1.deliveryId = ud.deliveryId) usersCount`),
-        knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId LIMIT 1) userId`),
+        knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId AND isAssigned=true LIMIT 1) userId`),
         `${DELIVERY_TABLE}.*`,
         'firstName',
         'lastName'
@@ -116,7 +116,8 @@ module.exports = {
       additionalRecipientText,
       users,
       statusCode,
-      userDeliveryStatus
+      userDeliveryStatus,
+      isAssigned
     } = deliveryInfo;
     let deliveryId;
 
@@ -136,7 +137,9 @@ module.exports = {
           return {
             deliveryId,
             userId: user,
-            status: userDeliveryStatus
+            status: userDeliveryStatus,
+            isAssigned,
+            updatedAt: knex.fn.now()
           };
         });
         return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
@@ -151,7 +154,9 @@ module.exports = {
       details,
       additionalCompanyText,
       additionalRecipientText,
-      statusCode
+      statusCode,
+      users,
+      isAssigned
     } = deliveryInfo;
 
     return knex(DELIVERY_TABLE)
@@ -163,6 +168,17 @@ module.exports = {
         additionalRecipientText,
         additionalCompanyText,
         statusCode
+      })
+      .then(() => {
+        const userDelivery = {
+          deliveryId,
+          isAssigned,
+          updatedAt: knex.fn.now()
+        };
+        return knex(USER_DELIVERY_TABLE)
+          .transacting(trx)
+          .where({ deliveryId, userId: users[0] })
+          .update(userDelivery);
       });
   },
 
