@@ -14,7 +14,7 @@ const userSvc = require('../user/user-service');
 
 const {
   deliveryInfoValidator,
-  updateDeliveryInfoValidator,
+  updateDeliveryValidator,
   updateDeliveryStatusValidator
 } = require('./delivery-validation');
 
@@ -24,7 +24,7 @@ const {
   USER_TABLE
 } = require('../../../constants/table.constants');
 
-const getDeliveryInfo = async (userId, recipientId) => {
+const getDeliveryInfo = async(userId, recipientId) => {
   await Joi.validate(recipientId, Joi.number().required());
 
   const recipient = await userData.getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
@@ -82,16 +82,21 @@ const getRecentDeliveries = async(userId, userType) => {
   }
 };
 
-const getDelivery = async (deliveryId) => {
+const getDelivery = async(deliveryId, userType) => {
   try {
-    return await deliveryData.getUserDelivery(deliveryId);
+    if (userType === UserTypes.General) {
+      return await deliveryData.getUserDelivery(deliveryId);
+    }
+
+    return await deliveryData.getCompanyDelivery(deliveryId);
+
   } catch (err) {
     error('Error getting delivery', err);
     throw err;
   }
 };
 
-const addDelivery = async (assignedByUserId, data) => {
+const addDelivery = async(assignedByUserId, data) => {
   let transaction;
   try {
     const deliveryItem = {
@@ -112,7 +117,28 @@ const addDelivery = async (assignedByUserId, data) => {
   }
 };
 
-const acceptDeliveryRequest = async (userId, deliveryId) => {
+const updateDelivery = async(deliveryId, data) => {
+  let transaction;
+  try {
+    const deliveryItem = {
+      deliveryId,
+      ...data
+    };
+    await Joi.validate(deliveryItem, updateDeliveryValidator);
+
+    transaction = await getTransaction();
+    await deliveryData.updateDelivery(deliveryItem, transaction);
+    transaction.commit();
+
+    return deliveryItem;
+  } catch (err) {
+    if (transaction) transaction.rollback();
+    error('Error adding new delivery', err);
+    throw err;
+  }
+};
+
+const acceptDeliveryRequest = async(userId, deliveryId) => {
   let transaction;
   try {
     await Joi.validate(userId, Joi.number().required());
@@ -237,7 +263,7 @@ const sendRequestNotification = async delivery => {
   });
 };
 
-const sendAcceptedNotification = async (userId, deliveryId) => {
+const sendAcceptedNotification = async(userId, deliveryId) => {
   try {
     const delivery = await deliveryData.getUserDelivery(deliveryId);
     const assignedUser = await userData.getUserByParam(USER_TABLE, {
@@ -266,28 +292,7 @@ const sendAcceptedNotification = async (userId, deliveryId) => {
   }
 };
 
-const updateDelivery = async (userId, deliveryInfo) => {
-  let transaction;
-  try {
-    const {
-      companyId
-    } = await userSvc.getCompanyInfo(userId);
-    deliveryInfo.assignedToUserId = companyId;
-
-    await Joi.validate(deliveryInfo, updateDeliveryInfoValidator);
-
-    transaction = await getTransaction();
-
-    deliveryData.updateDelivery(deliveryInfo, transaction);
-    transaction.commit();
-  } catch (err) {
-    if (transaction) transaction.rollback();
-    error('Error updating delivery', err);
-    throw err;
-  }
-};
-
-const updateDeliveryStatus = async (deliveryId, statusCode) => {
+const updateDeliveryStatus = async(deliveryId, statusCode) => {
   debug('Updating status', deliveryId, statusCode);
   try {
     await Joi.validate({ deliveryId, statusCode }, updateDeliveryStatusValidator);
@@ -301,7 +306,7 @@ const updateDeliveryStatus = async (deliveryId, statusCode) => {
   }
 };
 
-const addUserToDelivery = async (deliveryId, userId) => {
+const addUserToDelivery = async(deliveryId, userId) => {
   let transaction;
   try {
     transaction = await getTransaction();
@@ -314,7 +319,7 @@ const addUserToDelivery = async (deliveryId, userId) => {
 };
 
 
-const removeUserFromDelivery = async (deliveryId, userId) => {
+const removeUserFromDelivery = async(deliveryId, userId) => {
   let transaction;
   try {
     transaction = await getTransaction();
@@ -326,7 +331,7 @@ const removeUserFromDelivery = async (deliveryId, userId) => {
   }
 };
 
-const deleteDelivery = async (deliveryId) => {
+const deleteDelivery = async(deliveryId) => {
   let transaction;
   try {
     transaction = await getTransaction();
@@ -339,8 +344,8 @@ const deleteDelivery = async (deliveryId) => {
 };
 
 async function getTransaction() {
-  return new Promise(function (resolve, reject) {
-    knex.transaction(function (trx) {
+  return new Promise(function(resolve, reject) {
+    knex.transaction(function(trx) {
       resolve(trx);
     });
   });

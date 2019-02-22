@@ -22,6 +22,21 @@ const deliveryInfoValidator = Joi.object().keys({
   ]).required()
 });
 
+const updateDeliveryValidator = Joi.object().keys({
+  deliveryId: Joi.number().required(),
+  assignedToUserId: Joi.number().required(),
+  users: Joi.array().required(),
+  details: Joi.string().allow('').optional(),
+  additionalRecipientText: Joi.string().allow('').optional(),
+  additionalCompanyText: Joi.string().allow('').optional(),
+  statusCode: Joi.string().valid([
+    DeliveryStatusCodes.Requested,
+    DeliveryStatusCodes.Scheduled,
+    DeliveryStatusCodes.Delivered,
+    DeliveryStatusCodes.Expired
+  ]).required()
+});
+
 const updateDeliveryInfoValidator = Joi.object().keys({
   deliveryId: Joi.number().required(),
   assignedToUserId: Joi.number().required(),
@@ -37,6 +52,7 @@ const updateDeliveryStatusValidator = Joi.object().keys({
 
 module.exports = {
   deliveryInfoValidator,
+  updateDeliveryValidator,
   updateDeliveryInfoValidator,
   updateDeliveryStatusValidator
 };

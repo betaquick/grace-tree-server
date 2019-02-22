@@ -42,6 +42,27 @@ module.exports = {
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));
   },
 
+  updateDelivery(req, res) {
+    const { deliveryId } = req.params;
+    const { body } = req;
+
+    let delivery;
+
+    deliverySvc
+      .updateDelivery(deliveryId, body)
+      .then(response => {
+        delivery = response;
+
+        if (delivery.statusCode === DeliveryStatusCodes.Requested) {
+          return deliverySvc.sendRequestNotification(delivery);
+        }
+
+        return deliverySvc.sendDeliveryNotification(delivery);
+      })
+      .then(() => handleSuccess(res, 'Delivery updated successfully', { delivery }))
+      .catch(err => handleError(err, res, 'Error updating delivery', error));
+  },
+
   getCompanyDeliveries(req, res) {
     const { userId } = req.user;
 
@@ -98,25 +119,15 @@ module.exports = {
   },
 
   getDelivery(req, res) {
+    const { userType } = req.user;
     const { deliveryId } = req.params;
 
     deliverySvc
-      .getDelivery(deliveryId)
+      .getDelivery(deliveryId, userType)
       .then(delivery => {
         handleSuccess(res, 'Delivery retrieved successfully', delivery);
       })
       .catch(err => handleError(err, res, 'Error Fetching Delivery', error));
-  },
-
-  updateDelivery(req, res) {
-    const { userId } = req.user;
-    const { body } = req;
-    deliverySvc
-      .updateDelivery(userId, body)
-      .then(delivery => {
-        handleSuccess(res, 'Delivery updated successfully', delivery);
-      })
-      .catch(err => handleError(err, res, 'Error updating Delivery', error));
   },
 
   addUserToDelivery(req, res) {
@@ -161,7 +172,7 @@ module.exports = {
         return deliverySvc.sendAcceptedNotification(userId, deliveryId);
       })
       .then(() => userSvc.updateStatus(userId, UserStatus.Ready))
-      .then(()=> handleSuccess(res, 'Delivery request accepted successfully', delivery))
+      .then(() => handleSuccess(res, 'Delivery request accepted successfully', delivery))
       .catch(err => handleError(err, res, 'Error accepting delivery request', error));
-  },
+  }
 };
