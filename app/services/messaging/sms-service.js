@@ -93,11 +93,26 @@ const sendDeliveryRequestNotificationSMS = async options => {
   }
 };
 
+const sendDeliveryAccceptedNotificationSMS = async options => {
+  try {
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: options.phoneNumber,
+      body: `This is to notify you that ${options.recipientName} has accepted your delivery request.`
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
 module.exports = {
   twilioClient: client,
   sendVerificationSMS,
   sendStatusNotificationSMS,
   sendUserDeliveryNotificationSMS,
   sendCompanyDeliveryNotificationSMS,
-  sendDeliveryRequestNotificationSMS
+  sendDeliveryRequestNotificationSMS,
+  sendDeliveryAccceptedNotificationSMS
 };

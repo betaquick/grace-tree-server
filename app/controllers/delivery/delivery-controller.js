@@ -1,8 +1,9 @@
 'use strict';
 
 const error = require('debug')('grace-tree:user-controller:error');
-const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
+const { DeliveryStatusCodes, UserStatus } = require('@betaquick/grace-tree-constants');
 
+const userSvc = require('../../services/user/user-service');
 const deliverySvc = require('../../services/delivery/delivery-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
@@ -39,6 +40,27 @@ module.exports = {
       })
       .then(() => handleSuccess(res, 'Delivery added successfully', { delivery }))
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));
+  },
+
+  updateDelivery(req, res) {
+    const { deliveryId } = req.params;
+    const { body } = req;
+
+    let delivery;
+
+    deliverySvc
+      .updateDelivery(deliveryId, body)
+      .then(response => {
+        delivery = response;
+
+        if (delivery.statusCode === DeliveryStatusCodes.Requested) {
+          return deliverySvc.sendRequestNotification(delivery);
+        }
+
+        return deliverySvc.sendDeliveryNotification(delivery);
+      })
+      .then(() => handleSuccess(res, 'Delivery updated successfully', { delivery }))
+      .catch(err => handleError(err, res, 'Error updating delivery', error));
   },
 
   getCompanyDeliveries(req, res) {
@@ -97,25 +119,15 @@ module.exports = {
   },
 
   getDelivery(req, res) {
+    const { userType } = req.user;
     const { deliveryId } = req.params;
 
     deliverySvc
-      .getDelivery(deliveryId)
+      .getDelivery(deliveryId, userType)
       .then(delivery => {
         handleSuccess(res, 'Delivery retrieved successfully', delivery);
       })
       .catch(err => handleError(err, res, 'Error Fetching Delivery', error));
-  },
-
-  updateDelivery(req, res) {
-    const { userId } = req.user;
-    const { body } = req;
-    deliverySvc
-      .updateDelivery(userId, body)
-      .then(delivery => {
-        handleSuccess(res, 'Delivery updated successfully', delivery);
-      })
-      .catch(err => handleError(err, res, 'Error updating Delivery', error));
   },
 
   addUserToDelivery(req, res) {
@@ -147,6 +159,20 @@ module.exports = {
         handleSuccess(res, 'Delivery deleted.');
       })
       .catch(err => handleError(err, res, 'Error deleting delivery', error));
+  },
 
+  acceptDeliveryRequest(req, res) {
+    const { userId, deliveryId } = req.params;
+    let delivery;
+
+    deliverySvc
+      .acceptDeliveryRequest(userId, deliveryId)
+      .then(response => {
+        delivery = response;
+        return deliverySvc.sendAcceptedNotification(userId, deliveryId);
+      })
+      .then(() => userSvc.updateStatus(userId, UserStatus.Ready))
+      .then(() => handleSuccess(res, 'Delivery request accepted successfully', delivery))
+      .catch(err => handleError(err, res, 'Error accepting delivery request', error));
   }
 };

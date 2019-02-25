@@ -123,7 +123,7 @@ describe('Test delivery endpoints', function() {
       validDeliveryData.assignedToUserId = userData.userId;
 
       return request
-        .post('/api/v1/user/company/delivery')
+        .post('/api/v1/user/company/deliveries')
         .send(validDeliveryData)
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')
@@ -159,9 +159,10 @@ describe('Test delivery endpoints', function() {
         .orderBy('createdAt', 'desc')
         .first()
         .then(delivery => {
-          updateDeliveryData.deliveryId = delivery.deliveryId;
+          updateDeliveryData.users.push(userData.userId);
+          updateDeliveryData.assignedToUserId = userData.userId;
           return request
-            .put('/api/v1/user/company/delivery')
+            .put(`/api/v1/user/company/deliveries/${delivery.deliveryId}`)
             .send(updateDeliveryData)
             .set('Accept', 'application/json')
             .set('Authorization', 'auth')
@@ -389,7 +390,7 @@ describe('Test delivery endpoints', function() {
   describe('Failure Tests', () => {
     it('Fails to add new delivery when delivery data is invalid', done => {
       request
-        .post('/api/v1/user/company/delivery')
+        .post('/api/v1/user/company/deliveries')
         .send(inValidDeliveryData)
         .set('Accept', 'application/json')
         .set('Authorization', 'auth')

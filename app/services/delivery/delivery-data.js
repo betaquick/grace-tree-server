@@ -1,6 +1,6 @@
 'use strict';
 
-const { DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
+const { DeliveryStatusCodes, UserDeliveryStatus } = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const {
@@ -13,10 +13,31 @@ const {
 
 module.exports = {
   getDeliveries(assignedByUserId) {
-    return knex(DELIVERY_TABLE)
+    return knex(knex.raw(`${USER_DELIVERY_TABLE} ud`))
+      .select(
+        knex.raw('DISTINCT ud.deliveryId'),
+        knex.raw(`(SELECT COUNT(*) FROM ${USER_DELIVERY_TABLE} ud1 WHERE ud1.deliveryId = ud.deliveryId) usersCount`),
+        knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId AND isAssigned=true LIMIT 1) userId`),
+        `${DELIVERY_TABLE}.*`,
+        'firstName',
+        'lastName'
+      )
       .where({ assignedByUserId })
-      .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
-      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .join(DELIVERY_TABLE, 'ud.deliveryId', '=', `${DELIVERY_TABLE}.deliveryId`)
+      .join(USER_PROFILE_TABLE, 'ud.userId', '=', `${USER_PROFILE_TABLE}.userId`)
+      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc');
+  },
+
+  getCompanyDelivery(deliveryId) {
+    return knex(USER_DELIVERY_TABLE)
+      .select(
+        '*',
+        knex.raw(`${USER_PROFILE_TABLE}.status userStatus`),
+        knex.raw(`${USER_DELIVERY_TABLE}.status statusCode`)
+      )
+      .where({ deliveryId })
+      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
+      .orderBy(`${USER_DELIVERY_TABLE}.updatedAt`, 'desc');
   },
 
   getCompanyPendingDeliveries(assignedByUserId) {
@@ -95,7 +116,8 @@ module.exports = {
       additionalRecipientText,
       users,
       statusCode,
-      userDeliveryStatus
+      userDeliveryStatus,
+      isAssigned
     } = deliveryInfo;
     let deliveryId;
 
@@ -115,8 +137,9 @@ module.exports = {
           return {
             deliveryId,
             userId: user,
-            status:
-            userDeliveryStatus
+            status: userDeliveryStatus,
+            isAssigned,
+            updatedAt: knex.fn.now()
           };
         });
         return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
@@ -127,15 +150,43 @@ module.exports = {
   updateDelivery(deliveryInfo, trx) {
     const {
       deliveryId,
+      assignedToUserId,
       details,
       additionalCompanyText,
-      additionalRecipientText
+      additionalRecipientText,
+      statusCode,
+      users,
+      isAssigned
     } = deliveryInfo;
 
     return knex(DELIVERY_TABLE)
       .transacting(trx)
       .where({ deliveryId })
-      .update({ details, additionalRecipientText, additionalCompanyText });
+      .update({
+        assignedToUserId,
+        details,
+        additionalRecipientText,
+        additionalCompanyText,
+        statusCode
+      })
+      .then(() => {
+        const userDelivery = {
+          deliveryId,
+          isAssigned,
+          updatedAt: knex.fn.now()
+        };
+        return knex(USER_DELIVERY_TABLE)
+          .transacting(trx)
+          .where({ deliveryId, userId: users[0] })
+          .update(userDelivery);
+      });
+  },
+
+  acceptDeliveryRequest(userId, deliveryId, trx) {
+    return knex(USER_DELIVERY_TABLE)
+      .transacting(trx)
+      .where({ userId, deliveryId })
+      .update({ status: UserDeliveryStatus.Accepted, updatedAt: knex.fn.now() });
   },
 
   addUserToDelivery(deliveryId, userId, trx) {

@@ -14,7 +14,7 @@ const userSvc = require('../user/user-service');
 
 const {
   deliveryInfoValidator,
-  updateDeliveryInfoValidator,
+  updateDeliveryValidator,
   updateDeliveryStatusValidator
 } = require('./delivery-validation');
 
@@ -82,9 +82,14 @@ const getRecentDeliveries = async(userId, userType) => {
   }
 };
 
-const getDelivery = async(deliveryId) => {
+const getDelivery = async(deliveryId, userType) => {
   try {
-    return await deliveryData.getUserDelivery(deliveryId);
+    if (userType === UserTypes.General) {
+      return await deliveryData.getUserDelivery(deliveryId);
+    }
+
+    return await deliveryData.getCompanyDelivery(deliveryId);
+
   } catch (err) {
     error('Error getting delivery', err);
     throw err;
@@ -108,6 +113,44 @@ const addDelivery = async(assignedByUserId, data) => {
   } catch (err) {
     if (transaction) transaction.rollback();
     error('Error adding new delivery', err);
+    throw err;
+  }
+};
+
+const updateDelivery = async(deliveryId, data) => {
+  let transaction;
+  try {
+    const deliveryItem = {
+      deliveryId,
+      ...data
+    };
+    await Joi.validate(deliveryItem, updateDeliveryValidator);
+
+    transaction = await getTransaction();
+    await deliveryData.updateDelivery(deliveryItem, transaction);
+    transaction.commit();
+
+    return deliveryItem;
+  } catch (err) {
+    if (transaction) transaction.rollback();
+    error('Error adding new delivery', err);
+    throw err;
+  }
+};
+
+const acceptDeliveryRequest = async(userId, deliveryId) => {
+  let transaction;
+  try {
+    await Joi.validate(userId, Joi.number().required());
+    await Joi.validate(deliveryId, Joi.number().required());
+
+    transaction = await getTransaction();
+    await deliveryData.acceptDeliveryRequest(userId, deliveryId, transaction);
+    transaction.commit();
+
+    return { userId, deliveryId };
+  } catch (err) {
+    if (transaction) transaction.rollback();
     throw err;
   }
 };
@@ -220,23 +263,31 @@ const sendRequestNotification = async delivery => {
   });
 };
 
-const updateDelivery = async(userId, deliveryInfo) => {
-  let transaction;
+const sendAcceptedNotification = async(userId, deliveryId) => {
   try {
-    const {
-      companyId
-    } = await userSvc.getCompanyInfo(userId);
-    deliveryInfo.assignedToUserId = companyId;
+    const delivery = await deliveryData.getUserDelivery(deliveryId);
+    const assignedUser = await userData.getUserByParam(USER_TABLE, {
+      [`${USER_TABLE}.userId`]: delivery.assignedToUserId
+    });
+    const recipient = await userData.getUserByParam(USER_TABLE, {
+      [`${USER_TABLE}.userId`]: userId
+    });
+    const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
 
-    await Joi.validate(deliveryInfo, updateDeliveryInfoValidator);
+    let options = {
+      email: assignedUser.email,
+      firstName: assignedUser.firstName,
+      recipientName: `${recipient.firstName} ${recipient.lastName}`
+    };
+    emailService.sendDeliveryAccceptedNotificationMail(options);
 
-    transaction = await getTransaction();
-
-    deliveryData.updateDelivery(deliveryInfo, transaction);
-    transaction.commit();
+    options = {
+      phoneNumber: companyPhone.phoneNumber,
+      recipientName: `${recipient.firstName} ${recipient.lastName}`
+    };
+    smsService.sendDeliveryAccceptedNotificationSMS(options);
   } catch (err) {
-    if (transaction) transaction.rollback();
-    error('Error updating delivery', err);
+    error('Error sending delivery notification', err);
     throw err;
   }
 };
@@ -303,8 +354,10 @@ async function getTransaction() {
 module.exports = {
   getDeliveryInfo,
   addDelivery,
+  acceptDeliveryRequest,
   sendDeliveryNotification,
   sendRequestNotification,
+  sendAcceptedNotification,
   getCompanyDeliveries,
   getUserDeliveries,
   getPendingDeliveries,

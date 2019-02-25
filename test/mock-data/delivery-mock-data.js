@@ -27,7 +27,8 @@ const validDeliveryData = {
   additionalCompanyText: 'valid additional info',
   assignedByUserId: 1,
   statusCode: DeliveryStatusCodes.Scheduled,
-  userDeliveryStatus: UserDeliveryStatus.Accepted
+  userDeliveryStatus: UserDeliveryStatus.Accepted,
+  isAssigned: true
 };
 
 const inValidDeliveryData = {
@@ -38,7 +39,11 @@ const inValidDeliveryData = {
 
 const updateDeliveryData = {
   assignedToUserId: 1,
-  details: 'New Deets'
+  users: [],
+  additionalRecipientText: 'valid additional info',
+  additionalCompanyText: 'valid additional info',
+  statusCode: DeliveryStatusCodes.Scheduled,
+  isAssigned: true
 };
 
 const validCompanyData = {
