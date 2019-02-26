@@ -230,24 +230,6 @@ describe('Test delivery endpoints', function() {
         });
     });
 
-    it('can get all deliveries of logged in company user', () => {
-
-      return request
-        .get('/api/v1/user/company/deliveries')
-        .set('Accept', 'application/json')
-        .set('Authorization', 'auth')
-        .expect(200)
-        .then(res => {
-          const data = res.body;
-          expect(data).to.be.an('object');
-          expect(data).to.have.property('status', 200);
-          expect(data).to.have.property('error', false);
-          expect(data).to.have.property('message', 'Deliveries retrieved successfully');
-          expect(data.body.deliveries).to.be.an('array');
-          return data;
-        });
-    });
-
     it('can get all pending deliveries of logged in user', () => {
       return request
         .get('/api/v1/user/deliveries/pending')
@@ -332,6 +314,44 @@ describe('Test delivery endpoints', function() {
       sinon.restore();
       userData.userType = UserTypes.TreeAdmin;
       sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
+
+      return knex(USER_TABLE)
+        .where({ userId: userData.userId})
+        .update({ userType: UserTypes.TreeAdmin });
+    });
+
+    after(() => {
+      return knex(USER_TABLE)
+        .where({ userId: userData.userId })
+        .update({ userType: UserTypes.General });
+    });
+
+    it('can get all deliveries of logged in company user', () => {
+
+      return request
+        .get('/api/v1/user/company/deliveries')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'auth')
+        .expect(200)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 200);
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('message', 'Deliveries retrieved successfully');
+
+          const { deliveries } = data.body;
+          expect(deliveries).to.be.an('array');
+          expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+          expect(deliveries[0]).to.have.property('usersCount').to.be.a('number');
+          expect(deliveries[0]).to.have.property('deliveryId');
+          expect(deliveries[0]).to.have.property('assignedToUserId');
+          expect(deliveries[0]).to.have.property('assignedByUserId');
+          expect(deliveries[0]).to.have.property('firstName');
+          expect(deliveries[0]).to.have.property('lastName');
+          expect(deliveries[0]).to.have.property('statusCode');
+          return data;
+        });
     });
 
     it('can get all pending deliveries of company', () => {
@@ -350,6 +370,7 @@ describe('Test delivery endpoints', function() {
           const { deliveries } = data.body;
           expect(deliveries).to.be.an('array');
           expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+          expect(deliveries[0]).to.have.property('usersCount').to.be.a('number');
           expect(deliveries[0]).to.have.property('deliveryId');
           expect(deliveries[0]).to.have.property('assignedToUserId');
           expect(deliveries[0]).to.have.property('assignedByUserId');
@@ -376,6 +397,7 @@ describe('Test delivery endpoints', function() {
           const { deliveries } = data.body;
           expect(deliveries).to.be.an('array');
           expect(deliveries[0]).to.have.property('userId').to.be.a('number');
+          expect(deliveries[0]).to.have.property('usersCount').to.be.a('number');
           expect(deliveries[0]).to.have.property('deliveryId');
           expect(deliveries[0]).to.have.property('assignedToUserId');
           expect(deliveries[0]).to.have.property('assignedByUserId');

@@ -54,7 +54,7 @@ module.exports = function(req, res, next) {
         });
       }
 
-      req.user = decoded;
+      req.user = user;
 
       return next();
     }
