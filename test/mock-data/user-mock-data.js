@@ -74,7 +74,7 @@ const invalidUserData = {
   lastName: 'Invalid'
 };
 
-const coordinatesData = {
+const validCoordinatesData = {
   json: {
     results: [{
       geometry: {
@@ -83,6 +83,20 @@ const coordinatesData = {
           lat: -33.737885
         }
       }
+    }]
+  }
+};
+
+const invalidCoordinatesData = {
+  json: {
+    results: [{
+      geometry: {
+        location: {
+          lng: 151.235260,
+          lat: -33.737885
+        }
+      },
+      partial_match: true
     }]
   }
 };
@@ -104,7 +118,7 @@ const inValidAddressData = {
 };
 
 const locationServiceMock = {
-  asPromise: () => coordinatesData
+  asPromise: () => validCoordinatesData
 };
 
 module.exports = {
@@ -116,6 +130,7 @@ module.exports = {
   invalidBusinessData,
   validDeliveryData,
   locationServiceMock,
+  invalidCoordinatesData,
   validAddressData,
   inValidAddressData
 };

@@ -18,6 +18,7 @@ const {
   invalidBusinessData,
   validDeliveryData,
   locationServiceMock,
+  invalidCoordinatesData,
   validAddressData,
   inValidAddressData
 } = require('../../mock-data/user-mock-data');
@@ -514,6 +515,7 @@ describe('test user process end-to-end', function() {
                 productId,
                 status
               };
+              validDeliveryData.userProducts = [];
               validDeliveryData.userProducts.push(product);
             });
             return products;
@@ -626,6 +628,52 @@ describe('test user process end-to-end', function() {
             expect(body).to.have.property('message').to.be.a('string');
             expect(body).to.have.property('status', 422);
             return done();
+          });
+      });
+    });
+
+    describe('Add user delivery info', () => {
+      before(() => {
+        return knex(USER_EMAIL_TABLE)
+          .where({ userId: userData.userId, primary: 1 })
+          .update({ isVerified: true })
+          .then(() => knex(USER_PHONE_TABLE)
+            .where({ userId: userData.userId, primary: 1 })
+            .update({ isVerified: true }));
+      });
+      after(() => {
+        return knex(USER_EMAIL_TABLE)
+          .where({ userId: userData.userId, primary: 1 })
+          .update({ isVerified: false })
+          .then(() => knex(USER_PHONE_TABLE)
+            .where({ userId: userData.userId, primary: 1 })
+            .update({ isVerified: false }));
+      });
+
+      beforeEach(() => {
+        locationServiceMock.asPromise = () => invalidCoordinatesData;
+        sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
+        sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
+      });
+
+      afterEach(() => {
+        // remove verification
+        sinon.restore();
+      });
+
+      it('/api/v1/user - return failure if user address is invalid', () => {
+        return request
+          .post('/api/v1/user/new-delivery-info')
+          .send(validDeliveryData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(422)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 422);
+            expect(data).to.have.property('error', true);
+            expect(data).to.have.property('body', 'Error retrieving coordinates from address');
           });
       });
     });
