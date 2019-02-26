@@ -32,15 +32,6 @@ module.exports = {
       });
     }
 
-    /* if (err.name === 'LocationError') {
-      return res.status(422).json({
-        status: 422,
-        error: true,
-        message: 'Location Error: ' + err.message,
-        body: err.message
-      });
-    } */
-
     // make sure its a valid HTTP Status Code...
     err.code = typeof err.code === 'number' && err.code > 100 && err.code < 600 ? err.code : 500;
 
