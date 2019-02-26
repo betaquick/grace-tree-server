@@ -41,20 +41,36 @@ module.exports = {
   },
 
   getCompanyPendingDeliveries(assignedByUserId) {
-    return knex(DELIVERY_TABLE)
+    return knex(knex.raw(`${USER_DELIVERY_TABLE} ud`))
+      .select(
+        knex.raw('DISTINCT ud.deliveryId'),
+        knex.raw(`(SELECT COUNT(*) FROM ${USER_DELIVERY_TABLE} ud1 WHERE ud1.deliveryId = ud.deliveryId) usersCount`),
+        knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId AND isAssigned=true LIMIT 1) userId`),
+        `${DELIVERY_TABLE}.*`,
+        'firstName',
+        'lastName'
+      )
       .where({
         assignedByUserId,
         statusCode: DeliveryStatusCodes.Scheduled
       })
-      .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
-      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .join(DELIVERY_TABLE, 'ud.deliveryId', '=', `${DELIVERY_TABLE}.deliveryId`)
+      .join(USER_PROFILE_TABLE, 'ud.userId', '=', `${USER_PROFILE_TABLE}.userId`);
   },
 
   getCompanyRecentDeliveries(assignedByUserId) {
-    return knex(DELIVERY_TABLE)
+    return knex(knex.raw(`${USER_DELIVERY_TABLE} ud`))
+      .select(
+        knex.raw('DISTINCT ud.deliveryId'),
+        knex.raw(`(SELECT COUNT(*) FROM ${USER_DELIVERY_TABLE} ud1 WHERE ud1.deliveryId = ud.deliveryId) usersCount`),
+        knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId AND isAssigned=true LIMIT 1) userId`),
+        `${DELIVERY_TABLE}.*`,
+        'firstName',
+        'lastName'
+      )
       .where({ assignedByUserId })
-      .join(USER_DELIVERY_TABLE, `${DELIVERY_TABLE}.deliveryId`, '=', `${USER_DELIVERY_TABLE}.deliveryId`)
-      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
+      .join(DELIVERY_TABLE, 'ud.deliveryId', '=', `${DELIVERY_TABLE}.deliveryId`)
+      .join(USER_PROFILE_TABLE, 'ud.userId', '=', `${USER_PROFILE_TABLE}.userId`)
       .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc')
       .limit(5);
   },
@@ -65,7 +81,8 @@ module.exports = {
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_COMPANY_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_COMPANY_TABLE}.userId`)
-      .join(COMPANY_PROFILE_TABLE, `${USER_COMPANY_TABLE}.companyId`, '=', `${COMPANY_PROFILE_TABLE}.companyId`);
+      .join(COMPANY_PROFILE_TABLE, `${USER_COMPANY_TABLE}.companyId`, '=', `${COMPANY_PROFILE_TABLE}.companyId`)
+      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc');
   },
 
   getUserPendingDeliveries(userId) {
