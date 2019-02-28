@@ -103,7 +103,7 @@ module.exports = {
         return userSvc.updateCompanyInfo(userId, company);
       })
       .then(data => {
-        handleSuccess(res, 'Conpany information updated successfully', {
+        handleSuccess(res, 'Company information updated successfully', {
           company: data,
           user: userInfo
         });
