@@ -174,5 +174,14 @@ module.exports = {
       .then(() => userSvc.updateStatus(userId, UserStatus.Ready))
       .then(() => handleSuccess(res, 'Delivery request accepted successfully', delivery))
       .catch(err => handleError(err, res, 'Error accepting delivery request', error));
+  },
+
+  updateDeliveryJob(req, res) {
+    deliverySvc
+      .updateDeliveryJob()
+      .then(() => {
+        handleSuccess(res, 'Delivery updated successfully');
+      })
+      .catch(err => handleError(err, res, 'Error updating delivery', error));
   }
 };

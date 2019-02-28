@@ -4,7 +4,8 @@ const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const Joi = require('joi');
 const error = require('debug')('grace-tree:delivery-service:error');
 const debug = require('debug')('grace-tree:delivery-service:debug');
-const { UserTypes } = require('@betaquick/grace-tree-constants');
+const moment = require('moment');
+const { UserTypes, DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
 
 const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
@@ -343,6 +344,55 @@ const deleteDelivery = async(deliveryId) => {
   }
 };
 
+const updateDeliveryJob = async() => {
+  debug('Update deliveries cron job');
+  try {
+    const deliveries = await deliveryData.getScheduledDeliveries();
+    deliveries.forEach(async delivery => {
+      const createdAt = moment(delivery.createdAt);
+      const dateDiff = moment().diff(createdAt, 'days');
+
+      if (dateDiff === 2) {
+        const recipient = await userData.getUserByParam(USER_TABLE, {
+          [`${USER_TABLE}.userId`]: delivery.userId
+        });
+        const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
+        const recipientPhone = await userData.getUserPhone(delivery.userId);
+
+        const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
+          [`${USER_COMPANY_TABLE}.userId`]: delivery.assignedToUserId
+        });
+        const { companyName } = await userData.getCompanyInfo(companyId);
+
+        let options = {
+          email: recipient.email,
+          firstName: recipient.firstName,
+          companyName,
+          phoneNumber: companyPhone.phoneNumber,
+          additionalRecipientText: delivery.additionalRecipientText
+        };
+        emailService.sendUserDeliveryNotificationMail(options);
+
+        options = {
+          toNumber: recipientPhone.phoneNumber,
+          companyName,
+          phoneNumber: companyPhone.phoneNumber
+        };
+        smsService.sendUserDeliveryNotificationSMS(options);
+      }
+
+      if (dateDiff >= 3) {
+        await deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired);
+      }
+    });
+
+    return deliveries;
+  } catch (err) {
+    error('Error updating status', err);
+    throw err;
+  }
+};
+
 async function getTransaction() {
   return new Promise(function(resolve, reject) {
     knex.transaction(function(trx) {
@@ -367,5 +417,6 @@ module.exports = {
   addUserToDelivery,
   updateDeliveryStatus,
   removeUserFromDelivery,
-  deleteDelivery
+  deleteDelivery,
+  updateDeliveryJob
 };
