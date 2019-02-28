@@ -415,7 +415,7 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user/address - return success if address info is valid', () => {
+      it('/api/v1/user/address - return success if address info is valid and lng/lat is not provided', () => {
         return request
           .put('/api/v1/user/address')
           .send(validAddressData)
@@ -430,8 +430,35 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('body');
             expect(data.body).to.have.property('longitude');
             expect(data.body).to.have.property('latitude');
-            const { userId } = data.body;
-            return userId;
+            setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 1), 4000);
+
+            return data;
+          });
+      });
+
+      it('/api/v1/user/address - return success if address info is valid and lng/lat is provided', () => {
+        const addressData = Object.assign({
+          longitude: 151.235260,
+          latitude: -33.737885
+        }, validAddressData);
+
+        return request
+          .put('/api/v1/user/address')
+          .send(addressData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 200);
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('body');
+            expect(data.body).to.have.property('longitude', 151.235260);
+            expect(data.body).to.have.property('latitude', -33.737885);
+            setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 0), 1000);
+
+            return data;
           });
       });
 
@@ -541,6 +568,34 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('error', false);
             expect(data).to.have.property('body');
             expect(data.body).to.have.property('delivery');
+            setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 1), 4000);
+            return data.body.delivery;
+          });
+      });
+
+      it('/api/v1/user - return success if delivery info is valid and lng/lat is provided', () => {
+        const deliveryData = Object.assign({}, validDeliveryData);
+        const addressData = Object.assign({
+          longitude: 151.235260,
+          latitude: -33.737885
+        }, deliveryData.address);
+        deliveryData.address = addressData;
+
+
+        return request
+          .post('/api/v1/user/new-delivery-info')
+          .send(deliveryData)
+          .set('Accept', 'application/json')
+          .set('Authorization', 'auth')
+          .expect(200)
+          .then(res => {
+            const data = res.body;
+            expect(data).to.be.an('object');
+            expect(data).to.have.property('status', 200);
+            expect(data).to.have.property('error', false);
+            expect(data).to.have.property('body');
+            expect(data.body).to.have.property('delivery');
+            setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 0), 1000);
             return data.body.delivery;
           });
       });
@@ -673,7 +728,7 @@ describe('test user process end-to-end', function() {
             expect(data).to.be.an('object');
             expect(data).to.have.property('status', 422);
             expect(data).to.have.property('error', true);
-            expect(data).to.have.property('body', 'Error retrieving coordinates from address');
+            expect(data).to.have.property('body', 'The address you entered is invalid');
           });
       });
     });

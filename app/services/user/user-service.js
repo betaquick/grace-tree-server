@@ -131,13 +131,15 @@ const addCompanyInfo = async(userId, data) => {
   try {
     await Joi.validate({ userId, ...data }, businessInfoValidator);
 
-    const { companyAddress, city, state } = data;
-    const address = `${companyAddress}, ${city}, ${state}`;
-    const coordinates = await locationService.getCoordinates(address);
+    const { companyAddress, city, state, longitude, latitude } = data;
+    if (!longitude || !latitude) {
+      const address = `${companyAddress}, ${city}, ${state}`;
+      const coordinates = await locationService.getCoordinates(address);
 
-    debug(`Google map coordinates for ${address} is: `, coordinates);
-    data.longitude = coordinates.lng;
-    data.latitude = coordinates.lat;
+      debug(`Google map coordinates for ${address} is: `, coordinates);
+      data.longitude = coordinates.lng;
+      data.latitude = coordinates.lat;
+    }
 
     const companyIds = await userData.addCompanyInfo(userId, data);
 
@@ -155,13 +157,16 @@ const updateCompanyInfo = async(userId, company) => {
   try {
     await Joi.validate({ userId, ...company }, updateBusinessValidator);
 
-    const { companyAddress, city, state } = company;
-    const address = `${companyAddress}, ${city}, ${state}`;
-    const coordinates = await locationService.getCoordinates(address);
+    const { companyAddress, city, state, longitude, latitude } = company;
 
-    debug(`Google map coordinates for ${address} is: `, coordinates);
-    company.longitude = coordinates.lng;
-    company.latitude = coordinates.lat;
+    if (!longitude || !latitude) {
+      const address = `${companyAddress}, ${city}, ${state}`;
+      const coordinates = await locationService.getCoordinates(address);
+
+      debug(`Google map coordinates for ${address} is: `, coordinates);
+      company.longitude = coordinates.lng;
+      company.latitude = coordinates.lat;
+    }
 
     await userData.updateCompanyInfo(company);
 
@@ -182,15 +187,20 @@ const addDeliveryInfo = async(userId, data) => {
     const {
       street,
       city,
-      state
+      state,
+      longitude,
+      latitude
     } = data.address;
-    const address = `${street}, ${city}, ${state}`;
 
-    const coordinates = await locationService.getCoordinates(address);
+    if (!longitude || !latitude) {
+      const address = `${street}, ${city}, ${state}`;
 
-    debug(`Google map coordinates for ${address} is: `, coordinates);
-    data.address.longitude = coordinates.lng;
-    data.address.latitude = coordinates.lat;
+      const coordinates = await locationService.getCoordinates(address);
+
+      debug(`Google map coordinates for ${address} is: `, coordinates);
+      data.address.longitude = coordinates.lng;
+      data.address.latitude = coordinates.lat;
+    }
 
     const deliveryIds = await userData.addDeliveryInfo(userId, data);
 
@@ -313,14 +323,15 @@ const updateUserProducts = async(userId, userProducts) => {
 const updateUserAddress = async(userId, data) => {
   try {
     await Joi.validate(data, updateAddressValidator);
-    const {
-      street,
-      city,
-      state
-    } = data;
-    const coords = await getCoordinates(street, city, state);
-    data.longitude = coords.longitude;
-    data.latitude = coords.latitude;
+
+    const { street, city, state, longitude, latitude } = data;
+    if (!longitude || !latitude) {
+      const coords = await getCoordinates(street, city, state);
+      debug(`Google map coordinates for ${street}, ${city}, ${state} is:`, coords);
+
+      data.longitude = coords.longitude;
+      data.latitude = coords.latitude;
+    }
 
     data.userId = userId;
     await userData.addOrUpdateAddressInfo(data);

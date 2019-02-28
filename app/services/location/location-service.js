@@ -5,6 +5,7 @@ const googleMapsClient = require('@google/maps').createClient({
   Promise: Promise
 });
 const error = require('debug')('grace-tree:location-service:error');
+const debug = require('debug')('grace-tree:location-service:debug');
 const { throwError } = require('../../controllers/util/controller-util');
 
 const getCoordinates = async address => {
@@ -15,13 +16,13 @@ const getCoordinates = async address => {
 
     if (result.partial_match) {
       debug(result);
-      throwError(422, 'Error retrieving coordinates from address');
+      throwError(422, 'The address you entered is invalid');
     }
 
     return result.geometry.location;
   } catch (err) {
     error(err);
-    throwError(422, 'Error retrieving coordinates from address');
+    throwError(422, 'The address you entered is invalid');
   }
 };
 
