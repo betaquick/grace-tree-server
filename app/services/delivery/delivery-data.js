@@ -28,6 +28,21 @@ module.exports = {
       .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc');
   },
 
+  getScheduledDeliveries() {
+    return knex(knex.raw(`${USER_DELIVERY_TABLE} ud`))
+      .select(
+        knex.raw('DISTINCT ud.deliveryId'),
+        knex.raw(`(SELECT COUNT(*) FROM ${USER_DELIVERY_TABLE} ud1 WHERE ud1.deliveryId = ud.deliveryId) usersCount`),
+        knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId AND isAssigned=true LIMIT 1) userId`),
+        `${DELIVERY_TABLE}.*`
+      )
+      .where({
+        statusCode: DeliveryStatusCodes.Scheduled
+      })
+      .join(DELIVERY_TABLE, 'ud.deliveryId', '=', `${DELIVERY_TABLE}.deliveryId`)
+      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc');
+  },
+
   getCompanyDelivery(deliveryId) {
     return knex(USER_DELIVERY_TABLE)
       .select(
@@ -77,7 +92,10 @@ module.exports = {
 
   getUserDeliveries(userId) {
     return knex(USER_DELIVERY_TABLE)
-      .where({ [`${USER_DELIVERY_TABLE}.userId`]: userId })
+      .where({
+        [`${USER_DELIVERY_TABLE}.userId`]: userId,
+        isAssigned: 1
+      })
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_COMPANY_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_COMPANY_TABLE}.userId`)
@@ -89,7 +107,8 @@ module.exports = {
     return knex(USER_DELIVERY_TABLE)
       .where({
         [`${USER_DELIVERY_TABLE}.userId`]: userId,
-        statusCode: DeliveryStatusCodes.Scheduled
+        statusCode: DeliveryStatusCodes.Scheduled,
+        isAssigned: 1
       })
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_PROFILE_TABLE}.userId`)
@@ -99,7 +118,10 @@ module.exports = {
 
   getUserRecentDeliveries(userId) {
     return knex(USER_DELIVERY_TABLE)
-      .where({ [`${USER_DELIVERY_TABLE}.userId`]: userId })
+      .where({
+        [`${USER_DELIVERY_TABLE}.userId`]: userId,
+        isAssigned: 1
+      })
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_COMPANY_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_COMPANY_TABLE}.userId`)
@@ -184,7 +206,8 @@ module.exports = {
         details,
         additionalRecipientText,
         additionalCompanyText,
-        statusCode
+        statusCode,
+        createdAt: knex.fn.now()
       })
       .then(() => {
         const userDelivery = {

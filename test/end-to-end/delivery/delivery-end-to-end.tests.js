@@ -230,6 +230,21 @@ describe('Test delivery endpoints', function() {
         });
     });
 
+    it('Should successfully run deliveries cron job', done => {
+      request
+        .post('/api/v1/user/deliveries/expire')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 200);
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('message', 'Delivery updated successfully');
+          done();
+        });
+    });
+
     it('can get all pending deliveries of logged in user', () => {
       return request
         .get('/api/v1/user/deliveries/pending')

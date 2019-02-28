@@ -3,12 +3,18 @@
 const debug = require('debug')('grace-tree:server:debug');
 const error = require('debug')('grace-tree:server:error');
 const stringify = require('json-stringify-safe');
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const userData = require('../services/user/user-data');
 
 module.exports = async function(req, res, next) {
-  const { userId } = req.user;
+  const { userId, userType } = req.user;
   const params = { primary: 1 };
+
+  if (userType === UserTypes.Crew) {
+    debug('Crew verification successful');
+    return next();
+  }
 
   const email = await userData.getUserByParam('user_email', { 'user_email.userId': userId, ...params });
   const phone = await userData.getUserByParam('user_phone', { 'user_phone.userId': userId, ...params });
