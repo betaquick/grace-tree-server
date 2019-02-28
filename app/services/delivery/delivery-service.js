@@ -344,47 +344,53 @@ const deleteDelivery = async(deliveryId) => {
   }
 };
 
+const filterDeliveries = (delivery, filter) => {
+  const createdAt = moment(delivery.createdAt);
+  const dateDiff = moment().diff(createdAt, 'days');
+
+  return dateDiff === filter;
+};
+
+const sendExpiredNotification = async delivery => {
+  const recipient = await userData.getUserByParam(USER_TABLE, {
+    [`${USER_TABLE}.userId`]: delivery.userId
+  });
+  const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
+  const recipientPhone = await userData.getUserPhone(delivery.userId);
+
+  const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
+    [`${USER_COMPANY_TABLE}.userId`]: delivery.assignedToUserId
+  });
+  const { companyName } = await userData.getCompanyInfo(companyId);
+
+  let options = {
+    email: recipient.email,
+    firstName: recipient.firstName,
+    companyName,
+    phoneNumber: companyPhone.phoneNumber,
+    additionalRecipientText: delivery.additionalRecipientText
+  };
+  emailService.sendUserDeliveryNotificationMail(options);
+
+  options = {
+    toNumber: recipientPhone.phoneNumber,
+    companyName,
+    phoneNumber: companyPhone.phoneNumber
+  };
+  smsService.sendUserDeliveryNotificationSMS(options);
+};
+
 const expireDeliveryJob = async() => {
   debug('Update deliveries cron job');
   try {
     const deliveries = await deliveryData.getScheduledDeliveries();
-    deliveries.forEach(async delivery => {
-      const createdAt = moment(delivery.createdAt);
-      const dateDiff = moment().diff(createdAt, 'days');
+    const warningDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 2));
+    const expiredDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 3));
 
-      if (dateDiff === 2) {
-        const recipient = await userData.getUserByParam(USER_TABLE, {
-          [`${USER_TABLE}.userId`]: delivery.userId
-        });
-        const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
-        const recipientPhone = await userData.getUserPhone(delivery.userId);
+    const warningDeliveriesMap = warningDeliveries.map(delivery => sendExpiredNotification(delivery));
+    const expiredDeliveriesMap = expiredDeliveries.map(delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired));
 
-        const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
-          [`${USER_COMPANY_TABLE}.userId`]: delivery.assignedToUserId
-        });
-        const { companyName } = await userData.getCompanyInfo(companyId);
-
-        let options = {
-          email: recipient.email,
-          firstName: recipient.firstName,
-          companyName,
-          phoneNumber: companyPhone.phoneNumber,
-          additionalRecipientText: delivery.additionalRecipientText
-        };
-        emailService.sendUserDeliveryNotificationMail(options);
-
-        options = {
-          toNumber: recipientPhone.phoneNumber,
-          companyName,
-          phoneNumber: companyPhone.phoneNumber
-        };
-        smsService.sendUserDeliveryNotificationSMS(options);
-      }
-
-      if (dateDiff >= 3) {
-        await deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired);
-      }
-    });
+    await Promise.all([...warningDeliveriesMap, ...expiredDeliveriesMap]);
 
     return deliveries;
   } catch (err) {
