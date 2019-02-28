@@ -344,7 +344,7 @@ const deleteDelivery = async(deliveryId) => {
   }
 };
 
-const updateDeliveryJob = async() => {
+const expireDeliveryJob = async() => {
   debug('Update deliveries cron job');
   try {
     const deliveries = await deliveryData.getScheduledDeliveries();
@@ -418,5 +418,5 @@ module.exports = {
   updateDeliveryStatus,
   removeUserFromDelivery,
   deleteDelivery,
-  updateDeliveryJob
+  expireDeliveryJob
 };

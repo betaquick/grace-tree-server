@@ -232,7 +232,7 @@ describe('Test delivery endpoints', function() {
 
     it('Should successfully run deliveries cron job', done => {
       request
-        .post('/api/v1/user/deliveries/cron-job')
+        .post('/api/v1/user/deliveries/expire')
         .set('Accept', 'application/json')
         .expect(200)
         .then(res => {

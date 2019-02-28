@@ -61,7 +61,7 @@ router.post('/user/company/remove-from-delivery', auth, deliveryController.remov
 router.post('/user/company/delete-delivery', auth, deliveryController.deleteDelivery);
 router.get('/user/company/deliveries/:deliveryId', auth, deliveryController.getDelivery);
 
-router.post('/user/deliveries/cron-job', deliveryController.updateDeliveryJob);
+router.post('/user/deliveries/expire', deliveryController.expireDeliveryJob);
 
 router.get('/user/deliveries', auth, deliveryController.getUserDeliveries);
 router.get('/user/deliveries/pending', auth, deliveryController.getPendingDeliveries);

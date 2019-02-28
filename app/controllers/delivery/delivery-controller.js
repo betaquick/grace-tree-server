@@ -176,9 +176,9 @@ module.exports = {
       .catch(err => handleError(err, res, 'Error accepting delivery request', error));
   },
 
-  updateDeliveryJob(req, res) {
+  expireDeliveryJob(req, res) {
     deliverySvc
-      .updateDeliveryJob()
+      .expireDeliveryJob()
       .then(() => {
         handleSuccess(res, 'Delivery updated successfully');
       })
