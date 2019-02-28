@@ -351,7 +351,7 @@ const filterDeliveries = (delivery, filter) => {
   return dateDiff === filter;
 };
 
-const sendExpiredNotification = async delivery => {
+const sendWarningNotification = async delivery => {
   const recipient = await userData.getUserByParam(USER_TABLE, {
     [`${USER_TABLE}.userId`]: delivery.userId
   });
@@ -387,7 +387,7 @@ const expireDeliveryJob = async() => {
     const warningDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 2));
     const expiredDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 3));
 
-    const warningDeliveriesMap = warningDeliveries.map(delivery => sendExpiredNotification(delivery));
+    const warningDeliveriesMap = warningDeliveries.map(delivery => sendWarningNotification(delivery));
     const expiredDeliveriesMap = expiredDeliveries.map(delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired));
 
     await Promise.all([...warningDeliveriesMap, ...expiredDeliveriesMap]);

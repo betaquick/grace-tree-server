@@ -4,7 +4,7 @@ const supertest = require('supertest');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const expect = require('chai').expect;
-const { UserTypes } = require('@betaquick/grace-tree-constants');
+const { UserTypes, UserDeliveryStatus } = require('@betaquick/grace-tree-constants');
 
 const app = require('../../../app/config/app-config')();
 const knex = require('knex')(require('../../../db/knexfile').development);
@@ -27,11 +27,13 @@ const {
   validCompanyData,
   validDeliveryData,
   updateDeliveryData,
-  inValidDeliveryData
+  inValidDeliveryData,
+  validDeliveries
 } = require('../../mock-data/delivery-mock-data');
 const { transporter } = require('../../../app/services/messaging/email-service');
 const { twilioClient } = require('../../../app/services/messaging/sms-service');
 const { googleMapsClient } = require('../../../app/services/location/location-service');
+const deliveryData = require('../../../app/services/delivery/delivery-data');
 
 const request = supertest(app);
 
@@ -66,14 +68,6 @@ describe('Test delivery endpoints', function() {
 
   after(() => {
     sinon.restore();
-    let deliveryId;
-    knex(DELIVERY_TABLE)
-      .orderBy('createdAt', 'desc')
-      .first()
-      .select('*')
-      .then(delivery => {
-        deliveryId = delivery.deliveryId;
-      });
 
     // delete newly created user
     return knex(USER_TABLE).where('userId', userData.userId).delete()
@@ -83,8 +77,8 @@ describe('Test delivery endpoints', function() {
       .then(() => knex(USER_COMPANY_TABLE).where('userId', userData.userId).delete())
       .then(() => knex(COMPANY_ADDRESS_TABLE).where('companyId', companyData.companyId).delete())
       .then(() => knex(COMPANY_PROFILE_TABLE).where('companyId', companyData.companyId).delete())
-      .then(() => knex(DELIVERY_TABLE).where({ deliveryId }).delete())
-      .then(() => knex(USER_DELIVERY_TABLE).where({ deliveryId }).delete());
+      .then(() => knex(DELIVERY_TABLE).where({ assignedByUserId: userData.userId }).delete())
+      .then(() => knex(USER_DELIVERY_TABLE).where({ userId: userData.userId }).delete());
   });
 
   describe('Delivery testing', () => {
@@ -227,21 +221,6 @@ describe('Test delivery endpoints', function() {
               expect(data).to.have.property('message', 'User removed from delivery');
               return data;
             });
-        });
-    });
-
-    it('Should successfully run deliveries cron job', done => {
-      request
-        .post('/api/v1/user/deliveries/expire')
-        .set('Accept', 'application/json')
-        .expect(200)
-        .then(res => {
-          const data = res.body;
-          expect(data).to.be.an('object');
-          expect(data).to.have.property('status', 200);
-          expect(data).to.have.property('error', false);
-          expect(data).to.have.property('message', 'Delivery updated successfully');
-          done();
         });
     });
 
@@ -440,6 +419,70 @@ describe('Test delivery endpoints', function() {
           expect(data).to.have.property('message', 'Validation Error: child \"users\" fails because [\"users\" is required]');
           done();
         });
+    });
+  });
+
+  describe('Cron job tests', () => {
+    before(() => {
+      sinon.restore();
+      sinon.stub(twilioClient.messages, 'create').resolves(true);
+      sinon.stub(transporter, 'sendMail').resolves(true);
+      sinon.spy(deliveryData, 'updateDeliveryStatus');
+
+      const deliveries = validDeliveries.map(delivery => {
+        return {
+          ...delivery,
+          assignedToUserId: userData.userId,
+          assignedByUserId: userData.userId
+        };
+      });
+
+      return knex.transaction(trx => {
+        const delivery1 = knex(DELIVERY_TABLE).transacting(trx).insert(deliveries[0]);
+        const delivery2 = knex(DELIVERY_TABLE).transacting(trx).insert(deliveries[1]);
+        const delivery3 = knex(DELIVERY_TABLE).transacting(trx).insert(deliveries[2]);
+
+        return Promise.all([delivery1, delivery2, delivery3])
+          .then(deliveryIds => {
+            const userDeliveries = deliveryIds.map(deliveryId => {
+              return {
+                deliveryId: deliveryId[0],
+                userId: userData.userId,
+                status: UserDeliveryStatus.Accepted,
+                isAssigned: true,
+                updatedAt: knex.fn.now()
+              };
+            });
+
+            return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
+          })
+          .then(trx.commit)
+          .catch(trx.rollback);
+      });
+    });
+
+    after(() => {
+      sinon.restore();
+    });
+
+    it('Should successfully run deliveries cron job', done => {
+      request
+        .post('/api/v1/user/deliveries/expire')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .then(res => {
+          const data = res.body;
+          expect(data).to.be.an('object');
+          expect(data).to.have.property('status', 200);
+          expect(data).to.have.property('error', false);
+          expect(data).to.have.property('message', 'Delivery updated successfully');
+
+          sinon.assert.callCount(transporter.sendMail, 2);
+          sinon.assert.callCount(twilioClient.messages.create, 2);
+          sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
+          done();
+        })
+        .catch(() => {});
     });
   });
 });
