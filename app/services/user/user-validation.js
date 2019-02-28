@@ -41,6 +41,8 @@ const businessInfoValidator = Joi.object().keys({
   city: Joi.string().required(),
   state: Joi.string().required(),
   zip: Joi.string().required(),
+  latitude: Joi.any().optional(),
+  longitude: Joi.any().optional(),
   website: Joi.string().required()
 });
 
@@ -66,7 +68,9 @@ const deliveryInfoValidator = Joi.object().keys({
     street: Joi.string().required(),
     city: Joi.string().required(),
     state: Joi.string().required(),
-    zip: Joi.string().required()
+    zip: Joi.string().required(),
+    latitude: Joi.any().optional(),
+    longitude: Joi.any().optional()
   })
 });
 
@@ -99,7 +103,9 @@ const updateAddressValidator = Joi.object().keys({
   city: Joi.string().required(),
   state: Joi.string().required(),
   zip: Joi.string().required(),
-  deliveryInstruction: Joi.string().required()
+  latitude: Joi.any().optional(),
+  longitude: Joi.any().optional(),
+  deliveryInstruction: Joi.any().optional()
 });
 
 module.exports = {
