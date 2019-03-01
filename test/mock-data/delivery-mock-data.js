@@ -1,5 +1,6 @@
 'use strict';
 
+const moment = require('moment');
 const { UserTypes, DeliveryStatusCodes, UserDeliveryStatus } = require('@betaquick/grace-tree-constants');
 
 const companyUserData = {
@@ -55,10 +56,34 @@ const validCompanyData = {
   zip: '23401'
 };
 
+const validDeliveries = [{
+  assignedToUserId: 1,
+  assignedByUserId: 1,
+  additionalRecipientText: 'valid additional info',
+  additionalCompanyText: 'valid additional info',
+  statusCode: DeliveryStatusCodes.Scheduled,
+  createdAt: moment().subtract(2, 'days').format('YYYY-MM-DD HH:mm:ss')
+}, {
+  assignedToUserId: 1,
+  assignedByUserId: 1,
+  additionalRecipientText: 'valid additional info',
+  additionalCompanyText: 'valid additional info',
+  statusCode: DeliveryStatusCodes.Scheduled,
+  createdAt: moment().subtract(2, 'days').format('YYYY-MM-DD HH:mm:ss')
+}, {
+  assignedToUserId: 1,
+  assignedByUserId: 1,
+  additionalRecipientText: 'valid additional info',
+  additionalCompanyText: 'valid additional info',
+  statusCode: DeliveryStatusCodes.Scheduled,
+  createdAt: moment().subtract(3, 'days').format('YYYY-MM-DD HH:mm:ss')
+}];
+
 module.exports = {
   companyUserData,
   validDeliveryData,
   inValidDeliveryData,
   updateDeliveryData,
-  validCompanyData
+  validCompanyData,
+  validDeliveries
 };
