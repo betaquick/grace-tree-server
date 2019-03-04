@@ -144,6 +144,18 @@ This is to notify you that ${options.recipientName} has accepted your delivery r
   return sendMail(mailOptions);
 };
 
+const sendWarningNotificationMail = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
+    to: options.email,
+    subject: 'Delivery Expiry Notification',
+    text: `Hi, ${options.firstName}\n
+This is to notify you that the delivery scheduled by ${options.companyName} will expire tomorrow. Please confirm the delivery by updating the status of the delivery`
+  };
+
+  return sendMail(mailOptions);
+};
+
 module.exports = {
   transporter,
   sendResetMail,
@@ -153,5 +165,6 @@ module.exports = {
   sendUserDeliveryNotificationMail,
   sendCompanyDeliveryNotificationMail,
   sendDeliveryRequestNotificationMail,
-  sendDeliveryAccceptedNotificationMail
+  sendDeliveryAccceptedNotificationMail,
+  sendWarningNotificationMail
 };

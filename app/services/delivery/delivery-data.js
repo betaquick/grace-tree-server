@@ -92,6 +92,10 @@ module.exports = {
 
   getUserDeliveries(userId) {
     return knex(USER_DELIVERY_TABLE)
+      .select(
+        '*',
+        knex.raw(`${DELIVERY_TABLE}.createdAt createdAt`)
+      )
       .where({
         [`${USER_DELIVERY_TABLE}.userId`]: userId,
         isAssigned: 1
@@ -118,6 +122,10 @@ module.exports = {
 
   getUserRecentDeliveries(userId) {
     return knex(USER_DELIVERY_TABLE)
+      .select(
+        '*',
+        knex.raw(`${DELIVERY_TABLE}.createdAt createdAt`)
+      )
       .where({
         [`${USER_DELIVERY_TABLE}.userId`]: userId,
         isAssigned: 1
