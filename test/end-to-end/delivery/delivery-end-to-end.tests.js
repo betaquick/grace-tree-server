@@ -30,8 +30,8 @@ const {
   inValidDeliveryData,
   validDeliveries
 } = require('../../mock-data/delivery-mock-data');
-const { transporter } = require('../../../app/services/messaging/email-service');
-const { twilioClient } = require('../../../app/services/messaging/sms-service');
+const { transporter, sendWarningNotificationMail } = require('../../../app/services/messaging/email-service');
+const { twilioClient, sendWarningNotificationSMS } = require('../../../app/services/messaging/sms-service');
 const { googleMapsClient } = require('../../../app/services/location/location-service');
 const deliveryData = require('../../../app/services/delivery/delivery-data');
 
@@ -427,7 +427,8 @@ describe('Test delivery endpoints', function() {
       sinon.restore();
       sinon.stub(twilioClient.messages, 'create').resolves(true);
       sinon.stub(transporter, 'sendMail').resolves(true);
-      sinon.spy(deliveryData, 'updateDeliveryStatus');
+      sinon.spy(sendWarningNotificationMail);
+      sinon.spy(sendWarningNotificationSMS);
 
       const deliveries = validDeliveries.map(delivery => {
         return {
@@ -477,9 +478,13 @@ describe('Test delivery endpoints', function() {
           expect(data).to.have.property('error', false);
           expect(data).to.have.property('message', 'Delivery updated successfully');
 
-          sinon.assert.callCount(transporter.sendMail, 2);
-          sinon.assert.callCount(twilioClient.messages.create, 2);
-          sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
+          setTimeout(() => {
+            sinon.assert.callCount(transporter.sendMail, 2);
+            sinon.assert.callCount(twilioClient.messages.create, 2);
+            sinon.assert.callCount(sendWarningNotificationMail, 2);
+            sinon.assert.callCount(sendWarningNotificationSMS, 2);
+            sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
+          }, 4000);
           done();
         })
         .catch(() => {});

@@ -355,7 +355,6 @@ const sendWarningNotification = async delivery => {
   const recipient = await userData.getUserByParam(USER_TABLE, {
     [`${USER_TABLE}.userId`]: delivery.userId
   });
-  const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
   const recipientPhone = await userData.getUserPhone(delivery.userId);
 
   const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
@@ -366,18 +365,15 @@ const sendWarningNotification = async delivery => {
   let options = {
     email: recipient.email,
     firstName: recipient.firstName,
-    companyName,
-    phoneNumber: companyPhone.phoneNumber,
-    additionalRecipientText: delivery.additionalRecipientText
+    companyName
   };
-  emailService.sendUserDeliveryNotificationMail(options);
+  emailService.sendWarningNotificationMail(options);
 
   options = {
     toNumber: recipientPhone.phoneNumber,
-    companyName,
-    phoneNumber: companyPhone.phoneNumber
+    companyName
   };
-  smsService.sendUserDeliveryNotificationSMS(options);
+  smsService.sendWarningNotificationSMS(options);
 };
 
 const expireDeliveryJob = async() => {
