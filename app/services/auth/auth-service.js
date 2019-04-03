@@ -11,6 +11,7 @@ const moment = require('moment');
 const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const userData = require('../user/user-data');
+const userService = require('../user/user-service');
 const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
 
@@ -48,21 +49,6 @@ const generateTokenFromUser = async user => {
   return createJWT({ ...tokenUser });
 };
 
-// Santize user details for the UI
-function sanitizeUser(user) {
-  return {
-    email: user.email,
-    emails: user.emails,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phones: user.phones,
-    userId: user.userId,
-    userType: user.userType,
-    status: user.status,
-    addresses: user.address ? [user.address] : [],
-    agreement: user.agreement
-  };
-}
 
 function isUserValid(user) {
   if (!_.has(user, 'userId')) {
@@ -87,28 +73,7 @@ const login = async data => {
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       const token = await generateTokenFromUser(user);
-      user.emails = await userData.getUserEmails(user.userId);
-      user.phones = await userData.getUserPhones(user.userId);
-      user.address = await userData.getAddressInfo(user.userId);
-
-      const response = {
-        token,
-        user: sanitizeUser(user)
-      };
-
-      if (user.userType !== UserTypes.General) {
-        const userCompany = await userData.getUserByParam(USER_COMPANY_TABLE, {
-          [`${USER_COMPANY_TABLE}.userId`]: user.userId
-        });
-
-        if (userCompany) {
-          const company = await userData.getCompanyInfo(userCompany.companyId);
-
-          response.company = company;
-        }
-      }
-
-      return response;
+      return { token, user: await userService.getUserObject(user.userId) };
     }
     throwError(422, 'Incorrect login credentials');
   } catch (err) {
@@ -168,7 +133,7 @@ const findUserByToken = async token => {
       throwError(422, 'Token provided has expired');
     }
 
-    return sanitizeUser(user);
+    return await userService.getUserObject(user.userId);
   } catch (err) {
     error('Error fetching user', err);
     throw err;
@@ -198,7 +163,7 @@ const resetPassword = async data => {
     };
     await userData.updateUserByParams(USER_TABLE, { userId: user.userId }, params);
 
-    return sanitizeUser(user);
+    return await userService.getUserObject(user.userId);
   } catch (err) {
     error('Error resetting password', err);
     throw err;
@@ -222,15 +187,15 @@ const register = async data => {
     data.password = await bcrypt.hash(password, 10);
     data.email = emailAddress;
 
-    const userIds = await userData.insertUser(data);
-    data.userId = userIds[0];
+    const [userId] = await userData.insertUser(data);
+    data.userId = userId;
 
     const token = await generateTokenFromUser(data);
     data.emails = await userData.getUserEmails(data.userId);
     data.phones = await userData.getUserPhones(data.userId);
     data.address = await userData.getAddressInfo(data.userId);
 
-    return { token, user: sanitizeUser(data) };
+    return { token, user: await userService.getUserObject(userId) };
   } catch (err) {
     error('Error registering user', err);
     throw err;

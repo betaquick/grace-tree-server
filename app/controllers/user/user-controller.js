@@ -11,6 +11,18 @@ const {
 } = require('../util/controller-util');
 
 module.exports = {
+  
+  async getUserById(req, res) {
+    const {userId} = req.params;
+    
+    try {
+      const user = await userSvc.getUserObject(userId);
+      handleSuccess(res, 'User fetched successfully', user);
+    } catch (err) {
+      handleError(err, res, `Error fetching user with userId: ${userId}`, error);
+    }
+  },
+  
   onboarding(req, res) {
     const {
       user

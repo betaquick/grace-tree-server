@@ -23,10 +23,9 @@ const userData = {
   getUserByParam(table, params) {
     return knex(table)
       .first()
-      .where(params)
-      .join(USER_PROFILE_TABLE, `${table}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .where(params);
   },
-
+  
   getUserEmail(userId) {
     const params = {
       primary: 1
@@ -68,8 +67,18 @@ const userData = {
   getUserAddress(userAddressId) {
     return knex(USER_ADDRESS_TABLE)
       .first()
-      .where({ userAddressId })
-      .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .where({ userAddressId });
+  },
+  
+  getUserProfile(userId) {
+    return knex(USER_PROFILE_TABLE)
+      .select([
+        'agreement',
+        'status',
+        'comment'
+      ])
+      .first()
+      .where({ userId });
   },
 
   getCompanyInfo(companyId) {
@@ -391,10 +400,19 @@ const userData = {
       .update(params);
   },
 
-  getAddressInfo(userId) {
+  getAddresses(userId) {
     return knex(USER_ADDRESS_TABLE)
-      .where({ userId })
-      .first();
+      .select([
+        'street',
+        'city',
+        'state',
+        'zip',
+        'latitude',
+        'longitude',
+        'deliveryInstruction',
+        'createdAt'
+      ])
+      .where({ userId });
   },
 
   addOrUpdateAddressInfo(addressInfo) {

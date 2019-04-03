@@ -11,6 +11,7 @@ const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
 const locationService = require('../location/location-service');
 const userData = require('./user-data');
+
 const {
   statusValidator,
   businessInfoValidator,
@@ -28,25 +29,51 @@ const {
 } = require('../../../constants/table.constants');
 const { throwError } = require('./../../controllers/util/controller-util');
 
+
+// Santize user details for the UI
+function sanitizeUser(user) {
+  return {
+    email: user.email,
+    emails: user.emails,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phones: user.phones,
+    userId: user.userId,
+    userType: user.userType,
+    addresses: user.addresses,
+    profile: user.profile,
+    status: user.status
+  };
+}
+
+const getUserObject = async userId => {
+  
+  try {
+    const user = await userData.getUserByParam(USER_TABLE, { userId });
+  
+    user.emails = await userData.getUserEmails(user.userId);
+    user.phones = await userData.getUserPhones(user.userId);
+    user.addresses = await userData.getAddresses(user.userId);
+    user.profile = await userData.getUserProfile(user.userId);
+  
+    return sanitizeUser(user);
+  
+  } catch (err) {
+    error('Unable to fetch user by userId: ', userId);
+    throw err;
+  }
+  
+};
+
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
 
   try {
     await Joi.validate(userId, Joi.number().required());
-
-    const where = {
-      [`${USER_PROFILE_TABLE}.userId`]: userId
-    };
-    const user = await userData.getUserByParam(USER_TABLE, where);
-
-    const params = {
-      agreement: true
-    };
-
-    await userData.updateUserByParams(USER_PROFILE_TABLE, {
-      userId
-    }, params);
-    return user;
+    const params = {agreement: true};
+    
+    return await userData.updateUserByParams(USER_PROFILE_TABLE, {userId}, params);
+    
   } catch (err) {
     error('Error accepting agreement', err);
     throw err;
@@ -360,6 +387,7 @@ const getCoordinates = async(street, city, state) => {
 };
 
 module.exports = {
+  getUserObject,
   acceptAgreement,
   updateStatus,
   editUser,

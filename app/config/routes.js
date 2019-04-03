@@ -25,6 +25,7 @@ router.post('/auth/register', authController.register);
 router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
+router.get('/user/:userId', auth, userController.getUserById);
 router.get('/user/company', auth, verify, userController.getCompanyInfo);
 router.post('/user/company', auth, userController.addCompanyInfo);
 router.put('/user/company', auth, verify, userController.updateCompanyInfo);
