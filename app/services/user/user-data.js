@@ -89,6 +89,29 @@ const userData = {
       })
       .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
   },
+  
+  getCompanyInfoByUserId(userId) {
+    return knex(USER_COMPANY_TABLE + ' as uc')
+      .select([
+        'uc.userCompanyId',
+        'uc.companyId',
+        'uc.userRole',
+        'uc.createdAt',
+        'cp.companyName',
+        'cp.website',
+        'ca.companyAddressId',
+        'ca.companyAddress',
+        'ca.city',
+        'ca.state',
+        'ca.zip',
+        'ca.latitude',
+        'ca.longitude'
+      ])
+      .first()
+      .innerJoin(COMPANY_PROFILE_TABLE + ' as cp', 'cp.companyId', 'uc.companyId')
+      .innerJoin(COMPANY_ADDRESS_TABLE + ' as ca', 'ca.companyId', 'uc.companyId')
+      .where('uc.userId', userId);
+  },
 
   addCompanyCrew(crew) {
     return knex.transaction(trx => {

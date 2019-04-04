@@ -8,7 +8,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const stringify = require('json-stringify-safe');
 const moment = require('moment');
-const { UserTypes } = require('@betaquick/grace-tree-constants');
+
+const {UserTypes} = require('@betaquick/grace-tree-constants');
 
 const userData = require('../user/user-data');
 const userService = require('../user/user-service');
@@ -215,14 +216,16 @@ const verifyEmail = async(userId, emailAddress, userType) => {
       verificationCode: token,
       verificationCodeExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
     };
-
+    
     await userData.updateUserByParams(USER_TABLE, { userId }, { email: emailAddress });
     await userData.updateUserByParams(USER_EMAIL_TABLE, { userId, primary: 1 }, params);
+    
+    const user = await userData.getUserByParam(USER_TABLE, {userId});
 
     const options = {
       email: emailAddress,
       token,
-      path: userType === UserTypes.General ? 'user-registration' : 'company-registration'
+      path: (user.userType === UserTypes.General) ? 'user-registration' : 'company-registration'
     };
 
     emailService.sendVerificationMail(options);
@@ -249,11 +252,13 @@ const verifyPhone = async(userId, phoneNumber, userType) => {
     };
 
     await userData.updateUserByParams(USER_PHONE_TABLE, { userId, primary: 1 }, params);
-
+    
+    const user = await userData.getUserByParam(USER_TABLE, {userId});
+    
     const options = {
       phoneNumber,
       token,
-      path: userType === UserTypes.General ? 'user-registration' : 'company-registration'
+      path: (user.userType === UserTypes.General) ? 'user-registration' : 'company-registration'
     };
 
     smsService.sendVerificationSMS(options);

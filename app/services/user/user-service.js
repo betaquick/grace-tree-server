@@ -32,7 +32,7 @@ const { throwError } = require('./../../controllers/util/controller-util');
 
 // Santize user details for the UI
 function sanitizeUser(user) {
-  return {
+  let u = {
     email: user.email,
     emails: user.emails,
     firstName: user.firstName,
@@ -44,6 +44,10 @@ function sanitizeUser(user) {
     profile: user.profile,
     status: user.status
   };
+  if (user.company) {
+    u.company = user.company;
+  }
+  return u;
 }
 
 const getUserObject = async userId => {
@@ -55,7 +59,8 @@ const getUserObject = async userId => {
     user.phones = await userData.getUserPhones(user.userId);
     user.addresses = await userData.getAddresses(user.userId);
     user.profile = await userData.getUserProfile(user.userId);
-  
+    user.company = await userData.getCompanyInfoByUserId(userId);
+
     return sanitizeUser(user);
   
   } catch (err) {
