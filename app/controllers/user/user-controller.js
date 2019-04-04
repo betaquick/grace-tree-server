@@ -57,12 +57,8 @@ module.exports = {
   },
 
   updateProfile(req, res) {
-    const {
-      userId
-    } = req.user;
-    const {
-      body
-    } = req;
+    const {userId} = req.user;
+    const {body} = req;
 
     debug('Updating user with data: ', stringify(body));
 
@@ -161,9 +157,7 @@ module.exports = {
   },
 
   getUserProducts(req, res) {
-    const {
-      userId
-    } = req.user;
+    const {userId} = req.user;
 
     debug('Get products for: ' + userId);
 

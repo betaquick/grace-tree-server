@@ -25,7 +25,6 @@ router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
-router.get('/user/:userId', auth, userController.getUserById);
 router.get('/user/company', auth, verify, userController.getCompanyInfo);
 router.post('/user/company', auth, userController.addCompanyInfo);
 router.put('/user/company', auth, verify, userController.updateCompanyInfo);
@@ -36,7 +35,7 @@ router.post('/user/new-delivery-info', auth, userController.addDeliveryInfo);
 router.get('/user/onboarding', auth, verify, userController.onboarding);
 router.post('/user/agreement', auth, userController.acceptAgreement);
 router.put('/user/status/:status', auth, verify, userController.updateStatus);
-router.put('/user', auth, verify, userController.updateProfile);
+router.put('/user/profile', auth, verify, userController.updateProfile);
 router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
 router.get('/user/address', auth, verify, userController.getUserAddress);
@@ -70,5 +69,7 @@ router.get('/user/deliveries/recent', auth, deliveryController.getRecentDeliveri
 router.get('/user/deliveries/:deliveryId', auth, deliveryController.getDelivery);
 router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
 router.put('/user/deliveries/:userId/:deliveryId', deliveryController.acceptDeliveryRequest);
+
+router.get('/user/:userId', auth, userController.getUserById);
 
 module.exports = router;

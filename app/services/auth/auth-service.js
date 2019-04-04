@@ -192,9 +192,6 @@ const register = async data => {
     data.userId = userId;
 
     const token = await generateTokenFromUser(data);
-    data.emails = await userData.getUserEmails(data.userId);
-    data.phones = await userData.getUserPhones(data.userId);
-    data.address = await userData.getAddressInfo(data.userId);
 
     return { token, user: await userService.getUserObject(userId) };
   } catch (err) {

@@ -5,10 +5,7 @@ const error = require('debug')('grace-tree:server:error');
 
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
-const userData = require('../services/user/user-data');
-const {
-  USER_TABLE
-} = require('../../constants/table.constants');
+const userService = require('../services/user/user-service');
 
 module.exports = function(req, res, next) {
   if (!req.headers.authorization) {
@@ -32,10 +29,9 @@ module.exports = function(req, res, next) {
         message: 'Failed to authenticate token'
       });
     } else {
-      debug('Authorization success');
-      // if everything is good, save to request for use in other routes
-
-      const user = await userData.getUserByParam(USER_TABLE, { [`${USER_TABLE}.userId`]: decoded.userId });
+      const user = await userService.getUserObject(decoded.userId);
+      debug(`Authorization success for ${user.email}`);
+      
       if (!user) {
         error('Error: User not found');
         return res.status(404).send({
@@ -45,7 +41,7 @@ module.exports = function(req, res, next) {
         });
       }
 
-      if (user.active === 0) {
+      if (!user.active) {
         error('Error: User\'s account has been disabled.');
         return res.status(422).send({
           status: 422,

@@ -35,14 +35,15 @@ function sanitizeUser(user) {
   let u = {
     email: user.email,
     emails: user.emails,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    firstName: user.profile.firstName,
+    lastName: user.profile.lastName,
     phones: user.phones,
     userId: user.userId,
     userType: user.userType,
     addresses: user.addresses,
     profile: user.profile,
-    status: user.status
+    status: user.status,
+    active: user.active
   };
   if (user.company) {
     u.company = user.company;
@@ -133,26 +134,8 @@ const editUser = async(userId, data) => {
     data.email = emailAddress;
 
     await userData.editUser(userId, data);
-
-    const user = await userData.getUserByParam(USER_TABLE, {
-      email: emailAddress
-    });
-    user.emails = await userData.getUserEmails(userId);
-    user.phones = await userData.getUserPhones(userId);
-    const address = await userData.getAddressInfo(userId);
-
-    return {
-      userId,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      emails: user.emails,
-      phones: user.phones,
-      userType: user.userType,
-      addresses: address ? [address] : [],
-      agreement: user.agreement,
-      status: user.status
-    };
+    
+    return data;
   } catch (err) {
     error('Error editing user ' + err.message);
     throw err;
@@ -354,6 +337,7 @@ const updateUserProducts = async(userId, userProducts) => {
 
 const updateUserAddress = async(userId, data) => {
   try {
+    debug('Updating user address for userId: ', userId);
     await Joi.validate(data, updateAddressValidator);
 
     const { street, city, state, longitude, latitude } = data;

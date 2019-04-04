@@ -99,6 +99,7 @@ const crewValidator = Joi.object().keys({
 });
 
 const updateAddressValidator = Joi.object().keys({
+  userAddressId: Joi.number().required(),
   street: Joi.string().required(),
   city: Joi.string().required(),
   state: Joi.string().required(),

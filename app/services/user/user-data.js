@@ -72,11 +72,7 @@ const userData = {
   
   getUserProfile(userId) {
     return knex(USER_PROFILE_TABLE)
-      .select([
-        'agreement',
-        'status',
-        'comment'
-      ])
+      .select('*')
       .first()
       .where({ userId });
   },
@@ -426,14 +422,14 @@ const userData = {
   getAddresses(userId) {
     return knex(USER_ADDRESS_TABLE)
       .select([
+        'userAddressId',
         'street',
         'city',
         'state',
         'zip',
         'latitude',
         'longitude',
-        'deliveryInstruction',
-        'createdAt'
+        'deliveryInstruction'
       ])
       .where({ userId });
   },
