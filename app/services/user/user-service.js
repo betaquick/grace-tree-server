@@ -231,12 +231,7 @@ const addDeliveryInfo = async(userId, data) => {
 
 const getCompanyInfo = async userId => {
   await Joi.validate(userId, Joi.number().required());
-  const user = await userData.getUserByParam(USER_COMPANY_TABLE, {
-    [`${USER_COMPANY_TABLE}.userId`]: userId
-  });
-  const businessInfo = await userData.getCompanyInfo(user.companyId);
-
-  return businessInfo;
+  return await userData.getCompanyInfoByUserId(userId);
 };
 
 const getCompanyCrews = async userId => {
@@ -296,7 +291,7 @@ const addCompanyCrew = async(userId, data) => {
     data.companyId = company.companyId;
 
     const userIds = await userData.addCompanyCrew(data);
-    const companyInfo = await userData.getCompanyInfo(data.companyId);
+    const companyInfo = await userData.getCompanyInfoByUserId(userId);
 
     const options = {
       email,

@@ -76,15 +76,6 @@ const userData = {
       .first()
       .where({ userId });
   },
-
-  getCompanyInfo(companyId) {
-    return knex(COMPANY_PROFILE_TABLE)
-      .first()
-      .where({
-        [`${COMPANY_PROFILE_TABLE}.companyId`]: companyId
-      })
-      .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
-  },
   
   getCompanyInfoByUserId(userId) {
     return knex(USER_COMPANY_TABLE + ' as uc')
