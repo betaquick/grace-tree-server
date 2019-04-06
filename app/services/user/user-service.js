@@ -92,23 +92,20 @@ const updateStatus = async(userId, status) => {
   try {
     await Joi.validate({ userId, status }, statusValidator);
 
-    const where = {
-      [`${USER_TABLE}.userId`]: userId
-    };
-    const user = await userData.getUserByParam(USER_TABLE, where);
-
     await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, { status });
-    user.status = status;
-
-    if (status === UserStatus.Ready) {
-      const { phoneNumber } = await userData.getUserPhone(userId);
+        
+    const user = await getUserObject(userId);
+    
+    if (user.profile.status === UserStatus.Ready) {
       const options = {
         email: user.email,
         firstName: user.firstName
       };
+      
+      const phone = _.find(user.phones, p => p.primary);
 
       emailService.sendStatusNotificationMail(options);
-      smsService.sendStatusNotificationSMS({ phoneNumber });
+      smsService.sendStatusNotificationSMS({ phoneNumber: phone.phoneNumber });
     }
 
     return user;
@@ -355,7 +352,7 @@ const updateUserAddress = async(userId, data) => {
 
 const getUserAddress = async(userId) => {
   try {
-    return await userData.getAddressInfo(userId);
+    return await userData.getAddresses(userId);
   } catch (err) {
     error('Error fetching user address ' + err.message);
     throw err;

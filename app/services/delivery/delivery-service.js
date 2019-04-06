@@ -5,6 +5,8 @@ const Joi = require('joi');
 const error = require('debug')('grace-tree:delivery-service:error');
 const debug = require('debug')('grace-tree:delivery-service:debug');
 const moment = require('moment');
+const _ = require('lodash');
+
 const { UserTypes, DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
 
 const emailService = require('../messaging/email-service');
@@ -166,53 +168,48 @@ const sendDeliveryNotification = async delivery => {
 
   users.forEach(async recipientId => {
     try {
-      const assignedUser = await userData.getUserByParam(USER_TABLE, {
-        [`${USER_TABLE}.userId`]: assignedToUserId
-      });
-      const recipient = await userData.getUserByParam(USER_TABLE, {
-        [`${USER_TABLE}.userId`]: recipientId
-      });
-      const companyPhone = await userData.getUserPhone(assignedToUserId);
-      const recipientPhone = await userData.getUserPhone(recipientId);
-      const { street, city, state, zip } = await userData.getAddressInfo(recipientId);
+      const assignedUser = await userSvc.getUserObject(assignedToUserId);
+      const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
+      const companyName = _.get(assignedUser, 'company.companyName', 'Unknown');
+      
+      const recipient = await userSvc.getUserObject(recipientId);
+      const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
+      const recipientAddress = _.head(recipient.addresses);
+      const { street, city, state, zip } = recipientAddress;
 
       let options = {
         email: assignedUser.email,
         firstName: assignedUser.firstName,
         recipientName: `${recipient.firstName} ${recipient.lastName}`,
-        phoneNumber: recipientPhone.phoneNumber,
+        phoneNumber: recipientPhone,
         address: `${street}, ${city}, ${state}, ${zip}`,
         additionalCompanyText
       };
       emailService.sendCompanyDeliveryNotificationMail(options);
 
       options = {
-        toNumber: companyPhone.phoneNumber,
+        toNumber: assignedUserPhone,
         firstName: assignedUser.firstName,
         recipientName: `${recipient.firstName} ${recipient.lastName}`,
-        phoneNumber: recipientPhone.phoneNumber,
+        phoneNumber: recipientPhone,
         address: `${street}, ${city}, ${state}, ${zip}`
       };
       smsService.sendCompanyDeliveryNotificationSMS(options);
-
-      const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
-        [`${USER_COMPANY_TABLE}.userId`]: assignedToUserId
-      });
-      const { companyName } = await userData.getCompanyInfo(companyId);
 
       options = {
         email: recipient.email,
         firstName: recipient.firstName,
         companyName,
-        phoneNumber: companyPhone.phoneNumber,
+        phoneNumber: assignedUserPhone,
+        address: `${street}, ${city}, ${state}, ${zip}`,
         additionalRecipientText
       };
       emailService.sendUserDeliveryNotificationMail(options);
 
       options = {
-        toNumber: recipientPhone.phoneNumber,
+        toNumber: recipientPhone,
         companyName,
-        phoneNumber: companyPhone.phoneNumber
+        phoneNumber: assignedUserPhone
       };
       smsService.sendUserDeliveryNotificationSMS(options);
     } catch (err) {
@@ -226,37 +223,35 @@ const sendRequestNotification = async delivery => {
   const {
     deliveryId,
     assignedToUserId,
-    users
+    users 
   } = delivery;
 
   users.forEach(async recipientId => {
     try {
-      const recipient = await userData.getUserByParam(USER_TABLE, {
-        [`${USER_TABLE}.userId`]: recipientId
-      });
-      const recipientPhone = await userData.getUserPhone(recipientId);
+      const recipient = await userSvc.getUserObject(recipientId);
+      const phoneNumber = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
 
-      const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
-        [`${USER_COMPANY_TABLE}.userId`]: assignedToUserId
-      });
-      const { companyName } = await userData.getCompanyInfo(companyId);
-
+      const crew = await userSvc.getUserObject(assignedToUserId);
+      const companyName = _.get(crew, 'company.companyName', 'Unknown');
+      
       let options = {
-        userId: recipientId,
+        userId: recipient.userId,
         email: recipient.email,
         firstName: recipient.firstName,
         companyName,
         deliveryId
       };
+      
       emailService.sendDeliveryRequestNotificationMail(options);
 
       options = {
-        phoneNumber: recipientPhone.phoneNumber,
+        phoneNumber,
         companyName,
-        userId: recipientId,
+        userId: recipient.userId,
         deliveryId
       };
       smsService.sendDeliveryRequestNotificationSMS(options);
+      
     } catch (err) {
       error('Error sending delivery notification', err);
       throw err;
@@ -267,13 +262,10 @@ const sendRequestNotification = async delivery => {
 const sendAcceptedNotification = async(userId, deliveryId) => {
   try {
     const delivery = await deliveryData.getUserDelivery(deliveryId);
-    const assignedUser = await userData.getUserByParam(USER_TABLE, {
-      [`${USER_TABLE}.userId`]: delivery.assignedToUserId
-    });
-    const recipient = await userData.getUserByParam(USER_TABLE, {
-      [`${USER_TABLE}.userId`]: userId
-    });
-    const companyPhone = await userData.getUserPhone(delivery.assignedToUserId);
+    const assignedUser = await userSvc.getUserObject(delivery.assignedToUserId);
+    const recipient = await userSvc.getUserObject(userId);
+    
+    const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
 
     let options = {
       email: assignedUser.email,
@@ -283,7 +275,7 @@ const sendAcceptedNotification = async(userId, deliveryId) => {
     emailService.sendDeliveryAccceptedNotificationMail(options);
 
     options = {
-      phoneNumber: companyPhone.phoneNumber,
+      phoneNumber: assignedUserPhone,
       recipientName: `${recipient.firstName} ${recipient.lastName}`
     };
     smsService.sendDeliveryAccceptedNotificationSMS(options);
@@ -318,7 +310,6 @@ const addUserToDelivery = async(deliveryId, userId) => {
     throw err;
   }
 };
-
 
 const removeUserFromDelivery = async(deliveryId, userId) => {
   let transaction;

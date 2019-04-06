@@ -62,7 +62,7 @@ const sendUserCreationMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: `${options.companyName} Account Registration`,
-    text: `Hi, ${options.firstName}\n
+    text: `Hi ${options.firstName},\n
 We created you a new crew account in the ${options.companyName}.\n
 To login, go to ${process.env.WEB_URL}/login then enter the following information:\n
 Email: ${options.email}\n
@@ -79,8 +79,8 @@ const sendStatusNotificationMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Status notification on GTS',
-    text: `Hi, ${options.firstName}\n
-This is to notify you that you moved your status from PAUSE to READY, we'll start assigning deliveries to you.`
+    text: `Hi ${options.firstName},\n
+This is to notify you that your delivery status is now set to READY, we'll start assigning deliveries to you.`
   };
 
   return sendMail(mailOptions);
@@ -91,8 +91,8 @@ const sendUserDeliveryNotificationMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Scheduled Delivery Notification',
-    text: `Hi, ${options.firstName}\n
-This is to notify you that your products have been assigned to the company/crew with the details below:\n
+    text: `Hi ${options.firstName},\n
+This is to notify you of a pending delivery to your address: ${options.address}, from the crew with the details below:\n
 Company Name: ${options.companyName}\n
 Phone Number: ${options.phoneNumber}\n
 Additional Information: ${options.additionalRecipientText}`
@@ -106,12 +106,13 @@ const sendCompanyDeliveryNotificationMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Scheduled Delivery Notification',
-    text: `Hi, ${options.firstName}\n
-This is to notify you that the products of the user with the details below have been assigned to you.\n
+    text: `Hi ${options.firstName},\n
+This is to notify you that you can drop your tree products to the user below.\n
 Recipient Name: ${options.recipientName}\n
 Phone Number: ${options.phoneNumber}\n
 Address: ${options.address}\n
-Additional Information: ${options.additionalCompanyText}`
+Additional Information: ${options.additionalCompanyText}
+\n\n Thank you.`
   };
 
   return sendMail(mailOptions);
@@ -137,7 +138,7 @@ const sendDeliveryAccceptedNotificationMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Delivery Request Notification',
-    text: `Hi, ${options.firstName}\n
+    text: `Hi ${options.firstName},\n
 This is to notify you that ${options.recipientName} has accepted your delivery request.`
   };
 
@@ -149,8 +150,8 @@ const sendWarningNotificationMail = options => {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Delivery Expiry Notification',
-    text: `Hi, ${options.firstName}\n
-This is to notify you that the delivery scheduled by ${options.companyName} will expire tomorrow. Please confirm the delivery by updating the status of the delivery`
+    text: `Hi ${options.firstName},\n
+This is to notify you that the delivery scheduled by ${options.companyName} will expire soon. Please log in to update the status of the delivery.`
   };
 
   return sendMail(mailOptions);
