@@ -80,7 +80,7 @@ module.exports = {
       .catch(err => handleError(err, res, err.message, error));
   },
 
-  /* verify(req, res) {
+  verify(req, res) {
     const { userId } = req.user;
     const body = req.body;
     const { verifyType } = body;
@@ -103,7 +103,7 @@ module.exports = {
       .catch(err =>
         handleError(err, res, 'Error sending verification for Email/Phone', error)
       );
-  }, */
+  },
 
   validateToken(req, res) {
     const { token, verifyType } = req.params;

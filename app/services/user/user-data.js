@@ -23,10 +23,9 @@ const userData = {
   getUserByParam(table, params) {
     return knex(table)
       .first()
-      .where(params)
-      .join(USER_PROFILE_TABLE, `${table}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .where(params);
   },
-
+  
   getUserEmail(userId) {
     const params = {
       primary: 1
@@ -68,17 +67,37 @@ const userData = {
   getUserAddress(userAddressId) {
     return knex(USER_ADDRESS_TABLE)
       .first()
-      .where({ userAddressId })
-      .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+      .where({ userAddressId });
   },
-
-  getCompanyInfo(companyId) {
-    return knex(COMPANY_PROFILE_TABLE)
+  
+  getUserProfile(userId) {
+    return knex(USER_PROFILE_TABLE)
+      .select('*')
       .first()
-      .where({
-        [`${COMPANY_PROFILE_TABLE}.companyId`]: companyId
-      })
-      .join(COMPANY_ADDRESS_TABLE, `${COMPANY_PROFILE_TABLE}.companyId`, '=', `${COMPANY_ADDRESS_TABLE}.companyId`);
+      .where({ userId });
+  },
+  
+  getCompanyInfoByUserId(userId) {
+    return knex(USER_COMPANY_TABLE + ' as uc')
+      .select([
+        'uc.userCompanyId',
+        'uc.companyId',
+        'uc.userRole',
+        'uc.createdAt',
+        'cp.companyName',
+        'cp.website',
+        'ca.companyAddressId',
+        'ca.companyAddress',
+        'ca.city',
+        'ca.state',
+        'ca.zip',
+        'ca.latitude',
+        'ca.longitude'
+      ])
+      .first()
+      .innerJoin(COMPANY_PROFILE_TABLE + ' as cp', 'cp.companyId', 'uc.companyId')
+      .innerJoin(COMPANY_ADDRESS_TABLE + ' as ca', 'ca.companyId', 'uc.companyId')
+      .where('uc.userId', userId);
   },
 
   addCompanyCrew(crew) {
@@ -391,10 +410,19 @@ const userData = {
       .update(params);
   },
 
-  getAddressInfo(userId) {
+  getAddresses(userId) {
     return knex(USER_ADDRESS_TABLE)
-      .where({ userId })
-      .first();
+      .select([
+        'userAddressId',
+        'street',
+        'city',
+        'state',
+        'zip',
+        'latitude',
+        'longitude',
+        'deliveryInstruction'
+      ])
+      .where({ userId });
   },
 
   addOrUpdateAddressInfo(addressInfo) {

@@ -11,6 +11,7 @@ const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
 const locationService = require('../location/location-service');
 const userData = require('./user-data');
+
 const {
   statusValidator,
   businessInfoValidator,
@@ -28,25 +29,57 @@ const {
 } = require('../../../constants/table.constants');
 const { throwError } = require('./../../controllers/util/controller-util');
 
+
+// Santize user details for the UI
+function sanitizeUser(user) {
+  let u = {
+    email: user.email,
+    emails: user.emails,
+    firstName: user.profile.firstName,
+    lastName: user.profile.lastName,
+    phones: user.phones,
+    userId: user.userId,
+    userType: user.userType,
+    addresses: user.addresses,
+    profile: user.profile,
+    status: user.status,
+    active: user.active
+  };
+  if (user.company) {
+    u.company = user.company;
+  }
+  return u;
+}
+
+const getUserObject = async userId => {
+  
+  try {
+    const user = await userData.getUserByParam(USER_TABLE, { userId });
+  
+    user.emails = await userData.getUserEmails(user.userId);
+    user.phones = await userData.getUserPhones(user.userId);
+    user.addresses = await userData.getAddresses(user.userId);
+    user.profile = await userData.getUserProfile(user.userId);
+    user.company = await userData.getCompanyInfoByUserId(userId);
+
+    return sanitizeUser(user);
+  
+  } catch (err) {
+    error('Unable to fetch user by userId: ', userId);
+    throw err;
+  }
+  
+};
+
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
 
   try {
     await Joi.validate(userId, Joi.number().required());
-
-    const where = {
-      [`${USER_PROFILE_TABLE}.userId`]: userId
-    };
-    const user = await userData.getUserByParam(USER_TABLE, where);
-
-    const params = {
-      agreement: true
-    };
-
-    await userData.updateUserByParams(USER_PROFILE_TABLE, {
-      userId
-    }, params);
-    return user;
+    const params = {agreement: true};
+    
+    return await userData.updateUserByParams(USER_PROFILE_TABLE, {userId}, params);
+    
   } catch (err) {
     error('Error accepting agreement', err);
     throw err;
@@ -101,26 +134,8 @@ const editUser = async(userId, data) => {
     data.email = emailAddress;
 
     await userData.editUser(userId, data);
-
-    const user = await userData.getUserByParam(USER_TABLE, {
-      email: emailAddress
-    });
-    user.emails = await userData.getUserEmails(userId);
-    user.phones = await userData.getUserPhones(userId);
-    const address = await userData.getAddressInfo(userId);
-
-    return {
-      userId,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      emails: user.emails,
-      phones: user.phones,
-      userType: user.userType,
-      addresses: address ? [address] : [],
-      agreement: user.agreement,
-      status: user.status
-    };
+    
+    return data;
   } catch (err) {
     error('Error editing user ' + err.message);
     throw err;
@@ -216,12 +231,7 @@ const addDeliveryInfo = async(userId, data) => {
 
 const getCompanyInfo = async userId => {
   await Joi.validate(userId, Joi.number().required());
-  const user = await userData.getUserByParam(USER_COMPANY_TABLE, {
-    [`${USER_COMPANY_TABLE}.userId`]: userId
-  });
-  const businessInfo = await userData.getCompanyInfo(user.companyId);
-
-  return businessInfo;
+  return await userData.getCompanyInfoByUserId(userId);
 };
 
 const getCompanyCrews = async userId => {
@@ -281,7 +291,7 @@ const addCompanyCrew = async(userId, data) => {
     data.companyId = company.companyId;
 
     const userIds = await userData.addCompanyCrew(data);
-    const companyInfo = await userData.getCompanyInfo(data.companyId);
+    const companyInfo = await userData.getCompanyInfoByUserId(userId);
 
     const options = {
       email,
@@ -322,6 +332,7 @@ const updateUserProducts = async(userId, userProducts) => {
 
 const updateUserAddress = async(userId, data) => {
   try {
+    debug('Updating user address for userId: ', userId);
     await Joi.validate(data, updateAddressValidator);
 
     const { street, city, state, longitude, latitude } = data;
@@ -360,6 +371,7 @@ const getCoordinates = async(street, city, state) => {
 };
 
 module.exports = {
+  getUserObject,
   acceptAgreement,
   updateStatus,
   editUser,

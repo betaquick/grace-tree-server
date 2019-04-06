@@ -21,7 +21,7 @@ router.post('/auth/forgot-password', authController.forgotPassword);
 router.get('/auth/reset/:token', authController.getUserByToken);
 router.post('/auth/reset-password', authController.resetPassword);
 router.post('/auth/register', authController.register);
-// router.post('/auth/verify', auth, authController.verify);
+router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
@@ -35,7 +35,7 @@ router.post('/user/new-delivery-info', auth, userController.addDeliveryInfo);
 router.get('/user/onboarding', auth, verify, userController.onboarding);
 router.post('/user/agreement', auth, userController.acceptAgreement);
 router.put('/user/status/:status', auth, verify, userController.updateStatus);
-router.put('/user', auth, verify, userController.updateProfile);
+router.put('/user/profile', auth, verify, userController.updateProfile);
 router.get('/user/products', auth, verify, userController.getUserProducts);
 router.put('/user/products', auth, verify, userController.updateUserProducts);
 router.get('/user/address', auth, verify, userController.getUserAddress);
@@ -69,5 +69,7 @@ router.get('/user/deliveries/recent', auth, deliveryController.getRecentDeliveri
 router.get('/user/deliveries/:deliveryId', auth, deliveryController.getDelivery);
 router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDeliveryStatus);
 router.put('/user/deliveries/:userId/:deliveryId', deliveryController.acceptDeliveryRequest);
+
+router.get('/user/:userId', auth, userController.getUserById);
 
 module.exports = router;
