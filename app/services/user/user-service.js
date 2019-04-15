@@ -52,10 +52,10 @@ function sanitizeUser(user) {
 }
 
 const getUserObject = async userId => {
-  
+
   try {
     const user = await userData.getUserByParam(USER_TABLE, { userId });
-  
+
     user.emails = await userData.getUserEmails(user.userId);
     user.phones = await userData.getUserPhones(user.userId);
     user.addresses = await userData.getAddresses(user.userId);
@@ -63,12 +63,12 @@ const getUserObject = async userId => {
     user.company = await userData.getCompanyInfoByUserId(userId);
 
     return sanitizeUser(user);
-  
+
   } catch (err) {
     error('Unable to fetch user by userId: ', userId);
     throw err;
   }
-  
+
 };
 
 const acceptAgreement = async userId => {
@@ -77,9 +77,9 @@ const acceptAgreement = async userId => {
   try {
     await Joi.validate(userId, Joi.number().required());
     const params = {agreement: true};
-    
+
     return await userData.updateUserByParams(USER_PROFILE_TABLE, {userId}, params);
-    
+
   } catch (err) {
     error('Error accepting agreement', err);
     throw err;
@@ -93,15 +93,15 @@ const updateStatus = async(userId, status) => {
     await Joi.validate({ userId, status }, statusValidator);
 
     await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, { status });
-        
+
     const user = await getUserObject(userId);
-    
+
     if (user.profile.status === UserStatus.Ready) {
       const options = {
         email: user.email,
         firstName: user.firstName
       };
-      
+
       const phone = _.find(user.phones, p => p.primary);
 
       emailService.sendStatusNotificationMail(options);
@@ -131,7 +131,7 @@ const editUser = async(userId, data) => {
     data.email = emailAddress;
 
     await userData.editUser(userId, data);
-    
+
     return data;
   } catch (err) {
     error('Error editing user ' + err.message);

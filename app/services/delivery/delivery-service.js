@@ -171,7 +171,7 @@ const sendDeliveryNotification = async delivery => {
       const assignedUser = await userSvc.getUserObject(assignedToUserId);
       const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
       const companyName = _.get(assignedUser, 'company.companyName', 'Unknown');
-      
+
       const recipient = await userSvc.getUserObject(recipientId);
       const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
       const recipientAddress = _.head(recipient.addresses);
@@ -223,7 +223,7 @@ const sendRequestNotification = async delivery => {
   const {
     deliveryId,
     assignedToUserId,
-    users 
+    users
   } = delivery;
 
   users.forEach(async recipientId => {
@@ -233,7 +233,7 @@ const sendRequestNotification = async delivery => {
 
       const crew = await userSvc.getUserObject(assignedToUserId);
       const companyName = _.get(crew, 'company.companyName', 'Unknown');
-      
+
       let options = {
         userId: recipient.userId,
         email: recipient.email,
@@ -241,7 +241,7 @@ const sendRequestNotification = async delivery => {
         companyName,
         deliveryId
       };
-      
+
       emailService.sendDeliveryRequestNotificationMail(options);
 
       options = {
@@ -251,7 +251,7 @@ const sendRequestNotification = async delivery => {
         deliveryId
       };
       smsService.sendDeliveryRequestNotificationSMS(options);
-      
+
     } catch (err) {
       error('Error sending delivery notification', err);
       throw err;
@@ -264,7 +264,7 @@ const sendAcceptedNotification = async(userId, deliveryId) => {
     const delivery = await deliveryData.getUserDelivery(deliveryId);
     const assignedUser = await userSvc.getUserObject(delivery.assignedToUserId);
     const recipient = await userSvc.getUserObject(userId);
-    
+
     const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
 
     let options = {

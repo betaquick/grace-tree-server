@@ -52,10 +52,11 @@ describe('test auth process end-to-end', function() {
   });
 
   describe('/api/v1/auth', () => {
-    it('/api/v1/auth/register - valid register successful', () => {
+    it('/api/v1/auth/register - valid register successful', done => {
       expect(userData).to.have.property('firstName');
       expect(userData).to.have.property('lastName');
       expect(userData).to.have.property('userId');
+      return done();
     });
 
     it('/api/v1/auth/register - failed if email exists', done => {
@@ -153,14 +154,14 @@ describe('test auth process end-to-end', function() {
       afterEach(() => {
         // remove verification
         return knex(USER_EMAIL_TABLE)
-          .update({isVerified: 0})
+          .update({ isVerified: 0 })
           .where({
             userId: userData.userId,
             emailAddress: validUserData.emails[0].emailAddress
           })
           .then(() => {
             return knex(USER_PHONE_TABLE)
-              .update({isVerified: 0})
+              .update({ isVerified: 0 })
               .where({
                 userId: userData.userId,
                 phoneNumber: validUserData.phones[0].phoneNumber
@@ -364,14 +365,14 @@ describe('test auth process end-to-end', function() {
             expect(body).to.have.property('error', false);
             expect(body).to.have.property('message', 'Login successful');
             expect(body).to.have.property('status', 200);
-            const {body: { user }} = body;
+            const { body: { user } } = body;
             expect(user).to.have.property('userId', userData.userId);
             expect(user).to.have.property('firstName', userData.firstName);
             expect(user).to.have.property('lastName', userData.lastName);
             expect(user.addresses).to.be.an('array');
             expect(user.phones).to.be.a('array');
             expect(user.emails).to.be.a('array');
-            expect(user.agreement).to.be.a('number');
+            expect(user.profile.agreement).to.be.a('number');
             return done();
           });
       });
@@ -558,8 +559,8 @@ describe('test auth process end-to-end', function() {
             });
         });
 
-        it('/api/v1/auth/reset/:token - returns 422 if token is invalid', () => {
-          return request
+        it('/api/v1/auth/reset/:token - returns 422 if token is invalid', done => {
+          request
             .get('/api/v1/auth/reset/invalid_token')
             .set('Accept', 'application/json')
             .expect(422)
@@ -570,6 +571,7 @@ describe('test auth process end-to-end', function() {
               expect(body).to.have.property('message');
               expect(body).to.have.property('status', 422);
             });
+          return done();
         });
 
         it('/api/v1/auth/reset-password - reset password successful', () => {
