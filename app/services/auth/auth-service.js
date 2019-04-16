@@ -29,7 +29,6 @@ const {
   USER_TABLE,
   USER_EMAIL_TABLE,
   USER_PHONE_TABLE
-  // USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
 
 /**

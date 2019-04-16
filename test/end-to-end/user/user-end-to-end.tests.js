@@ -194,13 +194,6 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('body');
             const { user } = data.body;
             expect(user).to.be.a('number');
-
-            // expect(user).to.be.an('object');
-            // expect(user).to.have.property('userId').to.be.a('number');
-            // expect(user).to.have.property('firstName');
-            // expect(user).to.have.property('lastName');
-            // expect(user).to.have.property('email');
-            // expect(user).to.have.property('status');
           });
       });
 
@@ -387,7 +380,6 @@ describe('test user process end-to-end', function() {
             expect(company).to.have.property('city').to.be.a('string');
             expect(company).to.have.property('state').to.be.a('string');
             expect(company).to.have.property('zip').to.be.a('string');
-            // expect(user).to.have.property('userId').to.be.a('number');
             expect(user).to.have.property('firstName');
             expect(user).to.have.property('lastName');
             expect(user).to.have.property('email');
