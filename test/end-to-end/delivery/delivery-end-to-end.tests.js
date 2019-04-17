@@ -467,8 +467,8 @@ describe('Test delivery endpoints', function() {
       sinon.restore();
     });
 
-    it('Should successfully run deliveries cron job', done => {
-      request
+    it('Should successfully run deliveries cron job', () => {
+      return request
         .post('/api/v1/user/deliveries/expire')
         .set('Accept', 'application/json')
         .expect(200)
@@ -487,7 +487,6 @@ describe('Test delivery endpoints', function() {
             sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
           }, 4000);
         });
-      done();
     });
   });
 });

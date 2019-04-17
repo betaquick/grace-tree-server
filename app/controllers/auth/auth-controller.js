@@ -38,9 +38,8 @@ module.exports = {
       .then(user =>
         handleSuccess(res, 'Get user successful', { user })
       )
-      .catch(err => {
-        handleError(err, res, 'Error fetching user', error);
-      }
+      .catch(err =>
+        handleError(err, res, 'Error fetching user', error)
       );
   },
 

@@ -25,27 +25,12 @@ module.exports = async function(req, res, next) {
   error('Email verified status: ', (emailVerified) ? 'verified' : 'verified');
   error('Phone verified status: ', (phoneVerified) ? 'verified' : 'verified');
 
-  let isEmailVerified;
-  let isPhoneVerified;
-
-  if (emailVerified) {
-    isEmailVerified = true;
-  } else {
-    isEmailVerified = false;
-  }
-
-  if (phoneVerified) {
-    isPhoneVerified = true;
-  } else {
-    isPhoneVerified = false;
-  }
-
   return res.status(401).send({
     status: 401,
     error: true,
     body: {
-      isEmailVerified,
-      isPhoneVerified,
+      isEmailVerified: !_.isUndefined(emailVerified),
+      isPhoneVerified: !_.isUndefined(phoneVerified),
       user
     },
     message: 'Please verify your email and phone'

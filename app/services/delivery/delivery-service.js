@@ -23,14 +23,14 @@ const {
 
 const {
   USER_ADDRESS_TABLE,
-  USER_COMPANY_TABLE,
   USER_TABLE
 } = require('../../../constants/table.constants');
 
 const getDeliveryInfo = async(userId, recipientId) => {
   await Joi.validate(recipientId, Joi.number().required());
 
-  const recipient = await userData.getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
+  const recipient = await userData
+    .getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
   recipient.products = await userData.getUserProducts({ userId: recipientId, status: true });
 
   const company = await userSvc.getCompanyInfo(userId);
@@ -347,11 +347,7 @@ const sendWarningNotification = async delivery => {
     [`${USER_TABLE}.userId`]: delivery.userId
   });
   const recipientPhone = await userData.getUserPhone(delivery.userId);
-
-  const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
-    [`${USER_COMPANY_TABLE}.userId`]: delivery.assignedToUserId
-  });
-  const { companyName } = await userData.getCompanyInfo(companyId);
+  const { companyName } = await userData.getCompanyInfoByUserId(delivery.userId);
 
   let options = {
     email: recipient.email,
@@ -375,8 +371,9 @@ const expireDeliveryJob = async() => {
     const expiredDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 3));
 
     const warningDeliveriesMap = warningDeliveries.map(delivery => sendWarningNotification(delivery));
-    const expiredDeliveriesMap = expiredDeliveries.map(delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired));
-
+    const expiredDeliveriesMap = expiredDeliveries.map(
+      delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired
+      ));
     await Promise.all([...warningDeliveriesMap, ...expiredDeliveriesMap]);
 
     return deliveries;

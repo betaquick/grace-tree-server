@@ -258,10 +258,8 @@ describe('test user process end-to-end', function() {
             expect(data.body).to.have.property('user');
 
             const { user } = data.body;
-            // expect(user.addresses).to.be.an('array');
             expect(user.phones).to.be.a('array');
             expect(user.emails).to.be.a('array');
-            // expect(user.agreement).to.be.a('number');
 
             return user;
           });
@@ -432,13 +430,13 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user/address - return success if address info is valid and lng/lat is provided', done => {
+      it('/api/v1/user/address - return success if address info is valid and lng/lat is provided', () => {
         const addressData = Object.assign({
           longitude: 151.235260,
           latitude: -33.737885
         }, validAddressData);
 
-        request
+        return request
           .put('/api/v1/user/address')
           .send(addressData)
           .set('Accept', 'application/json')
@@ -450,17 +448,16 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('status', 200);
             expect(data).to.have.property('error', false);
             expect(data).to.have.property('body');
-            expect(data.body).to.have.property('longitude', 151.235260);
+            expect(data.body).to.have.property('longitude', 151.23526);
             expect(data.body).to.have.property('latitude', -33.737885);
             setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 0), 1000);
 
             return data;
           });
-        done();
       });
 
-      it('/api/v1/user/address - Fails if address info is invalid', done => {
-        request
+      it('/api/v1/user/address - Fails if address info is invalid', () => {
+        return request
           .put('/api/v1/user/address')
           .send(inValidAddressData)
           .set('Accept', 'application/json')
@@ -473,7 +470,6 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('error', true);
             return data;
           });
-        done();
       });
 
       describe('Failure tests', () => {
@@ -571,15 +567,14 @@ describe('test user process end-to-end', function() {
           });
       });
 
-      it('/api/v1/user - return success if delivery info is valid and lng/lat is provided', done => {
+      it('/api/v1/user - return success if delivery info is valid and lng/lat is provided', () => {
         const deliveryData = Object.assign({}, validDeliveryData);
         const addressData = Object.assign({
           longitude: 151.235260,
           latitude: -33.737885
         }, deliveryData.address);
         deliveryData.address = addressData;
-
-        request
+        return request
           .post('/api/v1/user/new-delivery-info')
           .send(deliveryData)
           .set('Accept', 'application/json')
@@ -595,7 +590,6 @@ describe('test user process end-to-end', function() {
             setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 0), 1000);
             return data.body.delivery;
           });
-        done();
       });
 
       it('/api/v1/user - return failure if delivery info is invalid', done => {
