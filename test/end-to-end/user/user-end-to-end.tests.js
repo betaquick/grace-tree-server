@@ -432,8 +432,8 @@ describe('test user process end-to-end', function() {
 
       it('/api/v1/user/address - return success if address info is valid and lng/lat is provided', () => {
         const addressData = Object.assign({
-          longitude: 151.235260,
-          latitude: -33.737885
+          longitude: '151.235260',
+          latitude: '-33.737885'
         }, validAddressData);
 
         return request
@@ -448,8 +448,8 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('status', 200);
             expect(data).to.have.property('error', false);
             expect(data).to.have.property('body');
-            expect(data.body).to.have.property('longitude', 151.23526);
-            expect(data.body).to.have.property('latitude', -33.737885);
+            expect(data.body).to.have.property('longitude', '151.235260');
+            expect(data.body).to.have.property('latitude', '-33.737885');
             setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 0), 1000);
 
             return data;
@@ -570,8 +570,8 @@ describe('test user process end-to-end', function() {
       it('/api/v1/user - return success if delivery info is valid and lng/lat is provided', () => {
         const deliveryData = Object.assign({}, validDeliveryData);
         const addressData = Object.assign({
-          longitude: 151.235260,
-          latitude: -33.737885
+          longitude: '151.235260',
+          latitude: '-33.737885'
         }, deliveryData.address);
         deliveryData.address = addressData;
         return request
