@@ -23,14 +23,14 @@ const {
 
 const {
   USER_ADDRESS_TABLE,
-  USER_COMPANY_TABLE,
   USER_TABLE
 } = require('../../../constants/table.constants');
 
 const getDeliveryInfo = async(userId, recipientId) => {
   await Joi.validate(recipientId, Joi.number().required());
 
-  const recipient = await userData.getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
+  const recipient = await userData
+    .getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
   recipient.products = await userData.getUserProducts({ userId: recipientId, status: true });
 
   const company = await userSvc.getCompanyInfo(userId);
@@ -171,7 +171,7 @@ const sendDeliveryNotification = async delivery => {
       const assignedUser = await userSvc.getUserObject(assignedToUserId);
       const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
       const companyName = _.get(assignedUser, 'company.companyName', 'Unknown');
-      
+
       const recipient = await userSvc.getUserObject(recipientId);
       const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
       const recipientAddress = _.head(recipient.addresses);
@@ -223,7 +223,7 @@ const sendRequestNotification = async delivery => {
   const {
     deliveryId,
     assignedToUserId,
-    users 
+    users
   } = delivery;
 
   users.forEach(async recipientId => {
@@ -233,7 +233,7 @@ const sendRequestNotification = async delivery => {
 
       const crew = await userSvc.getUserObject(assignedToUserId);
       const companyName = _.get(crew, 'company.companyName', 'Unknown');
-      
+
       let options = {
         userId: recipient.userId,
         email: recipient.email,
@@ -241,7 +241,7 @@ const sendRequestNotification = async delivery => {
         companyName,
         deliveryId
       };
-      
+
       emailService.sendDeliveryRequestNotificationMail(options);
 
       options = {
@@ -251,7 +251,7 @@ const sendRequestNotification = async delivery => {
         deliveryId
       };
       smsService.sendDeliveryRequestNotificationSMS(options);
-      
+
     } catch (err) {
       error('Error sending delivery notification', err);
       throw err;
@@ -264,7 +264,7 @@ const sendAcceptedNotification = async(userId, deliveryId) => {
     const delivery = await deliveryData.getUserDelivery(deliveryId);
     const assignedUser = await userSvc.getUserObject(delivery.assignedToUserId);
     const recipient = await userSvc.getUserObject(userId);
-    
+
     const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
 
     let options = {
@@ -347,11 +347,7 @@ const sendWarningNotification = async delivery => {
     [`${USER_TABLE}.userId`]: delivery.userId
   });
   const recipientPhone = await userData.getUserPhone(delivery.userId);
-
-  const { companyId } = await userData.getUserByParam(USER_COMPANY_TABLE, {
-    [`${USER_COMPANY_TABLE}.userId`]: delivery.assignedToUserId
-  });
-  const { companyName } = await userData.getCompanyInfo(companyId);
+  const { companyName } = await userData.getCompanyInfoByUserId(delivery.userId);
 
   let options = {
     email: recipient.email,
@@ -375,8 +371,9 @@ const expireDeliveryJob = async() => {
     const expiredDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 3));
 
     const warningDeliveriesMap = warningDeliveries.map(delivery => sendWarningNotification(delivery));
-    const expiredDeliveriesMap = expiredDeliveries.map(delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired));
-
+    const expiredDeliveriesMap = expiredDeliveries.map(
+      delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired
+      ));
     await Promise.all([...warningDeliveriesMap, ...expiredDeliveriesMap]);
 
     return deliveries;

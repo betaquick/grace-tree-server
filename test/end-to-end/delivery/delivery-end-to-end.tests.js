@@ -310,7 +310,7 @@ describe('Test delivery endpoints', function() {
       sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
 
       return knex(USER_TABLE)
-        .where({ userId: userData.userId})
+        .where({ userId: userData.userId })
         .update({ userType: UserTypes.TreeAdmin });
     });
 
@@ -416,7 +416,8 @@ describe('Test delivery endpoints', function() {
           expect(data).to.be.an('object');
           expect(data).to.have.property('status', 422);
           expect(data).to.have.property('error', true);
-          expect(data).to.have.property('message', 'Validation Error: child \"users\" fails because [\"users\" is required]');
+          expect(data).to.have.property(
+            'message', 'Validation Error: child \"users\" fails because [\"users\" is required]');
           done();
         });
     });
@@ -466,8 +467,8 @@ describe('Test delivery endpoints', function() {
       sinon.restore();
     });
 
-    it('Should successfully run deliveries cron job', done => {
-      request
+    it('Should successfully run deliveries cron job', () => {
+      return request
         .post('/api/v1/user/deliveries/expire')
         .set('Accept', 'application/json')
         .expect(200)
@@ -485,9 +486,7 @@ describe('Test delivery endpoints', function() {
             sinon.assert.callCount(sendWarningNotificationSMS, 2);
             sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
           }, 4000);
-          done();
-        })
-        .catch(() => {});
+        });
     });
   });
 });

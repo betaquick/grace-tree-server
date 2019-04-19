@@ -25,7 +25,7 @@ const userData = {
       .first()
       .where(params);
   },
-  
+
   getUserEmail(userId) {
     const params = {
       primary: 1
@@ -69,14 +69,14 @@ const userData = {
       .first()
       .where({ userAddressId });
   },
-  
+
   getUserProfile(userId) {
     return knex(USER_PROFILE_TABLE)
       .select('*')
       .first()
       .where({ userId });
   },
-  
+
   getCompanyInfoByUserId(userId) {
     return knex(USER_COMPANY_TABLE + ' as uc')
       .select([

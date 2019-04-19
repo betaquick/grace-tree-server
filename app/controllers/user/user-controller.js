@@ -11,10 +11,10 @@ const {
 } = require('../util/controller-util');
 
 module.exports = {
-  
+
   async getUserById(req, res) {
-    const {userId} = req.params;
-    
+    const { userId } = req.params;
+
     try {
       const user = await userSvc.getUserObject(userId);
       handleSuccess(res, 'User fetched successfully', user);
@@ -22,7 +22,7 @@ module.exports = {
       handleError(err, res, `Error fetching user with userId: ${userId}`, error);
     }
   },
-  
+
   onboarding(req, res) {
     const {
       user
@@ -57,8 +57,8 @@ module.exports = {
   },
 
   updateProfile(req, res) {
-    const {userId} = req.user;
-    const {body} = req;
+    const { userId } = req.user;
+    const { body } = req;
 
     debug('Updating user with data: ', stringify(body));
 
@@ -157,7 +157,7 @@ module.exports = {
   },
 
   getUserProducts(req, res) {
-    const {userId} = req.user;
+    const { userId } = req.user;
 
     debug('Get products for: ' + userId);
 

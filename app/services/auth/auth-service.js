@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const stringify = require('json-stringify-safe');
 const moment = require('moment');
 
-const {UserTypes} = require('@betaquick/grace-tree-constants');
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const userData = require('../user/user-data');
 const userService = require('../user/user-service');
@@ -28,8 +28,7 @@ const { randomBytesAsync, throwError } = require('./../../controllers/util/contr
 const {
   USER_TABLE,
   USER_EMAIL_TABLE,
-  USER_PHONE_TABLE,
-  USER_COMPANY_TABLE
+  USER_PHONE_TABLE
 } = require('../../../constants/table.constants');
 
 /**
@@ -213,11 +212,11 @@ const verifyEmail = async(userId, emailAddress, userType) => {
       verificationCode: token,
       verificationCodeExpiry: moment().add(1, 'd').format('YYYY-MM-DD HH:mm:ss')
     };
-    
+
     await userData.updateUserByParams(USER_TABLE, { userId }, { email: emailAddress });
     await userData.updateUserByParams(USER_EMAIL_TABLE, { userId, primary: 1 }, params);
-    
-    const user = await userData.getUserByParam(USER_TABLE, {userId});
+
+    const user = await userData.getUserByParam(USER_TABLE, { userId });
 
     const options = {
       email: emailAddress,
@@ -249,9 +248,9 @@ const verifyPhone = async(userId, phoneNumber, userType) => {
     };
 
     await userData.updateUserByParams(USER_PHONE_TABLE, { userId, primary: 1 }, params);
-    
-    const user = await userData.getUserByParam(USER_TABLE, {userId});
-    
+
+    const user = await userData.getUserByParam(USER_TABLE, { userId });
+
     const options = {
       phoneNumber,
       token,

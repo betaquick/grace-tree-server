@@ -12,7 +12,7 @@ module.exports = async function(req, res, next) {
     debug('Crew verification successful');
     return next();
   }
-  
+
   const emailVerified = _.find(user.emails, e => e.isVerified);
   const phoneVerified = _.find(user.phones, p => p.isVerified);
 
@@ -20,8 +20,7 @@ module.exports = async function(req, res, next) {
     debug('User phone and email verified');
     return next();
   }
-  
-  
+
 
   error('Email verified status: ', (emailVerified) ? 'verified' : 'verified');
   error('Phone verified status: ', (phoneVerified) ? 'verified' : 'verified');
@@ -30,8 +29,8 @@ module.exports = async function(req, res, next) {
     status: 401,
     error: true,
     body: {
-      isEmailVerified: (emailVerified) ? true : false,
-      isPhoneVerified: (phoneVerified) ? true : false,
+      isEmailVerified: !_.isUndefined(emailVerified),
+      isPhoneVerified: !_.isUndefined(phoneVerified),
       user
     },
     message: 'Please verify your email and phone'

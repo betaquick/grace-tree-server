@@ -31,7 +31,7 @@ module.exports = function(req, res, next) {
     } else {
       const user = await userService.getUserObject(decoded.userId);
       debug(`Authorization success for ${user.email}`);
-      
+
       if (!user) {
         error('Error: User not found');
         return res.status(404).send({
