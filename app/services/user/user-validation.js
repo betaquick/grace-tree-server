@@ -69,8 +69,8 @@ const deliveryInfoValidator = Joi.object().keys({
     city: Joi.string().required(),
     state: Joi.string().required(),
     zip: Joi.string().required(),
-    latitude: Joi.number().optional().allow([null, '']),
-    longitude: Joi.number().optional().allow([null, ''])
+    latitude: Joi.string().optional().allow([null, '']),
+    longitude: Joi.string().optional().allow([null, ''])
   })
 });
 
@@ -99,7 +99,7 @@ const crewValidator = Joi.object().keys({
 });
 
 const updateAddressValidator = Joi.object().keys({
-  userAddressId: Joi.number().optional(),
+  userAddressId: Joi.number().required(),
   street: Joi.string().required(),
   city: Joi.string().required(),
   state: Joi.string().required(),

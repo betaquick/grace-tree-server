@@ -89,13 +89,26 @@ describe('Test delivery endpoints', function() {
       sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
       sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
 
+      // console.log(userData);
+
       return knex(USER_EMAIL_TABLE)
         .where({ userId: userData.userId, primary: 1 })
-        .update({ isVerified: true })
-        .then(() => {
+        .update({ isVerified: 1 })
+        .then((res) => {
+          // console.log(res);
           return knex(USER_PHONE_TABLE)
             .where({ userId: userData.userId, primary: 1 })
-            .update({ isVerified: true });
+            .update({ isVerified: 1 })
+            .then(res => {
+              // console.log(res);
+            })
+            .then(() => {
+              return knex(USER_ADDRESS_TABLE)
+                .where({ userId: userData.userId })
+                .then(res => {
+                  console.log(res);
+                });
+            });
         })
         .then(() => {
           return request
@@ -103,7 +116,10 @@ describe('Test delivery endpoints', function() {
             .send(validAddressData)
             .set('Accept', 'application/json')
             .set('Authorization', 'auth')
-            .expect(200);
+            .expect(200)
+            .then(res => {
+              console.log(res);
+            });
         });
     });
 
@@ -335,6 +351,8 @@ describe('Test delivery endpoints', function() {
           expect(data).to.have.property('message', 'Deliveries retrieved successfully');
 
           const { deliveries } = data.body;
+
+          console.log(deliveries);
           expect(deliveries).to.be.an('array');
           expect(deliveries[0]).to.have.property('userId').to.be.a('number');
           expect(deliveries[0]).to.have.property('usersCount').to.be.a('number');
@@ -467,8 +485,8 @@ describe('Test delivery endpoints', function() {
       sinon.restore();
     });
 
-    it('Should successfully run deliveries cron job', () => {
-      return request
+    it('Should successfully run deliveries cron job', done => {
+      request
         .post('/api/v1/user/deliveries/expire')
         .set('Accept', 'application/json')
         .expect(200)
@@ -486,6 +504,8 @@ describe('Test delivery endpoints', function() {
             sinon.assert.callCount(sendWarningNotificationSMS, 2);
             sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
           }, 4000);
+
+          return done();
         });
     });
   });
