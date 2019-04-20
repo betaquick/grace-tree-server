@@ -248,14 +248,9 @@ module.exports = {
       userId
     } = req.user;
     const data = req.body;
-
-    console.log(data);
-    // console.log(userId);
-
     userSvc
       .updateUserAddress(userId, data)
       .then(addy => {
-        console.log(addy);
         handleSuccess(res, 'User address updated', addy);
       })
       .catch(err => handleError(err, res, 'Error updating user address', error));

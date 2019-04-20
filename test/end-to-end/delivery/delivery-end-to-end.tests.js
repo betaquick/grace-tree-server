@@ -89,26 +89,15 @@ describe('Test delivery endpoints', function() {
       sinon.stub(jwt, 'verify').callsArgWith(2, null, userData);
       sinon.stub(googleMapsClient, 'geocode').returns(locationServiceMock);
 
-      // console.log(userData);
-
       return knex(USER_EMAIL_TABLE)
         .where({ userId: userData.userId, primary: 1 })
         .update({ isVerified: 1 })
         .then((res) => {
-          // console.log(res);
+
           return knex(USER_PHONE_TABLE)
             .where({ userId: userData.userId, primary: 1 })
-            .update({ isVerified: 1 })
-            .then(res => {
-              // console.log(res);
-            })
-            .then(() => {
-              return knex(USER_ADDRESS_TABLE)
-                .where({ userId: userData.userId })
-                .then(res => {
-                  console.log(res);
-                });
-            });
+            .update({ isVerified: 1 });
+
         })
         .then(() => {
           return request
@@ -116,10 +105,7 @@ describe('Test delivery endpoints', function() {
             .send(validAddressData)
             .set('Accept', 'application/json')
             .set('Authorization', 'auth')
-            .expect(200)
-            .then(res => {
-              console.log(res);
-            });
+            .expect(200);
         });
     });
 
@@ -351,8 +337,6 @@ describe('Test delivery endpoints', function() {
           expect(data).to.have.property('message', 'Deliveries retrieved successfully');
 
           const { deliveries } = data.body;
-
-          console.log(deliveries);
           expect(deliveries).to.be.an('array');
           expect(deliveries[0]).to.have.property('userId').to.be.a('number');
           expect(deliveries[0]).to.have.property('usersCount').to.be.a('number');
