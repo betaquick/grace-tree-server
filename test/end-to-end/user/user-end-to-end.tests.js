@@ -448,7 +448,7 @@ describe('test user process end-to-end', function() {
             expect(data).to.have.property('status', 200);
             expect(data).to.have.property('error', false);
             expect(data).to.have.property('body');
-            expect(data.body).to.have.property('longitude', '151.23526');
+            expect(data.body).to.have.property('longitude', '151.235260');
             expect(data.body).to.have.property('latitude', '-33.737885');
             setTimeout(() => sinon.assert.callCount(googleMapsClient.geocode, 0), 1000);
 
