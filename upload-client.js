@@ -2,7 +2,7 @@
 
 const xlsx = require('xlsx');
 const path = require('path');
-const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
+const knex = require('knex')(require('./db/knexfile').getKnexInstance());
 const {
   USER_TABLE,
   USER_PROFILE_TABLE,
@@ -11,7 +11,7 @@ const {
   USER_PRODUCT_TABLE,
   USER_ADDRESS_TABLE,
   PRODUCT_TABLE
-} = require('../../../constants/table.constants');
+} = require('./constants/table.constants');
 
 const {
   CHIIPS,
@@ -21,7 +21,7 @@ const {
   FILLDIRT,
   ROUNDS,
   LOGS
-} = require('../../../constants/products.constants');
+} = require('./constants/products.constants');
 
 async function getTransaction() {
   return new Promise(function(resolve, reject) {
@@ -36,7 +36,7 @@ async function getTransaction() {
   * @param file
   * Path to the xlsx file
   */
-const file = path.join(__dirname, '/../../../Sign_Up_Form.xls');
+const file = path.join(__dirname, './Sign_Up_Form.xls');
 
 const getJSONFormatOfSheets = (doc, worksheet_name, columns) => {
   /**
