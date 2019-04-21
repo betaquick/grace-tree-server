@@ -570,8 +570,8 @@ describe('test auth process end-to-end', function() {
               expect(body).to.have.property('error', true);
               expect(body).to.have.property('message');
               expect(body).to.have.property('status', 422);
-              return done();
             });
+          return done();
         });
 
         it('/api/v1/auth/reset-password - reset password successful', () => {

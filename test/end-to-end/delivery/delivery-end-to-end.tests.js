@@ -91,13 +91,11 @@ describe('Test delivery endpoints', function() {
 
       return knex(USER_EMAIL_TABLE)
         .where({ userId: userData.userId, primary: 1 })
-        .update({ isVerified: 1 })
-        .then((res) => {
-
+        .update({ isVerified: true })
+        .then(() => {
           return knex(USER_PHONE_TABLE)
             .where({ userId: userData.userId, primary: 1 })
-            .update({ isVerified: 1 });
-
+            .update({ isVerified: true });
         })
         .then(() => {
           return request
@@ -469,8 +467,8 @@ describe('Test delivery endpoints', function() {
       sinon.restore();
     });
 
-    it('Should successfully run deliveries cron job', done => {
-      request
+    it('Should successfully run deliveries cron job', () => {
+      return request
         .post('/api/v1/user/deliveries/expire')
         .set('Accept', 'application/json')
         .expect(200)
@@ -488,8 +486,6 @@ describe('Test delivery endpoints', function() {
             sinon.assert.callCount(sendWarningNotificationSMS, 2);
             sinon.assert.callCount(deliveryData.updateDeliveryStatus, 1);
           }, 4000);
-
-          return done();
         });
     });
   });
