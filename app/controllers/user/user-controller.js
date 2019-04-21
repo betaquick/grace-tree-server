@@ -248,6 +248,7 @@ module.exports = {
       userId
     } = req.user;
     const data = req.body;
+
     userSvc
       .updateUserAddress(userId, data)
       .then(addy => {
