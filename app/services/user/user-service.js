@@ -76,7 +76,7 @@ const acceptAgreement = async userId => {
 
   try {
     await Joi.validate(userId, Joi.number().required());
-    const params = { agreement: true };
+    const params = {agreement: true};
 
     return await userData.updateUserByParams(USER_PROFILE_TABLE, { userId }, params);
 
