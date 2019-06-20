@@ -267,12 +267,13 @@ const verifyPhone = async(userId, phoneNumber, userType) => {
 };
 
 const notifyAdmin = async(userId, userData) => {
-  const { email, firstName, lastName } = userData;
+  const { email, firstName, lastName, phones } = userData;
   debug('Notifying admin of registration: ' + email + ' with userId: ' + userId);
-
+  const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
   const options = {
     email,
-    fullname: `${firstName} ${lastName}`
+    fullname: `${firstName} ${lastName}`,
+    phoneNumbers
   };
 
   emailService.sendAdminNotificationOfRegistration(options);

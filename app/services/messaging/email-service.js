@@ -83,7 +83,8 @@ const sendAdminNotificationOfRegistration = options => {
     A user has just registered a new account.\n
     Registration was with the following information:\n
     Email: ${options.email}\n
-    Name: ${options.fullname}.`
+    Name: ${options.fullname}.\n
+    Phone(s): ${options.phoneNumbers}`
   };
 
   return sendMail(mailOptions);
