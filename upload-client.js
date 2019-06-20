@@ -2,6 +2,9 @@
 
 const xlsx = require('xlsx');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const moment = require('moment');
+const { getCoordinates } = require('./app/services/location/location-service');
 const knex = require('knex')(require('./db/knexfile').getKnexInstance());
 const {
   USER_TABLE,
@@ -22,6 +25,11 @@ const {
   ROUNDS,
   LOGS
 } = require('./constants/products.constants');
+
+const { UserTypes, PhoneTypes, UserStatus } = require('@betaquick/grace-tree-constants');
+
+const MOMENTTS = moment().toISOString(true);
+let HASHEDPASSWORD;
 
 async function getTransaction() {
   return new Promise(function(resolve, reject) {
@@ -55,21 +63,27 @@ const getJSONFormatOfSheets = (doc, worksheet_name, columns) => {
 
 const result = getJSONFormatOfSheets(file, 'Sheet1');
 
+
 const addUserToUserTable = (data, trx) => {
   return knex(USER_TABLE)
     .transacting(trx)
-    .insert({ email: data['Primary Email'] });
+    .insert({
+      email: data['Primary Email'],
+      password: data.password, userType: UserTypes.General,
+      createdAt: MOMENTTS
+    });
 };
 
-const addUserToUserProfileTable = (userId, data, trx, status = 'No', agreement = 0) => {
+const addUserToUserProfileTable = (userId, data, trx) => {
   return knex(USER_PROFILE_TABLE)
     .transacting(trx)
     .insert({
       firstName: data.Name,
       lastName: data.Last,
-      status,
-      agreement,
-      userId
+      status: UserStatus.Pause,
+      agreement: 1,
+      userId,
+      createdAt: MOMENTTS
     });
 };
 
@@ -79,29 +93,43 @@ const addUserToUserEmailTable = (userId, emailAddress, trx, primary = 0) => {
     .insert({
       emailAddress,
       userId,
-      primary
+      primary,
+      isVerified: 1,
+      createdAt: MOMENTTS
     });
 };
 
-const addUserToUserAddressTable = (userId, data, trx) => {
-  return knex(USER_ADDRESS_TABLE)
-    .transacting(trx)
-    .insert({
-      street: data.Address,
-      city: data.City,
-      state: data.State,
-      zip: data['Zip Code'],
-      deliveryInstruction: data['Where would you like us to dump?'],
-      userId
-    });
+const addUserToUserAddressTable = async(userId, data, trx) => {
+  let coords;
+  try {
+    if (data.Address) {
+      coords = await getCoordinates(data.Address);
+    }
+  } catch (error) {
+  } finally {
+    return knex(USER_ADDRESS_TABLE)
+      .transacting(trx)
+      .insert({
+        street: data.Address,
+        city: data.City,
+        state: data.State,
+        zip: data['Zip Code'],
+        deliveryInstruction: data['Where would you like us to dump?'],
+        userId,
+        ...(coords && { latitude: coords.lat, longitude: coords.lng })
+      });
+  }
 };
 
-const addUserToUserPhoneTable = (userId, data, trx) => {
+const addUserToUserPhoneTable = (userId, phoneNumber, phoneType = '', trx) => {
   return knex(USER_PHONE_TABLE)
     .transacting(trx)
     .insert({
-      phoneNumber: data['Cell Phone Number'],
-      userId
+      phoneNumber,
+      userId,
+      isVerified: 1,
+      phoneType,
+      primary: !!phoneNumber
     });
 };
 
@@ -126,21 +154,22 @@ const getPoductId = (data, trx) => {
 const addPhone = async(userId, data, transaction) => {
 
   if (data['Cell Phone Number'] !== '') {
-    await addUserToUserPhoneTable(userId, data['Cell Phone Number'], transaction);
+    await addUserToUserPhoneTable(userId, data['Cell Phone Number'], PhoneTypes.MOBILE, transaction);
   }
   if (data['Home Phone Number'] !== '') {
-    await addUserToUserPhoneTable(userId, data['Home Phone Number'], transaction);
+    await addUserToUserPhoneTable(userId, data['Home Phone Number'], PhoneTypes.HOME, transaction);
   }
   if (data['Work Phone Number'] !== '') {
-    await addUserToUserPhoneTable(userId, data['Work Phone Number'], transaction);
+    await addUserToUserPhoneTable(userId, data['Work Phone Number'], PhoneTypes.WORK, transaction);
   }
 };
+
+const passesSanityCheck = data => data['Primary Email'] || data['Secondary Email'];
 
 const addEmail = async(userId, data, transaction) => {
   if (data['Primary Email'] !== '') {
     await addUserToUserEmailTable(userId, data['Primary Email'], transaction, 1);
   }
-
   if (data['Secondary Email'] !== '') {
     await addUserToUserEmailTable(userId, data['Secondary Email'], transaction);
   }
@@ -184,25 +213,32 @@ const addProduct = async(userId, data, transaction) => {
 };
 
 const db_upload = async(data) => {
-  let transaction = await getTransaction();
-  try {
-    const User = await addUserToUserTable(data, transaction);
+  if (passesSanityCheck(data)) {
+    let transaction = await getTransaction();
+    try {
+      const User = await addUserToUserTable({...data, password: HASHEDPASSWORD }, transaction);
 
-    await addEmail(User[0], data, transaction);
-    await addUserToUserProfileTable(User[0], data, transaction);
-    await addUserToUserAddressTable(User[0], data, transaction);
-    await addPhone(User[0], data, transaction);
-    await addProduct(User[0], data, transaction);
+      await addEmail(User[0], data, transaction);
+      await addUserToUserProfileTable(User[0], data, transaction);
+      await addUserToUserAddressTable(User[0], data, transaction);
+      await addPhone(User[0], data, transaction);
+      await addProduct(User[0], data, transaction);
 
-    transaction.commit();
-  } catch (err) {
-    if (transaction) transaction.rollback();
-    throw err;
+      transaction.commit();
+
+    } catch (err) {
+      if (transaction) transaction.rollback();
+      throw err;
+    }
   }
 };
 
-// Uploading the Data
-result.forEach((data, ind) => {
-  db_upload(data);
-});
+
+(async() => {
+  HASHEDPASSWORD = await bcrypt.hash('changeme', 10);
+  result.forEach((data, ind) => {
+    db_upload(data);
+  });
+})();
+
 
