@@ -41,6 +41,7 @@ module.exports = {
       min: 1,
       max: 5
     },
+    acquireConnectionTimeout: 6000000,
     seeds: {
       directory: './seeds/prod'
     }
