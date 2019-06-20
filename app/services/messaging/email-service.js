@@ -74,6 +74,21 @@ If you have any problem using your credential, please contact ${options.companyN
   return sendMail(mailOptions);
 };
 
+const sendAdminNotificationOfRegistration = options => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL,
+    to: process.env.ADMIN_EMAIL,
+    subject: 'User Registration',
+    text: `Hi,\n
+    A user has just registered a new account.\n
+    Registration was with the following information:\n
+    Email: ${options.email}\n
+    Name: ${options.fullname}.`
+  };
+
+  return sendMail(mailOptions);
+};
+
 const sendStatusNotificationMail = options => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
@@ -167,5 +182,6 @@ module.exports = {
   sendCompanyDeliveryNotificationMail,
   sendDeliveryRequestNotificationMail,
   sendDeliveryAccceptedNotificationMail,
-  sendWarningNotificationMail
+  sendWarningNotificationMail,
+  sendAdminNotificationOfRegistration
 };

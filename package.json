@@ -16,6 +16,7 @@
     "start": "npm run prestart && node server.js",
     "debug": "npm run prestart && node-debug server.js",
     "dev": "set DEBUG=grace-tree* & npm run prestart && nodemon %NODE_DEBUG_OPTION% server.js",
+    "dev:mac": "npm run prestart && DEBUG=grace-tree* nodemon server.js",
     "db_upload": "npm run prestart && node ./upload-client.js"
   },
   "repository": {
