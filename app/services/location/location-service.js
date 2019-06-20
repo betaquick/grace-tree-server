@@ -1,4 +1,6 @@
 'use strict';
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
 
 const googleMapsClient = require('@google/maps').createClient({
   key: process.env.GOOGLE_MAP_KEY,

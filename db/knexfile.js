@@ -23,6 +23,7 @@ module.exports = {
       min: 1,
       max: 1
     },
+    acquireConnectionTimeout: 6000000, // API calls * 48xx exceed timeout & will result in errors otherwise
     seeds: {
       directory: './seeds/dev'
     }
