@@ -14,7 +14,7 @@ const {
 } = require('../../../constants/table.constants');
 
 const searchData = {
-  searchUsers(latitude, longitude, includePause, radius = 30) {
+  searchUsers(latitude, longitude, includePause, radius = 10) {
     let where = {
       [`${USER_PHONE_TABLE}.primary`]: true,
       [`${USER_TABLE}.active`]: true,
