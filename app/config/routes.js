@@ -5,6 +5,9 @@ const router = express.Router();
 
 const auth = require('../middleware/auth');
 const verify = require('../middleware/verify');
+const role = require('../middleware/role');
+
+const { UserTypes } = require('@betaquick/grace-tree-constants');
 
 const authController = require('../controllers/auth/auth-controller');
 const userController = require('../controllers/user/user-controller');
@@ -41,7 +44,7 @@ router.put('/user/products', auth, verify, userController.updateUserProducts);
 router.get('/user/address', auth, verify, userController.getUserAddress);
 router.put('/user/address', auth, verify, userController.updateUserAddress);
 
-router.get('/search', auth, verify, searchController.searchUsers);
+router.get('/search', auth, verify, role([UserTypes.TreeAdmin]), searchController.searchUsers);
 
 router.get('/products', productController.getProducts);
 
