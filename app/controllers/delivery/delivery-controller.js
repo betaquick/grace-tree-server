@@ -28,7 +28,7 @@ module.exports = {
 
     let delivery;
 
-    const { templateId } = body;
+    const { templateId, smsTemplateId } = body;
 
     deliverySvc
       .addDelivery(userId, body)
@@ -37,9 +37,10 @@ module.exports = {
         if (delivery.statusCode === DeliveryStatusCodes.Requested) {
           return deliverySvc.sendRequestNotification(delivery);
         }
-
-        const template = await templateSvc.findTemplateById(templateId);
-        return deliverySvc.sendDeliveryNotification(delivery, template.content);
+        const [emailTemplate, smsTemplate] = await Promise.all([
+          templateSvc.findTemplateById(templateId), templateSvc.findTemplateById(smsTemplateId)
+        ]);
+        return deliverySvc.sendDeliveryNotification(delivery, emailTemplate.content, smsTemplate.content);
       })
       .then(() => handleSuccess(res, 'Delivery added successfully', { delivery }))
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));

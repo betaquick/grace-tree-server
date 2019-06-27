@@ -50,12 +50,12 @@ const sendStatusNotificationSMS = async options => {
   }
 };
 
-const sendUserDeliveryNotificationSMS = async options => {
+const sendUserDeliveryNotificationSMS = async(options, body) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.toNumber,
-      body: `This is to notify you that your products have been assigned to ${options.companyName}. Please contact them via ${options.phoneNumber}`
+      body: body || `This is to notify you that your products have been assigned to ${options.companyName}. Please contact them via ${options.phoneNumber}`
     };
     return sendSMS(smsOptions);
   } catch (err) {
