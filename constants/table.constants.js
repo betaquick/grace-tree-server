@@ -14,6 +14,7 @@ const COMPANY_PROFILE_TABLE = 'company_profile';
 const DELIVERY_TABLE = 'delivery';
 const USER_DELIVERY_TABLE = 'user_delivery';
 const NOTIFICATION_TABLE = 'notification';
+const TEMPLATE_TABLE = 'template';
 
 module.exports = {
   USER_TABLE,
@@ -29,5 +30,6 @@ module.exports = {
   COMPANY_PROFILE_TABLE,
   DELIVERY_TABLE,
   USER_DELIVERY_TABLE,
-  NOTIFICATION_TABLE
+  NOTIFICATION_TABLE,
+  TEMPLATE_TABLE
 };

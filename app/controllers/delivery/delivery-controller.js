@@ -4,6 +4,7 @@ const error = require('debug')('grace-tree:user-controller:error');
 const { DeliveryStatusCodes, UserStatus } = require('@betaquick/grace-tree-constants');
 
 const userSvc = require('../../services/user/user-service');
+const templateSvc = require('../../services/template/template-service');
 const deliverySvc = require('../../services/delivery/delivery-service');
 const { handleError, handleSuccess } = require('../util/controller-util');
 
@@ -27,16 +28,18 @@ module.exports = {
 
     let delivery;
 
+    const { templateId } = body;
+
     deliverySvc
       .addDelivery(userId, body)
-      .then(response => {
+      .then(async response => {
         delivery = response;
-
         if (delivery.statusCode === DeliveryStatusCodes.Requested) {
           return deliverySvc.sendRequestNotification(delivery);
         }
 
-        return deliverySvc.sendDeliveryNotification(delivery);
+        const template = await templateSvc.findTemplateById(templateId);
+        return deliverySvc.sendDeliveryNotification(delivery, template.content);
       })
       .then(() => handleSuccess(res, 'Delivery added successfully', { delivery }))
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));
