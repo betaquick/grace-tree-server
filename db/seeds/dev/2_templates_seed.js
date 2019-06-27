@@ -10,27 +10,18 @@ exports.seed = function(knex) {
         {
           content: `
           Hi ${Placeholders.RecipientFirstName},
-This is to notify you of a pending delivery to your address: ${Placeholders.RECIPIENTADDRESS}, from the crew with the details below:
+This is to notify you of a pending delivery to your address: ${Placeholders.RecipientAddress}, from the crew with the details below:
 Company Name: ${Placeholders.CompanyName}
-Phone Number: ${Placeholders.ASSIGNEDUSERPHONENUMBER}
-Additional Information: ${Placeholders.ADDITIONALRECIPIENTTEXT}
+Phone Number: ${Placeholders.AssignedUserPhoneNumber}
+Additional Information: ${Placeholders.AdditionalRecipientText}
           `,
-          name: 'Default Delivery Notification: To User',
+          name: 'Default Email Delivery Notification',
           userId: 1,
           public: 1
         },
         {
-          content: `
-          Hi ${Placeholders.RECIPIENTFIRSTNAME},
-This is to notify you that you can drop your tree products to the user below.
-Recipient Name: ${Placeholders.RECIPIENTFIRSTNAME}
-Phone Number: ${Placeholders.RECIPIENTPHONENUMBER}
-Address: ${Placeholders.RECIPIENTADDRESS}
-Additional Information: ${Placeholders.ADDITIONALCOMPANYTEXT}
-
-Thank you.
-          `,
-          name: 'Default Delivery Notification: To Crew',
+          content: `This is to notify you that your products have been assigned to ${Placeholders.CompanyName}. Please contact them via ${Placeholders.AssignedUserPhoneNumber}`,
+          name: 'Default SMS Delivery Notification',
           userId: 1,
           public: 1
         }
