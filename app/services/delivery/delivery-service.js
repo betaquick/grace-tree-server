@@ -7,7 +7,7 @@ const debug = require('debug')('grace-tree:delivery-service:debug');
 const moment = require('moment');
 const _ = require('lodash');
 
-const { UserTypes, DeliveryStatusCodes } = require('@betaquick/grace-tree-constants');
+const { UserTypes, DeliveryStatusCodes, Placeholders } = require('@betaquick/grace-tree-constants');
 
 const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
@@ -20,20 +20,6 @@ const {
   updateDeliveryValidator,
   updateDeliveryStatusValidator
 } = require('./delivery-validation');
-
-const Placeholders = {
-  RecipientFirstName: '{{RECIPIENTFIRSTNAME}}',
-  RecipientLastName: '{{RECIPIENTLASTNAME}}',
-  RecipientPhoneNumber: '{{RECIPIENTPHONENUMBER}}',
-  RecipientAddress: '{{RECIPIENTADDRESS}}',
-  CompanyName: '{{COMPANYNAME}}',
-  CompanyAddress: '{{COMPANYADDRESS}}',
-  AdditionalRecipientText: '{{ADDITIONALRECIPIENTTEXT}}',
-  AdditionalCompanyText: '{{ADDITIONALCOMPANYTEXT}}',
-  AssignedUserFirstName: '{{ASSIGNEDUSERFIRSTNAME}}',
-  AssignedUserLastName: '{{ASSIGNEDUSERLASTNAME}}',
-  AssignedUserPhoneNumber: '{{ASSIGNEDUSERPHONENUMBER}}'
-};
 
 const {
   USER_ADDRESS_TABLE,
