@@ -49,6 +49,12 @@ module.exports = {
     debug('Updating template #' + templateId + ' with data: ', stringify(data));
     await Joi.validate(data, updateTemplateValidator);
 
+    const template = await this.findTemplateById(templateId);
+
+    if (template.public) {
+      throwError(409, 'Template is a default preset, duplicate to modify');
+    }
+
     return templateData.updateTemplate(templateId, data)
       .then(() => this.findTemplateById(templateId))
       .catch(err => {
