@@ -113,7 +113,6 @@ Company Name: ${options.companyName}\n
 Phone Number: ${options.phoneNumber}\n
 Additional Information: ${options.additionalRecipientText}`
   };
-
   return sendMail(mailOptions);
 };
 

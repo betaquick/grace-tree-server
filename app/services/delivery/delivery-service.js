@@ -158,7 +158,7 @@ const acceptDeliveryRequest = async(userId, deliveryId) => {
   }
 };
 
-const sendDeliveryNotification = async(delivery, templateContent) => {
+const sendDeliveryNotification = async(delivery, templateContent, smsTemplateContent) => {
   const {
     assignedToUserId,
     users,
@@ -218,7 +218,8 @@ const sendDeliveryNotification = async(delivery, templateContent) => {
         companyName,
         phoneNumber: assignedUserPhone
       };
-      smsService.sendUserDeliveryNotificationSMS(options);
+      const hydratedSms = hydrateTemplate(smsTemplateContent, hydrateOptions);
+      smsService.sendUserDeliveryNotificationSMS(options, hydratedSms);
     } catch (err) {
       error('Error sending delivery notification', err);
       throw err;
@@ -233,13 +234,14 @@ const sendDeliveryNotification = async(delivery, templateContent) => {
  * @returns {string}
  */
 const hydrateTemplate = (template, lookup) => {
-  const { street, city, state, zip } = _.head(lookup.recipient.addresses) || {};
-  const recipientAddress = `${street}, ${city} ${state}, ${zip}`;
-  const { Cstreet, Ccity, Cstate, Czip } = lookup.company.companyAddress || {};
-  const companyAddress = `${Cstreet}, ${Ccity}, ${Cstate}, ${Czip}`;
-  const recipientPhone = _.get(_.find(lookup.recipient.phones, p => p.primary), 'phoneNumber');
-  const assignedUserPhone = _.get(_.find(lookup.assignedUser.phones, p => p.primary), 'phoneNumber');
   try {
+    const { street, city, state, zip } = _.head(lookup.recipient.addresses) || {};
+    const recipientAddress = `${street}, ${city} ${state}, ${zip}`;
+    const { Cstreet, Ccity, Cstate, Czip } = lookup.company.companyAddress || {};
+    const companyAddress = `${Cstreet}, ${Ccity}, ${Cstate}, ${Czip}`;
+    const recipientPhone = _.get(_.find(lookup.recipient.phones, p => p.primary), 'phoneNumber');
+    const assignedUserPhone = _.get(_.find(lookup.assignedUser.phones, p => p.primary), 'phoneNumber');
+
     return template.replace(new RegExp(Placeholders.RecipientFirstName, 'g'), lookup.recipient.firstName)
       .replace(new RegExp(Placeholders.RecipientLastName, 'g'), lookup.recipient.lastName)
       .replace(new RegExp(Placeholders.AssignedUserFirstName, 'g'), lookup.assignedUser.firstName)
