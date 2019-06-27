@@ -7,11 +7,11 @@ exports.seed = function(knex) {
       return knex('template').insert([
         {
           content: `
-          Hi {{recipientFirstName}},{{NEWLINE}}
-This is to notify you of a pending delivery to your address: {{recipientAddress}, from the crew with the details below:{{NEWLINE}}
-Company Name: {{companyName}}{{NEWLINE}}
-Phone Number: {{companyPhoneNumber}}{{NEWLINE}}
-Additional Information: {{additionalRecipientText}}
+          Hi {{RECIPIENTFIRSTNAME}},
+This is to notify you of a pending delivery to your address: {{RECIPIENTADDRESS}}, from the crew with the details below:
+Company Name: {{COMPANYNAME}}
+Phone Number: {{ASSIGNEDUSERPHONENUMBER}}
+Additional Information: {{ADDITIONALRECIPIENTTEXT}}
           `,
           name: 'Default Delivery Notification: To User',
           userId: 1,
@@ -19,13 +19,14 @@ Additional Information: {{additionalRecipientText}}
         },
         {
           content: `
-          Hi {{recipientFirstName}},{{NEWLINE}}
-This is to notify you that you can drop your tree products to the user below.{{NEWLINE}}
-Recipient Name: {{RECIPIENTFIRSTNAME}}{{NEWLINE}}
-Phone Number: {{RECIPIENTPHONENUMBER}}{{NEWLINE}}
-Address: {{RECIPIENTADDRESS}}{{NEWLINE}}
+          Hi {{RECIPIENTFIRSTNAME}},
+This is to notify you that you can drop your tree products to the user below.
+Recipient Name: {{RECIPIENTFIRSTNAME}}
+Phone Number: {{RECIPIENTPHONENUMBER}}
+Address: {{RECIPIENTADDRESS}}
 Additional Information: {{ADDITIONALCOMPANYTEXT}}
-{{NEWLINE}}{{NEWLINE}} Thank you.
+
+Thank you.
           `,
           name: 'Default Delivery Notification: To Crew',
           userId: 1,

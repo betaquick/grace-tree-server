@@ -102,12 +102,12 @@ This is to notify you that your delivery status is now set to READY, we'll start
   return sendMail(mailOptions);
 };
 
-const sendUserDeliveryNotificationMail = options => {
+const sendUserDeliveryNotificationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Scheduled Delivery Notification',
-    text: `Hi ${options.firstName},\n
+    text: text || `Hi ${options.firstName},\n
 This is to notify you of a pending delivery to your address: ${options.address}, from the crew with the details below:\n
 Company Name: ${options.companyName}\n
 Phone Number: ${options.phoneNumber}\n
@@ -117,12 +117,12 @@ Additional Information: ${options.additionalRecipientText}`
   return sendMail(mailOptions);
 };
 
-const sendCompanyDeliveryNotificationMail = options => {
+const sendCompanyDeliveryNotificationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Scheduled Delivery Notification',
-    text: `Hi ${options.firstName},\n
+    text: text || `Hi ${options.firstName},\n
 This is to notify you that you can drop your tree products to the user below.\n
 Recipient Name: ${options.recipientName}\n
 Phone Number: ${options.phoneNumber}\n

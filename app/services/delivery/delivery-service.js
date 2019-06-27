@@ -21,6 +21,20 @@ const {
   updateDeliveryStatusValidator
 } = require('./delivery-validation');
 
+const Placeholders = {
+  RecipientFirstName: '{{RECIPIENTFIRSTNAME}}',
+  RecipientLastName: '{{RECIPIENTLASTNAME}}',
+  RecipientPhoneNumber: '{{RECIPIENTPHONENUMBER}}',
+  RecipientAddress: '{{RECIPIENTADDRESS}}',
+  CompanyName: '{{COMPANYNAME}}',
+  CompanyAddress: '{{COMPANYADDRESS}}',
+  AdditionalRecipientText: '{{ADDITIONALRECIPIENTTEXT}}',
+  AdditionalCompanyText: '{{ADDITIONALCOMPANYTEXT}}',
+  AssignedUserFirstName: '{{ASSIGNEDUSERFIRSTNAME}}',
+  AssignedUserLastName: '{{ASSIGNEDUSERLASTNAME}}',
+  AssignedUserPhoneNumber: '{{ASSIGNEDUSERPHONENUMBER}}'
+};
+
 const {
   USER_ADDRESS_TABLE,
   USER_TABLE
@@ -158,7 +172,7 @@ const acceptDeliveryRequest = async(userId, deliveryId) => {
   }
 };
 
-const sendDeliveryNotification = async delivery => {
+const sendDeliveryNotification = async(delivery, templateContent) => {
   const {
     assignedToUserId,
     users,
@@ -171,6 +185,7 @@ const sendDeliveryNotification = async delivery => {
       const assignedUser = await userSvc.getUserObject(assignedToUserId);
       const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
       const companyName = _.get(assignedUser, 'company.companyName', 'Unknown');
+      const company = _.get(assignedUser, 'company');
 
       const recipient = await userSvc.getUserObject(recipientId);
       const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
@@ -180,10 +195,15 @@ const sendDeliveryNotification = async delivery => {
       let options = {
         email: assignedUser.email,
         firstName: assignedUser.firstName,
+        lastName: assignedUser.lastName,
         recipientName: `${recipient.firstName} ${recipient.lastName}`,
         phoneNumber: recipientPhone,
         address: `${street}, ${city}, ${state}, ${zip}`,
         additionalCompanyText
+      };
+
+      const hydrateOptions = {
+        recipient, assignedUser, company, additionalCompanyText, additionalRecipientText
       };
       emailService.sendCompanyDeliveryNotificationMail(options);
 
@@ -204,7 +224,8 @@ const sendDeliveryNotification = async delivery => {
         address: `${street}, ${city}, ${state}, ${zip}`,
         additionalRecipientText
       };
-      emailService.sendUserDeliveryNotificationMail(options);
+      const hydratedText = hydrateTemplate(templateContent, hydrateOptions);
+      emailService.sendUserDeliveryNotificationMail(options, hydratedText);
 
       options = {
         toNumber: recipientPhone,
@@ -217,6 +238,36 @@ const sendDeliveryNotification = async delivery => {
       throw err;
     }
   });
+};
+
+/**
+ *
+ * @param {string} template raw template with placeholders
+ * @param {Object} lookup data needed for hydration
+ * @returns {string}
+ */
+const hydrateTemplate = (template, lookup) => {
+  const { street, city, state, zip } = _.head(lookup.recipient.addresses) || {};
+  const recipientAddress = `${street}, ${city} ${state}, ${zip}`;
+  const { Cstreet, Ccity, Cstate, Czip } = lookup.company.companyAddress || {};
+  const companyAddress = `${Cstreet}, ${Ccity}, ${Cstate}, ${Czip}`;
+  const recipientPhone = _.get(_.find(lookup.recipient.phones, p => p.primary), 'phoneNumber');
+  const assignedUserPhone = _.get(_.find(lookup.assignedUser.phones, p => p.primary), 'phoneNumber');
+  try {
+    return template.replace(new RegExp(Placeholders.RecipientFirstName, 'g'), lookup.recipient.firstName)
+      .replace(new RegExp(Placeholders.RecipientLastName, 'g'), lookup.recipient.lastName)
+      .replace(new RegExp(Placeholders.AssignedUserFirstName, 'g'), lookup.assignedUser.firstName)
+      .replace(new RegExp(Placeholders.AssignedUserLastName, 'g'), lookup.assignedUser.lastName)
+      .replace(new RegExp(Placeholders.RecipientPhoneNumber, 'g'), recipientPhone)
+      .replace(new RegExp(Placeholders.AssignedUserPhoneNumber, 'g'), assignedUserPhone)
+      .replace(new RegExp(Placeholders.AdditionalCompanyText, 'g'), lookup.additionalCompanyText || '')
+      .replace(new RegExp(Placeholders.AdditionalRecipientText, 'g'), lookup.additionalRecipientText || '')
+      .replace(new RegExp(Placeholders.RecipientAddress, 'g'), recipientAddress)
+      .replace(new RegExp(Placeholders.CompanyName, 'g'), lookup.company.companyName)
+      .replace(new RegExp(Placeholders.CompanyAddress, 'g'), companyAddress);
+  } catch (error) {
+    return null;
+  }
 };
 
 const sendRequestNotification = async delivery => {
