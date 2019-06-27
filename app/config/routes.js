@@ -15,6 +15,7 @@ const productController = require('../controllers/product/product-controller');
 const deliveryController = require('../controllers/delivery/delivery-controller');
 const notificationController = require('../controllers/notification/notification-controller');
 const searchController = require('../controllers/search/search-controller');
+const templateController = require('../controllers/template/template-controller');
 
 router.get('/', (req, res) => res.json({ title: 'Application API' }));
 
@@ -74,5 +75,11 @@ router.put('/user/deliveries/:deliveryId', auth, deliveryController.updateDelive
 router.put('/user/deliveries/:userId/:deliveryId', deliveryController.acceptDeliveryRequest);
 
 router.get('/user/:userId', auth, userController.getUserById);
+
+// Templates API
+router.get('/user/company/templates', auth, templateController.listTemplates);
+router.get('/user/company/templates/:id', auth, templateController.getTemplate);
+router.post('/user/company/templates', auth, templateController.createTemplate);
+router.put('/user/company/templates/:id', auth, templateController.editTemplate);
 
 module.exports = router;
