@@ -64,5 +64,28 @@ module.exports = {
         handleSuccess(res, 'Template updated successfully', { template })
       )
       .catch(err => handleError(err, res, 'Error updating template', error));
+  },
+
+  copyTemplate: (req, res) => {
+    const templateId = req.params.id;
+    const userId = req.user.userId;
+
+    debug('Copying template ' + templateId);
+
+    templateSvc
+      .findTemplateById(templateId)
+      .then(template => {
+        const newTemplate = {
+          name: template.name + '[COPY]',
+          content: template.content,
+          userId
+        };
+
+        return templateSvc.createTemplate(newTemplate);
+      })
+      .then(template =>
+        handleSuccess(res, 'Template copied successfully', { template })
+      )
+      .catch(err => handleError(err, res, 'Error copying template', error));
   }
 };
