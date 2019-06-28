@@ -64,12 +64,12 @@ const sendUserDeliveryNotificationSMS = async(options, body) => {
   }
 };
 
-const sendCompanyDeliveryNotificationSMS = async options => {
+const sendCompanyDeliveryNotificationSMS = async(options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.toNumber,
-      body: `You have been assigned ${options.recipientName} products for delivery at ${options.address}. Please contact him/her via ${options.phoneNumber}`
+      body: text || `You have been assigned ${options.recipientName} products for delivery at ${options.address}. Please contact him/her via ${options.phoneNumber}`
     };
     return sendSMS(smsOptions);
   } catch (err) {
@@ -78,13 +78,13 @@ const sendCompanyDeliveryNotificationSMS = async options => {
   }
 };
 
-const sendDeliveryRequestNotificationSMS = async options => {
+const sendDeliveryRequestNotificationSMS = async(options, text) => {
   try {
     const result = await bitly.shorten(`${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}`);
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.phoneNumber,
-      body: `Click ${result.url} to accept the delivery request sent by ${options.companyName}`
+      body: text || `Click ${result.url} to accept the delivery request sent by ${options.companyName}`
     };
     return sendSMS(smsOptions);
   } catch (err) {
@@ -93,12 +93,12 @@ const sendDeliveryRequestNotificationSMS = async options => {
   }
 };
 
-const sendDeliveryAccceptedNotificationSMS = async options => {
+const sendDeliveryAccceptedNotificationSMS = async(options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.phoneNumber,
-      body: `This is to notify you that ${options.recipientName} has accepted your delivery request.`
+      body: text || `This is to notify you that ${options.recipientName} has accepted your delivery request.`
     };
     return sendSMS(smsOptions);
   } catch (err) {
@@ -107,12 +107,12 @@ const sendDeliveryAccceptedNotificationSMS = async options => {
   }
 };
 
-const sendWarningNotificationSMS = async options => {
+const sendWarningNotificationSMS = async(options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: options.phoneNumber,
-      body: `This is to notify you that the delivery scheduled by ${options.companyName} will expire tomorrow. Please confirm the delivery by updating the status of the delivery`
+      to: options.toNumber,
+      body: text || `This is to notify you that the delivery scheduled by ${options.companyName} will expire tomorrow. Please confirm the delivery by updating the status of the delivery`
     };
     return sendSMS(smsOptions);
   } catch (err) {

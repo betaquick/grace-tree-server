@@ -11,6 +11,7 @@ const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
 const locationService = require('../location/location-service');
 const userData = require('./user-data');
+const templateHydration = require('../template/template-hydration-service');
 
 const {
   statusValidator,
@@ -28,7 +29,7 @@ const {
   USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
 const { throwError } = require('./../../controllers/util/controller-util');
-
+const { CrewRegistrationEmail } = require('@betaquick/grace-tree-constants').NotificationTypes;
 
 // Santize user details for the UI
 function sanitizeUser(user) {
@@ -289,14 +290,22 @@ const addCompanyCrew = async(userId, data) => {
 
     const userIds = await userData.addCompanyCrew(data);
     const companyInfo = await userData.getCompanyInfoByUserId(userId);
+    const { companyName, companyId } = companyInfo;
+    const { firstName, lastName } = data;
 
     const options = {
       email,
-      companyName: companyInfo.companyName,
-      firstName: data.firstName,
+      companyName,
+      firstName,
       password
     };
-    emailService.sendUserCreationMail(options);
+    const hydrationOptions = {
+      crew: { password, email },
+      recipient: { firstName, lastName },
+      company: companyInfo
+    };
+    const hydratedText = await templateHydration(companyId, CrewRegistrationEmail, hydrationOptions);
+    emailService.sendUserCreationMail(options, hydratedText);
 
     return userIds[0];
   } catch (err) {

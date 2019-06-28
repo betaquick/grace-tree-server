@@ -19,6 +19,8 @@ const {
   COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
+const templateData = require('../template/template-data');
+
 const userData = {
   getUserByParam(table, params) {
     return knex(table)
@@ -322,6 +324,7 @@ const userData = {
           return knex(COMPANY_ADDRESS_TABLE).transacting(trx)
             .insert({ companyId, companyAddress, city, state, zip, latitude, longitude });
         })
+        .then(() => templateData.seedDefaultTemplates(companyId, trx))
         .then(() => {
           const userCompanyIds = knex(USER_COMPANY_TABLE).transacting(trx)
             .insert({ userId, companyId, userRole: RoleTypes.Admin });

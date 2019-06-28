@@ -7,13 +7,21 @@ const debug = require('debug')('grace-tree:delivery-service:debug');
 const moment = require('moment');
 const _ = require('lodash');
 
-const { UserTypes, DeliveryStatusCodes, Placeholders } = require('@betaquick/grace-tree-constants');
+const { UserTypes, DeliveryStatusCodes, NotificationTypes } = require('@betaquick/grace-tree-constants');
+const {
+  CompanyDeliveryEmail, CompanyDeliveryRequestEmail,
+  UserDeliveryEmail, UserDeliverySMS,
+  CompanyDeliverySMS, DeliveryRequestSMS,
+  DeliveryRequestAcceptanceEmail, DeliveryRequestAcceptanceSMS,
+  DeliveryWarningSMS, DeliveryWarningEmail
+} = NotificationTypes;
 
 const emailService = require('../messaging/email-service');
 const smsService = require('../messaging/sms-service');
 const deliveryData = require('./delivery-data');
 const userData = require('../user/user-data');
 const userSvc = require('../user/user-service');
+const templateHydration = require('../template/template-hydration-service');
 
 const {
   deliveryInfoValidator,
@@ -158,7 +166,7 @@ const acceptDeliveryRequest = async(userId, deliveryId) => {
   }
 };
 
-const sendDeliveryNotification = async(delivery, templateContent, smsTemplateContent) => {
+const sendDeliveryNotification = async(delivery) => {
   const {
     assignedToUserId,
     users,
@@ -191,16 +199,18 @@ const sendDeliveryNotification = async(delivery, templateContent, smsTemplateCon
       const hydrateOptions = {
         recipient, assignedUser, company, additionalCompanyText, additionalRecipientText
       };
-      emailService.sendCompanyDeliveryNotificationMail(options);
+      let hydratedText = await templateHydration(company.companyId, CompanyDeliveryEmail, hydrateOptions);
+      emailService.sendCompanyDeliveryNotificationMail(options, hydratedText);
 
       options = {
         toNumber: assignedUserPhone,
-        firstName: assignedUser.firstName,
+        assignedUser, recipient,
         recipientName: `${recipient.firstName} ${recipient.lastName}`,
-        phoneNumber: recipientPhone,
-        address: `${street}, ${city}, ${state}, ${zip}`
+        address: `${street}, ${city}, ${state}, ${zip}`,
+        phoneNumber: recipientPhone
       };
-      smsService.sendCompanyDeliveryNotificationSMS(options);
+      let hydratedSMS = await templateHydration(company.companyId, CompanyDeliverySMS, hydrateOptions);
+      smsService.sendCompanyDeliveryNotificationSMS(options, hydratedSMS);
 
       options = {
         email: recipient.email,
@@ -210,7 +220,7 @@ const sendDeliveryNotification = async(delivery, templateContent, smsTemplateCon
         address: `${street}, ${city}, ${state}, ${zip}`,
         additionalRecipientText
       };
-      const hydratedText = hydrateTemplate(templateContent, hydrateOptions);
+      hydratedText = await templateHydration(company.companyId, UserDeliveryEmail, hydrateOptions);
       emailService.sendUserDeliveryNotificationMail(options, hydratedText);
 
       options = {
@@ -218,8 +228,8 @@ const sendDeliveryNotification = async(delivery, templateContent, smsTemplateCon
         companyName,
         phoneNumber: assignedUserPhone
       };
-      const hydratedSms = hydrateTemplate(smsTemplateContent, hydrateOptions);
-      smsService.sendUserDeliveryNotificationSMS(options, hydratedSms);
+      hydratedSMS = await templateHydration(company.companyId, UserDeliverySMS, hydrateOptions);
+      smsService.sendUserDeliveryNotificationSMS(options, hydratedSMS);
     } catch (err) {
       error('Error sending delivery notification', err);
       throw err;
@@ -227,51 +237,19 @@ const sendDeliveryNotification = async(delivery, templateContent, smsTemplateCon
   });
 };
 
-/**
- *
- * @param {string} template raw template with placeholders
- * @param {Object} lookup data needed for hydration
- * @returns {string}
- */
-const hydrateTemplate = (template, lookup) => {
-  try {
-    const { street, city, state, zip } = _.head(lookup.recipient.addresses) || {};
-    const recipientAddress = `${street}, ${city} ${state}, ${zip}`;
-    const { Cstreet, Ccity, Cstate, Czip } = lookup.company.companyAddress || {};
-    const companyAddress = `${Cstreet}, ${Ccity}, ${Cstate}, ${Czip}`;
-    const recipientPhone = _.get(_.find(lookup.recipient.phones, p => p.primary), 'phoneNumber');
-    const assignedUserPhone = _.get(_.find(lookup.assignedUser.phones, p => p.primary), 'phoneNumber');
-
-    return template.replace(new RegExp(Placeholders.RecipientFirstName, 'g'), lookup.recipient.firstName)
-      .replace(new RegExp(Placeholders.RecipientLastName, 'g'), lookup.recipient.lastName)
-      .replace(new RegExp(Placeholders.AssignedUserFirstName, 'g'), lookup.assignedUser.firstName)
-      .replace(new RegExp(Placeholders.AssignedUserLastName, 'g'), lookup.assignedUser.lastName)
-      .replace(new RegExp(Placeholders.RecipientPhoneNumber, 'g'), recipientPhone)
-      .replace(new RegExp(Placeholders.AssignedUserPhoneNumber, 'g'), assignedUserPhone)
-      .replace(new RegExp(Placeholders.AdditionalCompanyText, 'g'), lookup.additionalCompanyText || '')
-      .replace(new RegExp(Placeholders.AdditionalRecipientText, 'g'), lookup.additionalRecipientText || '')
-      .replace(new RegExp(Placeholders.RecipientAddress, 'g'), recipientAddress)
-      .replace(new RegExp(Placeholders.CompanyName, 'g'), lookup.company.companyName)
-      .replace(new RegExp(Placeholders.CompanyAddress, 'g'), companyAddress);
-  } catch (error) {
-    return null;
-  }
-};
-
-const sendRequestNotification = async delivery => {
+const sendRequestNotification = async(delivery, company) => {
   const {
     deliveryId,
     assignedToUserId,
     users
   } = delivery;
-
   users.forEach(async recipientId => {
     try {
       const recipient = await userSvc.getUserObject(recipientId);
       const phoneNumber = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
 
-      const crew = await userSvc.getUserObject(assignedToUserId);
-      const companyName = _.get(crew, 'company.companyName', 'Unknown');
+      const assignedUser = await userSvc.getUserObject(assignedToUserId);
+      const companyName = _.get(company, 'companyName', 'Unknown');
 
       let options = {
         userId: recipient.userId,
@@ -281,7 +259,11 @@ const sendRequestNotification = async delivery => {
         deliveryId
       };
 
-      emailService.sendDeliveryRequestNotificationMail(options);
+      const hydrateOptions = {
+        recipient, assignedUser, company, deliveryId
+      };
+      const hydratedText = await templateHydration(company.companyId, CompanyDeliveryRequestEmail, hydrateOptions);
+      emailService.sendDeliveryRequestNotificationMail(options, hydratedText);
 
       options = {
         phoneNumber,
@@ -289,7 +271,8 @@ const sendRequestNotification = async delivery => {
         userId: recipient.userId,
         deliveryId
       };
-      smsService.sendDeliveryRequestNotificationSMS(options);
+      const hydratedSMS = await templateHydration(company.companyId, DeliveryRequestSMS, hydrateOptions);
+      smsService.sendDeliveryRequestNotificationSMS(options, hydratedSMS);
 
     } catch (err) {
       error('Error sending delivery notification', err);
@@ -305,19 +288,23 @@ const sendAcceptedNotification = async(userId, deliveryId) => {
     const recipient = await userSvc.getUserObject(userId);
 
     const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
-
     let options = {
       email: assignedUser.email,
       firstName: assignedUser.firstName,
       recipientName: `${recipient.firstName} ${recipient.lastName}`
     };
-    emailService.sendDeliveryAccceptedNotificationMail(options);
+    const hydrateOptions = {
+      recipient, assignedUser
+    };
+    const hydratedText = await templateHydration(delivery.companyId, DeliveryRequestAcceptanceEmail, hydrateOptions);
+    emailService.sendDeliveryAcceptedNotificationMail(options, hydratedText);
 
     options = {
       phoneNumber: assignedUserPhone,
       recipientName: `${recipient.firstName} ${recipient.lastName}`
     };
-    smsService.sendDeliveryAccceptedNotificationSMS(options);
+    const hydratedSMS = await templateHydration(delivery.companyId, DeliveryRequestAcceptanceSMS, hydrateOptions);
+    smsService.sendDeliveryAccceptedNotificationSMS(options, hydratedSMS);
   } catch (err) {
     error('Error sending delivery notification', err);
     throw err;
@@ -382,24 +369,33 @@ const filterDeliveries = (delivery, filter) => {
 };
 
 const sendWarningNotification = async delivery => {
-  const recipient = await userData.getUserByParam(USER_TABLE, {
+  let recipient = await userData.getUserByParam(USER_TABLE, {
     [`${USER_TABLE}.userId`]: delivery.userId
   });
+  const recipientProfile = await userData.getUserProfile(delivery.userId);
+  recipient = { ...recipientProfile, ...recipient,
+    addresses: [{ street: '', city: '', state: '', zip: '' }] };
   const recipientPhone = await userData.getUserPhone(delivery.userId);
-  const { companyName } = await userData.getCompanyInfoByUserId(delivery.userId);
-
+  const { companyName, companyId } = await userData
+    .getCompanyInfoByUserId(delivery.assignedByUserId || delivery.userId);
   let options = {
     email: recipient.email,
     firstName: recipient.firstName,
     companyName
   };
-  emailService.sendWarningNotificationMail(options);
+  const hydrateOptions = {
+    recipient, company: { companyName,
+      companyAddress: { street: '', city: '', state: '', zip: '' } }
+  };
+  const hydratedText = await templateHydration(companyId, DeliveryWarningEmail, hydrateOptions);
+  emailService.sendWarningNotificationMail(options, hydratedText);
 
   options = {
     toNumber: recipientPhone.phoneNumber,
     companyName
   };
-  smsService.sendWarningNotificationSMS(options);
+  const hydratedSMS = await templateHydration(companyId, DeliveryWarningSMS, hydrateOptions);
+  smsService.sendWarningNotificationSMS(options, hydratedSMS);
 };
 
 const expireDeliveryJob = async() => {
@@ -447,5 +443,6 @@ module.exports = {
   updateDeliveryStatus,
   removeUserFromDelivery,
   deleteDelivery,
-  expireDeliveryJob
+  expireDeliveryJob,
+  sendWarningNotification
 };

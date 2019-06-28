@@ -10,8 +10,6 @@ const deliveryInfoValidator = Joi.object().keys({
   details: Joi.string().allow('').optional(),
   additionalRecipientText: Joi.string().allow('').optional(),
   additionalCompanyText: Joi.string().allow('').optional(),
-  templateId: Joi.number().strip(),
-  smsTemplateId: Joi.number().strip(),
   statusCode: Joi.string().valid([
     DeliveryStatusCodes.Requested,
     DeliveryStatusCodes.Scheduled,
@@ -44,8 +42,6 @@ const updateDeliveryValidator = Joi.object().keys({
 const updateDeliveryInfoValidator = Joi.object().keys({
   deliveryId: Joi.number().required(),
   assignedToUserId: Joi.number().required(),
-  templateId: Joi.number().strip(),
-  smsTemplateId: Joi.number().strip(),
   details: Joi.string().allow('').optional(),
   additionalRecipientText: Joi.string().allow('').optional(),
   additionalCompanyText: Joi.string().allow('').optional()
