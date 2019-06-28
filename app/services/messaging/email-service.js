@@ -57,12 +57,13 @@ The link is valid for 24 hours and can be used only once.`
   return sendMail(mailOptions);
 };
 
-const sendUserCreationMail = options => {
+// mail sent when a crew member is added
+const sendUserCreationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: `${options.companyName} Account Registration`,
-    text: `Hi ${options.firstName},\n
+    text: text || `Hi ${options.firstName},\n
 We created you a new crew account in the ${options.companyName}.\n
 To login, go to ${process.env.WEB_URL}/login then enter the following information:\n
 Email: ${options.email}\n
@@ -74,6 +75,8 @@ If you have any problem using your credential, please contact ${options.companyN
   return sendMail(mailOptions);
 };
 
+// mail sent when a normal user registers
+// template for this isnt public - do not hydrate
 const sendAdminNotificationOfRegistration = options => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL,
@@ -84,12 +87,13 @@ const sendAdminNotificationOfRegistration = options => {
     Registration was with the following information:\n
     Email: ${options.email}\n
     Name: ${options.fullname}.\n
-    Phone(s): ${options.phoneNumbers}`
+    Phone: ${options.phoneNumber}`
   };
 
   return sendMail(mailOptions);
 };
 
+// template for this isnt public - do not hydrate
 const sendStatusNotificationMail = options => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
@@ -133,22 +137,23 @@ Additional Information: ${options.additionalCompanyText}
   return sendMail(mailOptions);
 };
 
-const sendDeliveryRequestNotificationMail = options => {
+
+const sendDeliveryRequestNotificationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Delivery Request Notification',
-    text: `Hi ${options.firstName},\n
-This is to notify you that ${options.companyName} wants to deliver some products to you.\n
-Please click on the following link, or paste this into your browser to accept the request:\n
-${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}\n
-If you are not interested, please ignore this email.`
+    text: text || `Hi ${options.firstName},\n
+    This is to notify you that ${options.companyName} wants to deliver some products to you.\n
+    Please click on the following link, or paste this into your browser to accept the request:\n
+    ${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}\n
+    If you are not interested, please ignore this email.`
   };
 
   return sendMail(mailOptions);
 };
 
-const sendDeliveryAccceptedNotificationMail = options => {
+const sendDeliveryAcceptedNotificationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
@@ -160,12 +165,12 @@ This is to notify you that ${options.recipientName} has accepted your delivery r
   return sendMail(mailOptions);
 };
 
-const sendWarningNotificationMail = options => {
+const sendWarningNotificationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
     subject: 'Delivery Expiry Notification',
-    text: `Hi ${options.firstName},\n
+    text: text || `Hi ${options.firstName},\n
 This is to notify you that the delivery scheduled by ${options.companyName} will expire soon. Please log in to update the status of the delivery.`
   };
 
@@ -181,7 +186,7 @@ module.exports = {
   sendUserDeliveryNotificationMail,
   sendCompanyDeliveryNotificationMail,
   sendDeliveryRequestNotificationMail,
-  sendDeliveryAccceptedNotificationMail,
+  sendDeliveryAcceptedNotificationMail,
   sendWarningNotificationMail,
   sendAdminNotificationOfRegistration
 };

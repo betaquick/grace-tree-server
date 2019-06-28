@@ -79,8 +79,6 @@ router.get('/user/:userId', auth, userController.getUserById);
 // Templates API
 router.get('/user/company/templates', auth, templateController.listTemplates);
 router.get('/user/company/templates/:id', auth, templateController.getTemplate);
-router.post('/user/company/templates', auth, templateController.createTemplate);
-router.post('/user/company/templates/:id/copy', auth, templateController.copyTemplate);
 router.put('/user/company/templates/:id', auth, templateController.editTemplate);
 
 module.exports = router;

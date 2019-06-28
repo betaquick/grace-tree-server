@@ -10,7 +10,7 @@ const { throwError } = require('../../controllers/util/controller-util');
 
 const templateData = require('./template-data');
 
-const { getTemplateValidator, newTemplateValidator, updateTemplateValidator } = require('./template-validator');
+const { updateTemplateValidator } = require('./template-validator');
 
 module.exports = {
   listTemplates(userId) {
@@ -19,41 +19,33 @@ module.exports = {
 
   async findTemplateById(templateId) {
     try {
-      await Joi.validate(templateId, getTemplateValidator);
-
       const template = await templateData.getTemplate({ templateId });
-
       if (!template) {
         throwError(404, 'Template not found');
       }
       return template;
     } catch (err) {
-      error('Error fetching a template ' + error.message);
+      error('Error fetching a template ' + err.message);
       throw err;
     }
   },
 
-  async createTemplate(data) {
-    debug('Create new template: ' + stringify(data));
-    await Joi.validate(data, newTemplateValidator);
-
-    return templateData.insertTemplate(data)
-      .then(([templateId]) => this.findTemplateById(templateId))
-      .catch(err => {
-        error('Error creating a template ' + err.message);
-        throw err;
-      });
+  async findTemplateForNotification(companyId, notificationType) {
+    try {
+      const template = await templateData.getTemplate({ companyId, notificationType });
+      if (!template) {
+        throwError(404, 'Template not found');
+      }
+      return template;
+    } catch (err) {
+      error('Error fetching a template ' + err.message);
+      throw err;
+    }
   },
 
   async editTemplate(templateId, data) {
     debug('Updating template #' + templateId + ' with data: ', stringify(data));
     await Joi.validate(data, updateTemplateValidator);
-
-    const template = await this.findTemplateById(templateId);
-
-    if (template.public) {
-      throwError(409, 'Template is a default preset, duplicate to modify');
-    }
 
     return templateData.updateTemplate(templateId, data)
       .then(() => this.findTemplateById(templateId))

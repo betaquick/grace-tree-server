@@ -31,6 +31,7 @@ const {
   USER_PHONE_TABLE
 } = require('../../../constants/table.constants');
 
+
 /**
  * create a JSON Web Token from the data model
  * */
@@ -275,7 +276,6 @@ const notifyAdmin = async(userId, userData) => {
     fullname: `${firstName} ${lastName}`,
     phoneNumbers
   };
-
   emailService.sendAdminNotificationOfRegistration(options);
 };
 
