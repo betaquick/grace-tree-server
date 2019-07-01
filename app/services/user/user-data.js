@@ -28,6 +28,19 @@ const userData = {
       .where(params);
   },
 
+  getReadyUsers() {
+    const condition = { active: 1, status: UserStatus.Ready };
+    return knex(USER_TABLE)
+      .select(
+        `${USER_TABLE}.userId`, 'active',
+        `${USER_PROFILE_TABLE}.firstName`,
+        `${USER_PROFILE_TABLE}.lastName`,
+        `${USER_PROFILE_TABLE}.status`
+      )
+      .where(condition)
+      .join(USER_PROFILE_TABLE, `${USER_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`);
+  },
+
   getUserEmail(userId) {
     const params = {
       primary: 1

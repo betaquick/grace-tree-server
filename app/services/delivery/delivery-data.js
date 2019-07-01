@@ -53,8 +53,8 @@ module.exports = {
       .select(
         '*',
         knex.raw('recipient.status userStatus'),
-        knex.raw(`${USER_DELIVERY_TABLE}.status statusCode`),
-        knex.raw(`${DELIVERY_TABLE}.statusCode deliveryStatus`),
+        knex.raw(`${USER_DELIVERY_TABLE}.status deliveryStatus`),
+        knex.raw(`${DELIVERY_TABLE}.statusCode statusCode`),
         knex.raw(`${DELIVERY_TABLE}.createdAt createdAt`),
         'crew.firstName as crewFirstName',
         'crew.lastName as crewLastName',
@@ -231,7 +231,7 @@ module.exports = {
       additionalCompanyText,
       additionalRecipientText,
       statusCode,
-      users,
+      userId,
       isAssigned
     } = deliveryInfo;
 
@@ -254,7 +254,7 @@ module.exports = {
         };
         return knex(USER_DELIVERY_TABLE)
           .transacting(trx)
-          .where({ deliveryId, userId: users[0] })
+          .where({ deliveryId, userId })
           .update(userDelivery);
       });
   },

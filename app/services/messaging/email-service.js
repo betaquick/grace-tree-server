@@ -26,6 +26,16 @@ const sendMail = async mailOptions => {
   }
 };
 
+const sendGenericMail = options => {
+  const { to, text, subject } = options;
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL,
+    to, text, subject
+  };
+
+  return sendMail(mailOptions);
+};
+
 const sendResetMail = options => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
@@ -188,5 +198,6 @@ module.exports = {
   sendDeliveryRequestNotificationMail,
   sendDeliveryAcceptedNotificationMail,
   sendWarningNotificationMail,
-  sendAdminNotificationOfRegistration
+  sendAdminNotificationOfRegistration,
+  sendGenericMail
 };

@@ -72,6 +72,19 @@ const getUserObject = async userId => {
 
 };
 
+const getReadyUsers = async() => {
+  debug('Fetching all ready users');
+
+  try {
+    const users = await userData.getReadyUsers();
+
+    return users;
+  } catch (err) {
+    error('Error fetching users ' + err.message);
+    throw err;
+  }
+};
+
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
 
@@ -392,5 +405,6 @@ module.exports = {
   updateUserProducts,
   getUserAddress,
   updateUserAddress,
-  getCoordinates
+  getCoordinates,
+  getReadyUsers
 };

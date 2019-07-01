@@ -45,17 +45,36 @@ module.exports = {
     const { body } = req;
 
     let delivery;
+    const { recipientMessage, crewMessage } = body;
+    delete body.recipientMessage;
+    delete body.crewMessage;
 
     deliverySvc
       .updateDelivery(deliveryId, body)
       .then(response => {
         delivery = response;
+        const mails = [];
 
-        if (delivery.statusCode === DeliveryStatusCodes.Requested) {
-          return deliverySvc.sendRequestNotification(delivery);
+        if ((recipientMessage || '').trim().length) {
+          mails.push({
+            to: delivery.userId, text: recipientMessage,
+            subject: 'Delivery Notification GTS' });
         }
 
-        return deliverySvc.sendDeliveryNotification(delivery);
+
+        if ((crewMessage || '').trim().length) {
+          mails.push({
+            to: delivery.assignedToUserId,
+            text: crewMessage });
+        }
+        switch (delivery.statusCode) {
+          case DeliveryStatusCodes.Expired:
+            mails.push({ text: `Your delivery #${delivery.deliveryId} has expired`,
+              subject: 'Delivery Expiration on GTS', to: delivery.userId });
+            break;
+        }
+
+        return deliverySvc.sendNotifications(mails);
       })
       .then(() => handleSuccess(res, 'Delivery updated successfully', { delivery }))
       .catch(err => handleError(err, res, 'Error updating delivery', error));

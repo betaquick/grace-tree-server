@@ -398,6 +398,23 @@ const sendWarningNotification = async delivery => {
   smsService.sendWarningNotificationSMS(options, hydratedSMS);
 };
 
+/**
+ * @description sends mails to recipients, mails contain text and subject props
+ * @param {Array} messageTextAndSubjects
+ */
+const sendNotifications = async(messages) => {
+  const subject = 'Delivery Notification GTS';
+  try {
+    const addresses = await Promise.all(messages.map(m => userData.getUserEmail(m.to)));
+    addresses.map((rawPacket, index) => {
+      emailService.sendGenericMail({ to: rawPacket.emailAddress,
+        text: messages[index].text, subject: messages[index].subject || subject });
+    });
+
+  } catch (error) {
+  }
+};
+
 const expireDeliveryJob = async() => {
   debug('Update deliveries cron job');
   try {
@@ -444,5 +461,6 @@ module.exports = {
   removeUserFromDelivery,
   deleteDelivery,
   expireDeliveryJob,
-  sendWarningNotification
+  sendWarningNotification,
+  sendNotifications
 };
