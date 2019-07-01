@@ -25,11 +25,14 @@ module.exports = {
         knex.raw(`(SELECT userId FROM ${USER_DELIVERY_TABLE} ud2 WHERE ud2.deliveryId = ud.deliveryId AND isAssigned=true LIMIT 1) userId`),
         `${DELIVERY_TABLE}.*`,
         'firstName',
-        'lastName'
+        'lastName',
+        `${USER_ADDRESS_TABLE}.street`, `${USER_ADDRESS_TABLE}.zip`,
+        `${USER_ADDRESS_TABLE}.city`, `${USER_ADDRESS_TABLE}.state`
       )
       .where({ assignedByUserId })
       .join(DELIVERY_TABLE, 'ud.deliveryId', '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, 'ud.userId', '=', `${USER_PROFILE_TABLE}.userId`)
+      .join(USER_ADDRESS_TABLE, 'ud.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
       .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc');
   },
 
