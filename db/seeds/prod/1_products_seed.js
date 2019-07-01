@@ -1,17 +1,22 @@
 'use strict';
 
+const {
+  CHIIPS, FILLDIRT, GRINDINGS,
+  LOGS, PINE, POPLAR, ROUNDS
+} = require('../../../constants/products.constants');
+
 exports.seed = function(knex) {
   return knex('product')
     .truncate()
     .then(() => {
       return knex('product').insert([
-        {productCode: 'chips', productDesc: 'Wood Chips'},
-        {productCode: 'fillDirt', productDesc: 'Fill Dirt'},
-        {productCode: 'grindings', productDesc: 'Grindings'},
-        {productCode: 'logs', productDesc: 'Wood logs'},
-        {productCode: 'pine', productDesc: 'Pine'},
-        {productCode: 'poplar', productDesc: 'Poplar'},
-        {productCode: 'rounds', productDesc: 'Rounds'}
+        {productCode: CHIIPS, productDesc: 'Wood Chips'},
+        {productCode: FILLDIRT, productDesc: 'Fill Dirt'},
+        {productCode: GRINDINGS, productDesc: 'Grindings'},
+        {productCode: LOGS, productDesc: 'Wood logs'},
+        {productCode: PINE, productDesc: 'Pine'},
+        {productCode: POPLAR, productDesc: 'Poplar'},
+        {productCode: ROUNDS, productDesc: 'Rounds'}
       ]);
     });
 };

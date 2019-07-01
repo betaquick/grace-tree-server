@@ -143,9 +143,10 @@ const addUserToUserProductTable = (userId, data, trx, status = 0) => {
     });
 };
 
-const getPoductId = (data, trx) => {
+const getProductId = (data, trx) => {
   return knex(PRODUCT_TABLE)
     .transacting(trx)
+    .first()
     .where({
       productCode: data
     });
@@ -177,37 +178,37 @@ const addEmail = async(userId, data, transaction) => {
 
 const addProduct = async(userId, data, transaction) => {
   if (data.Chips === 'Yes') {
-    const result = await getPoductId(CHIIPS, transaction);
+    const result = await getProductId(CHIIPS, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
   if (data.Grindings === 'Yes') {
-    const result = await getPoductId(GRINDINGS, transaction);
+    const result = await getProductId(GRINDINGS, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
   if (data['Logs (6-12 feet long)'] === 'Yes') {
-    const result = await getPoductId(LOGS, transaction);
+    const result = await getProductId(LOGS, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
   if (data['Rounds (18-22 inches long)'] === 'Yes') {
-    const result = await getPoductId(ROUNDS, transaction);
+    const result = await getProductId(ROUNDS, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
   if (data.Poplar === 'Yes') {
-    const result = await getPoductId(POPLAR, transaction);
+    const result = await getProductId(POPLAR, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
   if (data.Pine === 'Yes') {
-    const result = await getPoductId(PINE, transaction);
+    const result = await getProductId(PINE, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
   if (data['Fill Dirt'] === 'Yes') {
-    const result = await getPoductId(FILLDIRT, transaction);
+    const result = await getProductId(FILLDIRT, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 };
