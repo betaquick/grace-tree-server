@@ -29,6 +29,7 @@ router.post('/auth/verify', auth, authController.verify);
 router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
+router.get('/user', auth, role([UserTypes.TreeAdmin]), userController.getReadyUsers);
 router.get('/user/company', auth, verify, userController.getCompanyInfo);
 router.post('/user/company', auth, userController.addCompanyInfo);
 router.put('/user/company', auth, verify, userController.updateCompanyInfo);
