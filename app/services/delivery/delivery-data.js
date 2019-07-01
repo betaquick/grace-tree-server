@@ -8,8 +8,13 @@ const {
   USER_DELIVERY_TABLE,
   USER_PROFILE_TABLE,
   USER_COMPANY_TABLE,
-  COMPANY_PROFILE_TABLE
+  COMPANY_PROFILE_TABLE,
+  USER_ADDRESS_TABLE,
+  USER_PRODUCT_TABLE,
+  PRODUCT_TABLE
 } = require('../../../constants/table.constants');
+
+const _ = require('lodash');
 
 module.exports = {
   getDeliveries(assignedByUserId) {
@@ -47,12 +52,36 @@ module.exports = {
     return knex(USER_DELIVERY_TABLE)
       .select(
         '*',
-        knex.raw(`${USER_PROFILE_TABLE}.status userStatus`),
-        knex.raw(`${USER_DELIVERY_TABLE}.status statusCode`)
+        knex.raw('recipient.status userStatus'),
+        knex.raw(`${USER_DELIVERY_TABLE}.status statusCode`),
+        knex.raw(`${DELIVERY_TABLE}.statusCode deliveryStatus`),
+        knex.raw(`${DELIVERY_TABLE}.createdAt createdAt`),
+        'crew.firstName as crewFirstName',
+        'crew.lastName as crewLastName',
+        'recipient.firstName as firstName',
+        'recipient.lastName as lastName'
       )
-      .where({ deliveryId })
-      .join(USER_PROFILE_TABLE, `${USER_DELIVERY_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
-      .orderBy(`${USER_DELIVERY_TABLE}.updatedAt`, 'desc');
+      .where(`${USER_DELIVERY_TABLE}.deliveryId`, deliveryId)
+      .join(`${USER_PROFILE_TABLE} as recipient`, `${USER_DELIVERY_TABLE}.userId`, '=', 'recipient.userId')
+      .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
+      .join(USER_ADDRESS_TABLE, 'recipient.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
+      .join(`${USER_PROFILE_TABLE} as crew`, `${DELIVERY_TABLE}.assignedToUserId`, 'crew.userId')
+      .leftJoin(USER_PRODUCT_TABLE, 'recipient.userId', `${USER_PRODUCT_TABLE}.userId`)
+      .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
+      .then(results => {
+        return _.chain(results)
+          .groupBy(detail => detail.userId)
+          .map(users => {
+            let user = users[0];
+            user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
+            delete user.userProductId;
+            delete user.productId;
+            delete user.profileId;
+            delete user.productCode;
+            return user;
+          })
+          .value();
+      });
   },
 
   getCompanyPendingDeliveries(assignedByUserId) {
