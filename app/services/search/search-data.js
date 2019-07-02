@@ -62,6 +62,7 @@ const searchData = {
       )
       .orderBy('distance')
       .having('distance', '<', radius)
+      .limit(15)
       .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_TABLE}.userId`)
       .leftJoin(USER_PHONE_TABLE, `${USER_TABLE}.userId`, '=', `${USER_PHONE_TABLE}.userId`)
