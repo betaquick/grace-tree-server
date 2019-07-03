@@ -15,61 +15,56 @@ const {
 
 const searchData = {
   searchUsers(latitude, longitude, includePause, radius = 10) {
-    let where = {
-      [`${USER_PHONE_TABLE}.primary`]: true,
-      [`${USER_TABLE}.active`]: true,
-      [`${USER_PROFILE_TABLE}.status`]: UserStatus.Ready
-    };
 
+    let ReadyConstraint = ` AND ${USER_PROFILE_TABLE}.status = '${UserStatus.Ready}'`;
     if (includePause === 'true') {
-      where = {
-        [`${USER_PHONE_TABLE}.primary`]: true,
-        [`${USER_TABLE}.active`]: true
-      };
+      ReadyConstraint = '';
     }
-
-    const query = knex(USER_ADDRESS_TABLE)
-      .select(
-        `${USER_TABLE}.userId`,
-        'email',
-        'phoneNumber',
-        'firstName',
-        'lastName',
-        'userAddressId',
-        'street',
-        'city',
-        'state',
-        'zip',
-        'deliveryInstruction',
-        'longitude',
-        'latitude',
-        `${PRODUCT_TABLE}.productDesc`,
-        `${USER_PROFILE_TABLE}.status`,
-        knex.raw(`
-          (
-            6371 *
-            acos(
-              cos(radians(${latitude})) *
-              cos(radians(latitude)) *
-              cos(
-                radians(longitude) - radians(${longitude})
-              ) + 
-              sin(radians(${latitude})) *
-              sin(radians(latitude))
-            )
-          ) distance
-        `)
-      )
-      .orderBy('distance')
-      .having('distance', '<', radius)
-      .limit(15)
-      .join(USER_PROFILE_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
-      .join(USER_TABLE, `${USER_ADDRESS_TABLE}.userId`, '=', `${USER_TABLE}.userId`)
-      .leftJoin(USER_PHONE_TABLE, `${USER_TABLE}.userId`, '=', `${USER_PHONE_TABLE}.userId`)
-      .where(`${USER_PHONE_TABLE}.primary`, 1)
-      .leftJoin(USER_PRODUCT_TABLE, `${USER_ADDRESS_TABLE}.userId`, `${USER_PRODUCT_TABLE}.userId`)
-      .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
-      .where(where);
+    const query = knex.select(
+      'limited_tbl.*',
+      `${PRODUCT_TABLE}.productDesc`
+    )
+      .from(
+        knex.raw(
+          `(SELECT ${USER_TABLE}.userId, 
+               ${USER_TABLE}.active,
+               email, phoneNumber, 
+               firstName, 
+               lastName, 
+               userAddressId,
+               street, city, state, zip, deliveryInstruction 
+               longitude, 
+               latitude, 
+               ${USER_PROFILE_TABLE}.status, 
+               ( 6371 * Acos(Cos(Radians(${latitude})) * Cos(Radians(latitude)) * 
+                             Cos( 
+                              Radians(longitude) - Radians(${longitude})) + 
+                               Sin( 
+                                Radians(${latitude})) * 
+                               Sin(Radians(latitude))) ) 
+                        distance 
+        FROM   ${USER_ADDRESS_TABLE}
+          INNER JOIN ${USER_PROFILE_TABLE} 
+              ON ${USER_ADDRESS_TABLE}.userId = ${USER_PROFILE_TABLE}.userId 
+          INNER JOIN ${USER_TABLE} 
+              ON ${USER_ADDRESS_TABLE}.userId = ${USER_TABLE}.userId 
+          LEFT JOIN ${USER_PHONE_TABLE}
+          ON ${USER_PHONE_TABLE}.userPhoneId = (SELECT userPhoneId 
+            FROM   ${USER_PHONE_TABLE} up 
+            WHERE  up.userId = ${USER_ADDRESS_TABLE}.userId 
+            AND up.primary = 1
+            LIMIT  1) 
+        WHERE  ${USER_TABLE}.active = true `.concat(ReadyConstraint)
+               + ` AND longitude IS NOT NULL 
+               AND latitude IS NOT NULL
+        HAVING 'distance' < ${radius}
+        ORDER  BY FIELD(${USER_PROFILE_TABLE}.status, '${UserStatus.Ready}') desc
+        LIMIT  15) limited_tbl 
+         LEFT JOIN ${USER_PRODUCT_TABLE}
+                ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId 
+         LEFT JOIN ${PRODUCT_TABLE} 
+                ON ${USER_PRODUCT_TABLE}.productId = ${PRODUCT_TABLE}.productId`)
+      );
     return query
       .then(results => {
         return _.chain(results)
