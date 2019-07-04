@@ -65,7 +65,6 @@ const searchData = {
          LEFT JOIN ${PRODUCT_TABLE} 
                 ON ${USER_PRODUCT_TABLE}.productId = ${PRODUCT_TABLE}.productId`)
       );
-    console.log(query.toString());
     return query
       .then(results => {
         return _.chain(results)
