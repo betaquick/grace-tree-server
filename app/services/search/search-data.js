@@ -29,12 +29,8 @@ const searchData = {
           `(SELECT ${USER_TABLE}.userId, 
                ${USER_TABLE}.active,
                email, phoneNumber, 
-               firstName, 
-               lastName, 
-               userAddressId,
-               street, city, state, zip, deliveryInstruction 
-               longitude, 
-               latitude, 
+               firstName, lastName, userAddressId,
+               street, city, state, zip, deliveryInstruction, longitude, latitude, 
                ${USER_PROFILE_TABLE}.status, 
                ( 6371 * Acos(Cos(Radians(${latitude})) * Cos(Radians(latitude)) * 
                              Cos( 
