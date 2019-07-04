@@ -58,7 +58,7 @@ const searchData = {
                + ` AND longitude IS NOT NULL 
                AND latitude IS NOT NULL
         HAVING 'distance' < ${radius}
-        ORDER  BY FIELD(${USER_PROFILE_TABLE}.status, '${UserStatus.Ready}') desc
+        ORDER  BY FIELD(${USER_PROFILE_TABLE}.status, '${UserStatus.Ready}') desc, distance ASC
         LIMIT  15) limited_tbl 
          LEFT JOIN ${USER_PRODUCT_TABLE}
                 ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId 
