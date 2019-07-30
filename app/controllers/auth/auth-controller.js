@@ -68,7 +68,6 @@ module.exports = {
           await authSvc.verifyPhone(userId, phone, userType);
 
           debug('Verification link sent successfully');
-          authSvc.notifyAdmin(userId, data.user);
 
           // send back result
           return handleSuccess(res, 'Registration successful', data);

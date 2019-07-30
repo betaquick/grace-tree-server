@@ -97,7 +97,10 @@ const sendAdminNotificationOfRegistration = options => {
     Registration was with the following information:\n
     Email: ${options.email}\n
     Name: ${options.fullname}.\n
-    Phone: ${options.phoneNumber}`
+    Phone: ${options.phoneNumbers}\n
+    Address: ${options.address}\n
+    Products: ${options.products}\n
+    Delivery Instruction: ${options.deliveryInstruction}`
   };
 
   return sendMail(mailOptions);

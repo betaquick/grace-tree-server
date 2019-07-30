@@ -42,13 +42,12 @@ module.exports = {
   },
 
   acceptAgreement(req, res) {
-    const {
-      userId
-    } = req.user;
+    const { userId } = req.user;
     userSvc
       .acceptAgreement(userId)
-      .then(user => handleSuccess(res, 'Agreement accepted successful', {
-        user
+      .then(() => userSvc.notifyAdmin(userId, req.user))
+      .then(() => handleSuccess(res, 'Agreement accepted successful', {
+        user: req.user
       }))
       .catch(err => handleError(err, res, err.message, error));
   },
