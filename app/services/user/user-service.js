@@ -100,6 +100,23 @@ const acceptAgreement = async userId => {
   }
 };
 
+const notifyAdmin = async(userId, user) => {
+  const userProducts = await userData.getUserProducts({ userId, status: 1 });
+  const products = (userProducts || []).map(p => p.productDesc).join(', ');
+  const { email, firstName, lastName, phones, addresses } = user;
+  debug('Notifying admin of ToC acceptance of user with email: ' + email + ' with userId: ' + userId);
+  const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
+  let address = _.head(addresses) || {};
+  const { deliveryInstruction } = address;
+  address = address ? `${address.street}, ${address.city}, ${address.state}, ${address.zip}` : '';
+  const options = {
+    email,
+    fullname: `${firstName} ${lastName}`,
+    phoneNumbers, address, deliveryInstruction, products
+  };
+  emailService.sendAdminNotificationOfRegistration(options);
+};
+
 const updateStatus = async(userId, status) => {
   debug('Update status for ' + userId);
 
@@ -406,5 +423,6 @@ module.exports = {
   getUserAddress,
   updateUserAddress,
   getCoordinates,
-  getReadyUsers
+  getReadyUsers,
+  notifyAdmin
 };

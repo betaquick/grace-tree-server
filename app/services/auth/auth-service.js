@@ -267,18 +267,6 @@ const verifyPhone = async(userId, phoneNumber, userType) => {
   }
 };
 
-const notifyAdmin = async(userId, userData) => {
-  const { email, firstName, lastName, phones } = userData;
-  debug('Notifying admin of registration: ' + email + ' with userId: ' + userId);
-  const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
-  const options = {
-    email,
-    fullname: `${firstName} ${lastName}`,
-    phoneNumbers
-  };
-  emailService.sendAdminNotificationOfRegistration(options);
-};
-
 const validateEmailToken = async token => {
   try {
     await Joi.validate(token, Joi.string().required());
@@ -359,6 +347,5 @@ module.exports = {
   verifyEmail,
   verifyPhone,
   validateEmailToken,
-  validatePhoneToken,
-  notifyAdmin
+  validatePhoneToken
 };
