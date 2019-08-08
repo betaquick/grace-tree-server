@@ -107,6 +107,7 @@ const formatAddress = address => {
   return '';
 };
 
+
 const notifyAdmin = async(userId, user) => {
   const userProducts = await userData.getUserProducts({ userId, status: 1 });
   const products = (userProducts || []).map(p => p.productDesc).join(', ');
@@ -122,7 +123,7 @@ const notifyAdmin = async(userId, user) => {
     fullname: `${firstName} ${lastName}`, profile,
     phoneNumbers, products, addressesAndDeliveryInstructions
   };
-  emailService.sendAdminNotificationOfRegistration(options);
+  emailService.sendAdminNotificationOfRegistrationInExcelFormat(options);
 };
 
 const updateStatus = async(userId, status) => {

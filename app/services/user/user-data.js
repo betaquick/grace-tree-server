@@ -388,7 +388,7 @@ const userData = {
           userId,
           ...address
         })
-        .then(() => this.insertUserPreferences(trx, preferences))
+        .then(() => this.updateUserPreferences(trx, userId, preferences))
         .then(() => {
           const userProductMap = userProducts.map(product => {
             return {
@@ -403,9 +403,10 @@ const userData = {
     });
   },
 
-  insertUserPreferences(trx, preferences) {
+  updateUserPreferences(trx, userId, preferences) {
     return knex(USER_PROFILE_TABLE).transacting(trx)
-      .insert(preferences);
+      .where({ userId })
+      .update(preferences);
   },
 
   updateUserProducts(userId, userProducts) {

@@ -85,6 +85,31 @@ If you have any problem using your credential, please contact ${options.companyN
   return sendMail(mailOptions);
 };
 
+/**
+ * @param options.email string
+ * @param options.profile.self_pickup boolean
+ * @param options.profile.service_needs string | null
+ * @param options.profile.getEstimateInfo boolean
+ * @param options.profile.products string
+ * @param options.profile.phoneNumbers string
+ * @param options.addressesAndDeliveryInstructions Array<string>
+ * @param options.fullname string
+ * @param options Object
+ */
+const sendAdminNotificationOfRegistrationInExcelFormat = options => {
+  const addresses = options.addressesAndDeliveryInstructions.map(({address}) => address);
+  // eslint-disable-next-line max-len
+  const deliveryInstructions = options.addressesAndDeliveryInstructions.map(({deliveryInstruction}) => deliveryInstruction);
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL,
+    to: process.env.ADMIN_EMAIL,
+    subject: 'User Registration',
+    // eslint-disable-next-line max-len
+    text: `${options.products}, ${options.fullname}, ${options.phoneNumbers}, ${addresses}, ${options.email} , ${deliveryInstructions}, ${options.profile.getEstimateInfo ? 'Yes' : 'No'}, ${options.profile.service_needs || 'None'},  ${options.profile.self_pickup ? 'Yes' : 'No'}`
+  };
+  return sendMail(mailOptions);
+};
+
 // mail sent when a normal user registers
 // template for this isnt public - do not hydrate
 
@@ -226,5 +251,6 @@ module.exports = {
   sendDeliveryAcceptedNotificationMail,
   sendWarningNotificationMail,
   sendAdminNotificationOfRegistration,
+  sendAdminNotificationOfRegistrationInExcelFormat,
   sendGenericMail
 };

@@ -54,16 +54,16 @@ const updateBusinessValidator = businessInfoValidator.append({
 const productsValidator = Joi.object().keys({
   productId: Joi.number().required(),
   status: Joi.boolean().required()
-});
+}).required();
 
 const updateUserProductsValidator = Joi.object().keys({
   userId: Joi.number().required(),
-  userProducts: Joi.array().items(productsValidator)
+  userProducts: Joi.array().items(productsValidator).required()
 });
 
 const deliveryInfoValidator = Joi.object().keys({
   userId: Joi.number().optional(),
-  userProducts: Joi.array().items(productsValidator),
+  userProducts: Joi.array().items(productsValidator).required(),
   address: Joi.object().keys({
     street: Joi.string().required(),
     city: Joi.string().required(),
