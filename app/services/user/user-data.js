@@ -378,7 +378,8 @@ const userData = {
     return knex.transaction(trx => {
       const {
         userProducts,
-        address
+        address,
+        preferences
       } = deliveryInfo;
 
       return knex(USER_ADDRESS_TABLE)
@@ -387,6 +388,7 @@ const userData = {
           userId,
           ...address
         })
+        .then(() => this.insertUserPreferences(trx, preferences))
         .then(() => {
           const userProductMap = userProducts.map(product => {
             return {
@@ -399,6 +401,11 @@ const userData = {
         .then(trx.commit)
         .catch(trx.rollback);
     });
+  },
+
+  insertUserPreferences(trx, preferences) {
+    return knex(USER_PROFILE_TABLE).transacting(trx)
+      .insert(preferences);
   },
 
   updateUserProducts(userId, userProducts) {

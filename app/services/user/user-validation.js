@@ -72,6 +72,11 @@ const deliveryInfoValidator = Joi.object().keys({
     latitude: Joi.string().optional().allow([null, '']),
     longitude: Joi.string().optional().allow([null, '']),
     deliveryInstruction: Joi.string().required().min(1)
+  }),
+  preferences: Joi.object().keys({
+    getEstimateInfo: Joi.boolean().truthy([ 1, 'true']).falsy(['false', 0]).required(),
+    service_needs: Joi.string().allow(null),
+    self_pickup: Joi.boolean().truthy([ 1, 'true']).falsy(['false', 0]).required()
   })
 });
 

@@ -100,19 +100,27 @@ const acceptAgreement = async userId => {
   }
 };
 
+const formatAddress = address => {
+  if (address) {
+    return `${address.street}, ${address.city}, ${address.state}, ${address.zip}`;
+  }
+  return '';
+};
+
 const notifyAdmin = async(userId, user) => {
   const userProducts = await userData.getUserProducts({ userId, status: 1 });
   const products = (userProducts || []).map(p => p.productDesc).join(', ');
-  const { email, firstName, lastName, phones, addresses } = user;
-  debug('Notifying admin of ToC acceptance of user with email: ' + email + ' with userId: ' + userId);
+  const { emails, firstName, lastName, phones, addresses, profile } = user;
+  debug('Notifying admin of ToC acceptance of user with email: ' + user.email + ' with userId: ' + userId);
   const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
-  let address = _.head(addresses) || {};
-  const { deliveryInstruction } = address;
-  address = address ? `${address.street}, ${address.city}, ${address.state}, ${address.zip}` : '';
+  const addressesAndDeliveryInstructions = addresses.map(addr => ({
+    address: formatAddress(addr),
+    deliveryInstruction: addr.deliveryInstruction
+  }));
   const options = {
-    email,
-    fullname: `${firstName} ${lastName}`,
-    phoneNumbers, address, deliveryInstruction, products
+    email: emails.map(e => e.emailAddress).join(', '),
+    fullname: `${firstName} ${lastName}`, profile,
+    phoneNumbers, products, addressesAndDeliveryInstructions
   };
   emailService.sendAdminNotificationOfRegistration(options);
 };
@@ -248,7 +256,7 @@ const addDeliveryInfo = async(userId, data) => {
     const deliveryIds = await userData.addDeliveryInfo(userId, data);
 
     return {
-      deliveryId: deliveryIds[0],
+      deliveryId: deliveryIds && deliveryIds[0],
       ...data
     };
   } catch (err) {

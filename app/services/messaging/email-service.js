@@ -87,7 +87,25 @@ If you have any problem using your credential, please contact ${options.companyN
 
 // mail sent when a normal user registers
 // template for this isnt public - do not hydrate
+
+/**
+ * @param options.email string
+ * @param options.profile.self_pickup boolean
+ * @param options.profile.service_needs string | null
+ * @param options.profile.getEstimateInfo boolean
+ * @param options.profile.products string
+ * @param options.profile.phoneNumbers string
+ * @param options.addressesAndDeliveryInstructions Array<string>
+ * @param options.fullname string
+ * @param options Object
+ */
 const sendAdminNotificationOfRegistration = options => {
+  const addressesAndInstructions = options.addressesAndDeliveryInstructions.map(({ address, deliveryInstruction }) => {
+    return `
+    Address: ${address}\n
+    Delivery Instruction: ${deliveryInstruction}\n
+    `;
+  }).join('');
   const mailOptions = {
     from: process.env.ADMIN_EMAIL,
     to: process.env.ADMIN_EMAIL,
@@ -98,9 +116,15 @@ const sendAdminNotificationOfRegistration = options => {
     Email: ${options.email}\n
     Name: ${options.fullname}.\n
     Phone: ${options.phoneNumbers}\n
-    Address: ${options.address}\n
+    ${addressesAndInstructions}\n
     Products: ${options.products}\n
-    Delivery Instruction: ${options.deliveryInstruction}`
+    Do you need a free, written estimate for tree service (trimming or removal or for landscaping services)?:\n
+    ${options.profile.getEstimateInfo ? 'Yes' : 'No'}\n
+    Please tell us a little bit about your tree service need(s):\n
+    ${options.profile.service_needs || ''}\n
+    Would you like to come to the jobs to pick up wood? (With a truck and/or trailer only, please)?:\n
+    ${options.profile.self_pickup ? 'Yes' : 'No'}\n
+    `
   };
 
   return sendMail(mailOptions);
