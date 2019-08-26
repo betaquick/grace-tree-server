@@ -58,7 +58,7 @@ module.exports = {
         if ((recipientMessage || '').trim().length) {
           mails.push({
             to: delivery.userId, text: recipientMessage,
-            subject: 'Delivery Notification GTS' });
+            subject: 'Delivery Notification ChipDump' });
         }
 
 
@@ -70,7 +70,7 @@ module.exports = {
         switch (delivery.statusCode) {
           case DeliveryStatusCodes.Expired:
             mails.push({ text: `Your delivery #${delivery.deliveryId} has expired`,
-              subject: 'Delivery Expiration on GTS', to: delivery.userId });
+              subject: 'Delivery Expiration on ChipDump', to: delivery.userId });
             break;
         }
 
