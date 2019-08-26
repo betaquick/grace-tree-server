@@ -28,7 +28,8 @@ const phoneListSchema = Joi.object().keys({
   phoneType: Joi.string().valid([
     PhoneTypes.HOME,
     PhoneTypes.MOBILE,
-    PhoneTypes.OFFICE
+    PhoneTypes.OFFICE,
+    PhoneTypes.WORK
   ]).required()
 });
 
@@ -48,8 +49,8 @@ const registrationValidator = Joi.object().keys({
       }
     }
   }),
-  phones: Joi.array().items(phoneListSchema).required(),
-  emails: Joi.array().items(emailListSchema).required(),
+  phones: Joi.array().items(phoneListSchema).required().length(3),
+  emails: Joi.array().items(emailListSchema).required().length(2),
   userType: Joi.string().valid([
     UserTypes.Crew,
     UserTypes.General,

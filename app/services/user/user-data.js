@@ -28,6 +28,12 @@ const userData = {
       .where(params);
   },
 
+  getUsersByEmails(emailOne, emailTwo) {
+    return knex(USER_EMAIL_TABLE)
+      .where({ emailAddress: emailOne })
+      .orWhere({ emailAddress: emailTwo });
+  },
+
   getReadyUsers() {
     const condition = { active: 1, status: UserStatus.Ready };
     return knex(USER_TABLE)
