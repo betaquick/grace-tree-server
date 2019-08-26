@@ -223,7 +223,8 @@ const userData = {
               userId,
               phoneNumber,
               primary,
-              phoneType
+              phoneType,
+              isVerified: 1
             };
           });
           return knex(USER_PHONE_TABLE).transacting(trx).insert(phoneMap);
