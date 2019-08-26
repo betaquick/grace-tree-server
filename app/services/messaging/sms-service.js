@@ -27,7 +27,7 @@ const sendVerificationSMS = async options => {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.phoneNumber,
-      body: `Click ${result.url} to verify your phone number on Grace Tree Services`
+      body: `Click ${result.url} to verify your phone number on ChipDump Services`
     };
     return sendSMS(smsOptions);
   } catch (err) {

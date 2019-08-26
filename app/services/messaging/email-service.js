@@ -55,7 +55,7 @@ const sendVerificationMail = options => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
-    subject: 'GTS Email Verification',
+    subject: 'ChipDump Email Verification',
     text: `Hi,\n
 This message has been sent to you because you entered you e-mail address on a verification form. 
 If this wasn't you, please ignore this message.\n
@@ -160,7 +160,7 @@ const sendStatusNotificationMail = options => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
-    subject: 'Status notification on GTS',
+    subject: 'Status notification on ChipDump',
     text: `Hi ${options.firstName},\n
 This is to notify you that your delivery status is now set to READY, we'll start assigning deliveries to you.`
   };

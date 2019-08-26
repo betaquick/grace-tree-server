@@ -403,7 +403,7 @@ const sendWarningNotification = async delivery => {
  * @param {Array} messageTextAndSubjects
  */
 const sendNotifications = async(messages) => {
-  const subject = 'Delivery Notification GTS';
+  const subject = 'Delivery Notification ChipDump';
   try {
     const addresses = await Promise.all(messages.map(m => userData.getUserEmail(m.to)));
     addresses.map((rawPacket, index) => {
