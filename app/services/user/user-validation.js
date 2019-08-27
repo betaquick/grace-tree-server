@@ -23,8 +23,8 @@ const userValidator = Joi.object().keys({
   userId: Joi.number().required(),
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
-  phones: Joi.array().items(phoneListSchema).required().length(3),
-  emails: Joi.array().items(emailListSchema).required().length(2),
+  phones: Joi.array().items(phoneListSchema).required(),
+  emails: Joi.array().items(emailListSchema).required(),
   password: Joi.string(),
   confirmPassword: Joi.string().valid(Joi.ref('password')).options({
     language: {
@@ -95,6 +95,7 @@ const crewValidator = Joi.object().keys({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   password: Joi.string().required(),
+  phoneNumber: Joi.string().required(),
   confirmPassword: Joi.string().required().valid(Joi.ref('password')).options({
     language: {
       any: {

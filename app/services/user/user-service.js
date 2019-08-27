@@ -330,7 +330,8 @@ const deleteCompanyCrew = async crewId => {
 const addCompanyCrew = async(userId, data) => {
   const {
     password,
-    email
+    email,
+    phoneNumber
   } = data;
 
   try {
@@ -363,15 +364,16 @@ const addCompanyCrew = async(userId, data) => {
       email,
       companyName,
       firstName,
-      password
+      password,
+      phoneNumber
     };
     const hydrationOptions = {
-      crew: { password, email },
+      crew: { password, email, phoneNumber },
       recipient: { firstName, lastName },
       company: companyInfo
     };
     const hydratedText = await templateHydration(companyId, CrewRegistrationEmail, hydrationOptions);
-    emailService.sendUserCreationMail(options, hydratedText);
+    emailService.sendCrewCreationMail(options, hydratedText);
 
     return userIds[0];
   } catch (err) {

@@ -3,7 +3,8 @@
 const {
   UserStatus,
   RoleTypes,
-  UserTypes
+  UserTypes,
+  PhoneTypes
 } = require('@betaquick/grace-tree-constants');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
@@ -128,7 +129,8 @@ const userData = {
         firstName,
         lastName,
         email,
-        password
+        password,
+        phoneNumber
       } = crew;
       let userId;
 
@@ -146,6 +148,10 @@ const userData = {
             companyId,
             userRole: RoleTypes.Staff
           });
+        })
+        .then(() => {
+          const phone = { phoneNumber, primary: 1, phoneType: PhoneTypes.WORK, userId, isVerified: 1 };
+          return knex(USER_PHONE_TABLE).transacting(trx).insert(phone);
         })
         .then(() => {
           const profile = {
