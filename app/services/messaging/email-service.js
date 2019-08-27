@@ -90,8 +90,8 @@ If you have any problem using your credential, please contact ${options.companyN
  * @param options.profile.self_pickup boolean
  * @param options.profile.service_needs string | null
  * @param options.profile.getEstimateInfo boolean
- * @param options.profile.products string
- * @param options.profile.phoneNumbers string
+ * @param options.products string
+ * @param options.phoneNumbers string
  * @param options.addressesAndDeliveryInstructions Array<string>
  * @param options.fullname string
  * @param options Object
@@ -106,6 +106,33 @@ const sendAdminNotificationOfRegistrationInExcelFormat = options => {
     subject: 'User Registration',
     // eslint-disable-next-line max-len
     text: `${options.products} - ${options.fullname}, ${options.phoneNumbers}, ${addresses}, ${options.email}, ${deliveryInstructions}, ${options.profile.getEstimateInfo ? 'Yes' : 'No'}, ${options.profile.service_needs || 'None'},  ${options.profile.self_pickup ? 'Yes' : 'No'}`
+  };
+  return sendMail(mailOptions);
+};
+
+/**
+ * @param options.email string
+ * @param options.addresses string
+ * @param options.phoneNumbers string
+ * @param options.fullname string
+ * @param options.service_needs string
+ * @param options Object
+ */
+const sendAdminNotificationOfEstimateOptIn = options => {
+  // eslint-disable-next-line max-len
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL,
+    to: process.env.ADMIN_EMAIL,
+    subject: 'User Written Estimate Opt In',
+    // eslint-disable-next-line max-len
+    text: `Hi,\n
+    A user has just opted in for written estimates.
+    Name: ${options.fullname}
+    Email: ${options.email}
+    Phone(s): ${options.phoneNumbers}
+    Address: ${options.addresses}
+    Service Needs: ${options.service_needs}\n
+    `
   };
   return sendMail(mailOptions);
 };
@@ -252,5 +279,6 @@ module.exports = {
   sendWarningNotificationMail,
   sendAdminNotificationOfRegistration,
   sendAdminNotificationOfRegistrationInExcelFormat,
+  sendAdminNotificationOfEstimateOptIn,
   sendGenericMail
 };
