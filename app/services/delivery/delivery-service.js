@@ -37,9 +37,13 @@ const {
 const getDeliveryInfo = async(userId, recipientId) => {
   await Joi.validate(recipientId, Joi.number().required());
 
+
   const recipient = await userData
     .getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
   recipient.products = await userData.getUserProducts({ userId: recipientId, status: true });
+  recipient.emails = await userData.getUserEmails(recipientId);
+  recipient.phones = await userData.getUserPhones(recipientId);
+  recipient.profile = await userData.getUserProfile(recipientId);
 
   const company = await userSvc.getCompanyInfo(userId);
   company.userId = userId;
