@@ -9,7 +9,8 @@ const phoneListSchema = Joi.object().keys({
   phoneType: Joi.string().valid([
     PhoneTypes.HOME,
     PhoneTypes.MOBILE,
-    PhoneTypes.OFFICE
+    PhoneTypes.OFFICE,
+    PhoneTypes.WORK
   ]).required()
 });
 
@@ -22,8 +23,8 @@ const userValidator = Joi.object().keys({
   userId: Joi.number().required(),
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
-  phones: Joi.array().items(phoneListSchema).required(),
-  emails: Joi.array().items(emailListSchema).required(),
+  phones: Joi.array().items(phoneListSchema).required().length(3),
+  emails: Joi.array().items(emailListSchema).required().length(2),
   password: Joi.string(),
   confirmPassword: Joi.string().valid(Joi.ref('password')).options({
     language: {

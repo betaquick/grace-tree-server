@@ -179,10 +179,11 @@ const register = async data => {
     await Joi.validate(data, registrationValidator);
 
     const emailAddress = _.get(emails[0], 'emailAddress');
-    const user = await userData.getUserByParam(USER_EMAIL_TABLE, { emailAddress });
-    if (user) {
+    const users = await userData.getUsersByEmails(...(emails || []).map(e => e.emailAddress));
+    if (users.length) {
+      const matchedEmails = users.map(({emailAddress}) => emailAddress).join(', ');
       debug('Email address has already been taken');
-      throwError(422, 'Email address has already been taken');
+      throwError(422, `Email address(es) ${matchedEmails} have already been taken`);
     }
 
     data.password = await bcrypt.hash(password, 10);
