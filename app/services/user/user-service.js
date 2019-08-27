@@ -138,6 +138,21 @@ const notifyAdmin = async(userId, user) => {
   emailService.sendAdminNotificationOfRegistrationInExcelFormat(options);
 };
 
+const notifyAdminOfEstimateOptIn = async(userId, user) => {
+  const { emails, firstName, lastName, phones, addresses, profile } = user;
+  debug('Notifying Admin of Written Estimate Info Opt In of user with userId: ', userId);
+  const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
+  const formattedAddresses = addresses.map(addr => formatPhoneNumber(formatAddress(addr))).join(', ');
+
+  const options = {
+    email: emails.map(e => e.emailAddress).join(', '),
+    fullname: `${firstName} ${lastName}`,
+    phoneNumbers, addresses: formattedAddresses,
+    service_needs: profile.service_needs
+  };
+  emailService.sendAdminNotificationOfEstimateOptIn(options);
+};
+
 const updateStatus = async(userId, status) => {
   debug('Update status for ' + userId);
 
@@ -445,5 +460,6 @@ module.exports = {
   updateUserAddress,
   getCoordinates,
   getReadyUsers,
-  notifyAdmin
+  notifyAdmin,
+  notifyAdminOfEstimateOptIn
 };
