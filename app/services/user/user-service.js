@@ -12,6 +12,7 @@ const smsService = require('../messaging/sms-service');
 const locationService = require('../location/location-service');
 const userData = require('./user-data');
 const templateHydration = require('../template/template-hydration-service');
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 const {
   statusValidator,
@@ -107,13 +108,24 @@ const formatAddress = address => {
   return '';
 };
 
+const formatPhoneNumber = phoneNumber => {
+  try {
+    const number = phoneUtil.parseAndKeepRawInput(phoneNumber, 'US');
+    const paranthesesFormat = phoneUtil.formatInOriginalFormat(number, 'US');
+    // https://github.com/google/libphonenumber/pull/2307
+    return paranthesesFormat.replace('(', '').replace(')', '').replace(' ', '-');
+  } catch (error) {
+    return phoneNumber;
+  }
+};
+
 
 const notifyAdmin = async(userId, user) => {
   const userProducts = await userData.getUserProducts({ userId, status: 1 });
   const products = (userProducts || []).map(p => p.productDesc).join(', ');
   const { emails, firstName, lastName, phones, addresses, profile } = user;
   debug('Notifying admin of ToC acceptance of user with email: ' + user.email + ' with userId: ' + userId);
-  const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
+  const phoneNumbers = phones.map(p => formatPhoneNumber(p.phoneNumber)).join(', ');
   const addressesAndDeliveryInstructions = addresses.map(addr => ({
     address: formatAddress(addr),
     deliveryInstruction: addr.deliveryInstruction
