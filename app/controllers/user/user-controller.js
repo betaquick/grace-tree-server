@@ -264,5 +264,14 @@ module.exports = {
         handleSuccess(res, 'User address updated', addy);
       })
       .catch(err => handleError(err, res, 'Error updating user address', error));
+  },
+
+  deactivateUser(req, res) {
+    const { userId } = req.user;
+
+    userSvc
+      .deactivateUser(userId)
+      .then(() => handleSuccess(res, 'Successfully deactivated user.', {}))
+      .catch(err => handleError(err, res, 'Error deactivating user.', error));
   }
 };

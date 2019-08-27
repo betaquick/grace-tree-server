@@ -6,6 +6,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const verify = require('../middleware/verify');
 const role = require('../middleware/role');
+const userEligibility = require('../middleware/user-eligibility');
 
 const { UserTypes } = require('@betaquick/grace-tree-constants');
 
@@ -30,6 +31,8 @@ router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
 router.get('/user', auth, role([UserTypes.TreeAdmin]), userController.getReadyUsers);
+router.delete('/user/:userId', auth, role([UserTypes.General, UserTypes.Crew]),
+  userEligibility('userId'), userController.deactivateUser);
 router.get('/user/company', auth, verify, userController.getCompanyInfo);
 router.post('/user/company', auth, userController.addCompanyInfo);
 router.put('/user/company', auth, verify, userController.updateCompanyInfo);
