@@ -53,6 +53,7 @@
     "debug": "^4.1.0",
     "dotenv": "^6.1.0",
     "express": "^4.16.3",
+    "google-libphonenumber": "^3.2.3",
     "joi": "^13.7.0",
     "json-stringify-safe": "^5.0.1",
     "jsonwebtoken": "^8.3.0",
