@@ -68,7 +68,7 @@ The link is valid for 24 hours and can be used only once.`
 };
 
 // mail sent when a crew member is added
-const sendUserCreationMail = (options, text) => {
+const sendCrewCreationMail = (options, text) => {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL, // TODO: Replace with a support email
     to: options.email,
@@ -78,6 +78,7 @@ We created you a new crew account in the ${options.companyName}.\n
 To login, go to ${process.env.WEB_URL}/login then enter the following information:\n
 Email: ${options.email}\n
 Password: ${options.password}\n
+Phone: ${options.phoneNumber}\n
 Please be aware that the email and password are case sensitive.\n
 If you have any problem using your credential, please contact ${options.companyName} directly.`
   };
@@ -270,7 +271,7 @@ module.exports = {
   transporter,
   sendResetMail,
   sendVerificationMail,
-  sendUserCreationMail,
+  sendCrewCreationMail,
   sendStatusNotificationMail,
   sendUserDeliveryNotificationMail,
   sendCompanyDeliveryNotificationMail,

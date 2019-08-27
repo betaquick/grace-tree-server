@@ -41,13 +41,17 @@ const hydrateTemplate = (template, lookup) => {
 
     if (!company) {
       company = {
-        companyAddress: { street: '', city: '', zip: '', state: '' },
+        companyAddress: '',
+        city: '', zip: '', state: '',
         companyName: ''
       };
     }
     const { street, city, state, zip } = _.head(recipient.addresses);
     const recipientAddress = `${street}, ${city} ${state}, ${zip}`;
-    const { street: Cstreet, city: Ccity, state: Cstate, zip: Czip } = company.companyAddress;
+    const Cstreet = company.companyAddress;
+    const Ccity = company.city;
+    const Cstate = company.state;
+    const Czip = company.zip;
     const companyAddress = `${Cstreet}, ${Ccity}, ${Cstate}, ${Czip}`;
     const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
     const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
@@ -62,6 +66,7 @@ const hydrateTemplate = (template, lookup) => {
       .replace(new RegExp(Placeholders.AdditionalCompanyText, 'g'), lookup.additionalCompanyText || '')
       .replace(new RegExp(Placeholders.AdditionalRecipientText, 'g'), lookup.additionalRecipientText || '')
       .replace(new RegExp(Placeholders.RecipientAddress, 'g'), recipientAddress)
+      .replace(new RegExp(Placeholders.NewCrewPhoneNumber, 'g'), (crew || { phoneNumber: '' }.phoneNumber))
       .replace(new RegExp(Placeholders.NewCrewEmail, 'g'), (crew || { email: '' }).email)
       .replace(new RegExp(Placeholders.NewCrewPassword, 'g'), (crew || { password: '' }).password)
       .replace(new RegExp(Placeholders.SiteUrl, 'g'), process.env.WEB_URL)
