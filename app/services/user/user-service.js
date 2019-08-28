@@ -427,6 +427,15 @@ const updateUserAddress = async(userId, data) => {
   }
 };
 
+const deactivateUser = async(userId) => {
+  try {
+    return await userData.deactivateUser(userId);
+  } catch (err) {
+    error('Error deactivating user ' + err.message);
+    throw err;
+  }
+};
+
 const getUserAddress = async(userId) => {
   try {
     return await userData.getAddresses(userId);
@@ -460,6 +469,7 @@ module.exports = {
   updateUserProducts,
   getUserAddress,
   updateUserAddress,
+  deactivateUser,
   getCoordinates,
   getReadyUsers,
   notifyAdmin,

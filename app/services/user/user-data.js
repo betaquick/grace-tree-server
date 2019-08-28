@@ -31,6 +31,7 @@ const userData = {
 
   getUsersByEmails(emailOne, emailTwo) {
     return knex(USER_EMAIL_TABLE)
+      .joinRaw(`join ${USER_TABLE} on ${USER_EMAIL_TABLE}.userId=${USER_TABLE}.userId and ${USER_TABLE}.active=1`)
       .where({ emailAddress: emailOne })
       .orWhere({ emailAddress: emailTwo });
   },
@@ -460,6 +461,12 @@ const userData = {
         'deliveryInstruction'
       ])
       .where({ userId });
+  },
+
+  deactivateUser(userId) {
+    return knex(USER_TABLE)
+      .where({ userId })
+      .update({ active: 0 });
   },
 
   addOrUpdateAddressInfo(addressInfo) {

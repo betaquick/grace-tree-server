@@ -44,6 +44,7 @@ const searchData = {
               ON ${USER_ADDRESS_TABLE}.userId = ${USER_PROFILE_TABLE}.userId 
           INNER JOIN ${USER_TABLE} 
               ON ${USER_ADDRESS_TABLE}.userId = ${USER_TABLE}.userId 
+              AND ${USER_TABLE}.active = 1
           LEFT JOIN ${USER_PHONE_TABLE}
           ON ${USER_PHONE_TABLE}.userPhoneId = (SELECT userPhoneId 
             FROM   ${USER_PHONE_TABLE} up 
