@@ -10,10 +10,10 @@ exports.seed = function(knex) {
     .truncate()
     .then(() => {
       return knex('product').insert([
-        {productCode: CHIIPS, productDesc: 'Wood Chips'},
+        {productCode: CHIIPS, productDesc: 'Chips'},
         {productCode: FILLDIRT, productDesc: 'Fill Dirt'},
         {productCode: GRINDINGS, productDesc: 'Grindings'},
-        {productCode: LOGS, productDesc: 'Wood logs'},
+        {productCode: LOGS, productDesc: 'Logs'},
         {productCode: PINE, productDesc: 'Pine'},
         {productCode: POPLAR, productDesc: 'Poplar'},
         {productCode: ROUNDS, productDesc: 'Rounds'}
