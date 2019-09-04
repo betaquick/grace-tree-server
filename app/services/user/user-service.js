@@ -141,8 +141,8 @@ const notifyAdmin = async(userId, user) => {
 const notifyAdminOfEstimateOptIn = async(userId, user) => {
   const { emails, firstName, lastName, phones, addresses, profile } = user;
   debug('Notifying Admin of Written Estimate Info Opt In of user with userId: ', userId);
-  const phoneNumbers = phones.map(p => p.phoneNumber).join(', ');
-  const formattedAddresses = addresses.map(addr => formatPhoneNumber(formatAddress(addr))).join(', ');
+  const phoneNumbers = phones.map(p => formatPhoneNumber(p.phoneNumber)).join(', ');
+  const formattedAddresses = addresses.map(addr => formatAddress(addr)).join(', ');
 
   const options = {
     email: emails.map(e => e.emailAddress).join(', '),
