@@ -108,9 +108,12 @@ const forgotPassword = async data => {
 
     await userData.updateUserByParams(USER_TABLE, { userId: user.userId }, params);
 
+
+    const { firstName } = await userData.getUserProfile(user.userId);
+
     const options = {
       email,
-      firstName: user.firstName,
+      firstName,
       token
     };
 
