@@ -31,7 +31,7 @@ const {
   USER_PHONE_TABLE
 } = require('../../../constants/table.constants');
 
-const WHITELIST = ['gracetreeservices@gmail'];
+const WHITELIST = ['gracetreeservices@gmail', 'gracetrees@gmail.com'];
 
 
 /**
