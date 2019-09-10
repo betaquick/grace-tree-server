@@ -31,6 +31,8 @@ const {
   USER_PHONE_TABLE
 } = require('../../../constants/table.constants');
 
+const WHITELIST = ['gracetreeservices@gmail', 'gracetrees@gmail.com'];
+
 
 /**
  * create a JSON Web Token from the data model
@@ -61,6 +63,14 @@ function isUserValid(user) {
   }
 }
 
+function isRestricted(user) {
+  if ((user.userType !== UserTypes.General) && (WHITELIST.indexOf(user.email) < 0)) {
+    const userType = user.userType === UserTypes.TreeAdmin ? 'Arborist' : 'Crew Members';
+    throwError(403, `Unfortunately ChipDump is not available for use by ${userType}  at this time,` +
+    ' we will contact you when we open the system for general use');
+  }
+}
+
 const login = async data => {
   const { email, password } = data;
   debug('Starting login process for email: ' + email);
@@ -72,7 +82,7 @@ const login = async data => {
     isUserValid(user);
 
     const match = await bcrypt.compare(password, user.password);
-    if (match) {
+    if (match && !isRestricted(user)) {
       const token = await generateTokenFromUser(user);
       return { token, user: await userService.getUserObject(user.userId) };
     }
