@@ -39,9 +39,8 @@ module.exports = {
     },
     pool: {
       min: 1,
-      max: 5
+      max: 7
     },
-    acquireConnectionTimeout: 6000000,
     seeds: {
       directory: './seeds/prod'
     }
