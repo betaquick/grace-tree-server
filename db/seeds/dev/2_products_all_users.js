@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
 
-const { USER_PRODUCT_TABLE } = require('../../../constants/table.constants');
+const { USER_PRODUCT_TABLE, PRODUCT_TABLE } = require('../../../constants/table.constants');
 /**
  * @param {*} knex
  * @returns {Promise<any>} users in db with current products
@@ -10,13 +10,16 @@ function findUsersWithIncompleteProducts(knex) {
   const query = knex
     .select('userId', 'productId')
     .from(knex
-      .raw('user_product where userId in (select userId from user_product group by userId having count(distinct(productId)) <>  (select count(*) from product))'));
+      .raw(`${USER_PRODUCT_TABLE} where userId in
+         (select userId from ${USER_PRODUCT_TABLE} 
+          group by userId
+           having count(distinct(productId)) <>  (select count(*) from ${PRODUCT_TABLE}))`));
   return query;
 }
 
 function getProductIds(knex) {
   return knex.select('productId')
-    .from('product');
+    .from(PRODUCT_TABLE);
 }
 
 exports.seed = async(knex, Promise) => {
