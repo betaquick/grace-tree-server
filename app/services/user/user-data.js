@@ -20,6 +20,8 @@ const {
   COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
+const { formatPhoneNumber } = require('../util/commonUtils');
+
 const templateData = require('../template/template-data');
 
 const userData = {
@@ -228,10 +230,11 @@ const userData = {
         .then(() => {
           const phoneMap = phones.map(phone => {
             const {
-              phoneNumber,
               primary,
               phoneType
             } = phone;
+
+            const phoneNumber = formatPhoneNumber(phone.phoneNumber);
             return {
               userId,
               phoneNumber,
@@ -307,10 +310,11 @@ const userData = {
         .then(() => {
           const phoneMap = phones.map(phone => {
             const {
-              phoneNumber,
               primary,
               phoneType
             } = phone;
+
+            const phoneNumber = formatPhoneNumber(phone.phoneNumber);
             return {
               userId,
               phoneNumber,
