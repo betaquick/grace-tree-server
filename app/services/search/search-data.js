@@ -1,6 +1,8 @@
 'use strict';
 
-const { UserStatus } = require('@betaquick/grace-tree-constants');
+const {
+  UserStatus, DeliveryStatusCodes
+} = require('@betaquick/grace-tree-constants');
 const _ = require('lodash');
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
@@ -10,6 +12,8 @@ const {
   USER_PHONE_TABLE,
   USER_PROFILE_TABLE,
   USER_PRODUCT_TABLE,
+  USER_DELIVERY_TABLE,
+  DELIVERY_TABLE,
   PRODUCT_TABLE
 } = require('../../../constants/table.constants');
 
@@ -22,7 +26,8 @@ const searchData = {
     }
     const query = knex.select(
       'limited_tbl.*',
-      `${PRODUCT_TABLE}.productDesc`
+      `${PRODUCT_TABLE}.productDesc`,
+      'usd.status as deliveryStatus', 'usd.deliveryId'
     )
       .from(
         knex.raw(
@@ -61,8 +66,15 @@ const searchData = {
                 ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId
                 AND ${USER_PRODUCT_TABLE}.status = true
          LEFT JOIN ${PRODUCT_TABLE} 
-                ON ${USER_PRODUCT_TABLE}.productId = ${PRODUCT_TABLE}.productId`)
+                ON ${USER_PRODUCT_TABLE}.productId = ${PRODUCT_TABLE}.productId
+         LEFT JOIN ${USER_DELIVERY_TABLE} usd
+                ON limited_tbl.userId = usd.userId
+         LEFT JOIN ${DELIVERY_TABLE}
+                ON usd.deliveryId = ${DELIVERY_TABLE}.deliveryId
+                AND ${DELIVERY_TABLE}.statusCode 
+                in ('${DeliveryStatusCodes.Scheduled}', '${DeliveryStatusCodes.Requested}')`)
       );
+
     return query
       .then(results => {
         return _.chain(results)
@@ -71,6 +83,10 @@ const searchData = {
             let user = users[0];
             user.phoneNumber = _.uniq(_.map(users, u => u.phoneNumber)).filter(p => p);
             user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
+            user.deliveries = _.uniqBy(_.map(users, u => ({
+              deliveryId: u.deliveryId,
+              status: u.deliveryStatus
+            })), 'deliveryId').filter(d => d.deliveryId);
             return user;
           })
           .value();
