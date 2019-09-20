@@ -58,7 +58,8 @@ const searchData = {
         ORDER  BY distance ASC
         LIMIT  15) limited_tbl 
          LEFT JOIN ${USER_PRODUCT_TABLE}
-                ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId 
+                ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId
+                AND ${USER_PRODUCT_TABLE}.status = true
          LEFT JOIN ${PRODUCT_TABLE} 
                 ON ${USER_PRODUCT_TABLE}.productId = ${PRODUCT_TABLE}.productId`)
       );
