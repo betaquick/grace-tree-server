@@ -69,8 +69,10 @@ module.exports = {
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_ADDRESS_TABLE, 'recipient.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
       .join(`${USER_PROFILE_TABLE} as crew`, `${DELIVERY_TABLE}.assignedToUserId`, 'crew.userId')
-      .leftJoin(USER_PRODUCT_TABLE, 'recipient.userId', `${USER_PRODUCT_TABLE}.userId`)
-      .where(`${USER_PRODUCT_TABLE}.status`, true)
+      .leftJoin(USER_PRODUCT_TABLE, function() {
+        this.on('recipient.userId', `${USER_PRODUCT_TABLE}.userId`)
+          .on(`${USER_PRODUCT_TABLE}.status`, 1);
+      })
       .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
       .then(results => {
         return _.chain(results)
