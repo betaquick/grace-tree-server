@@ -20,6 +20,8 @@ const {
   COMPANY_PROFILE_TABLE
 } = require('../../../constants/table.constants');
 
+const { formatPhoneNumber } = require('../util/commonUtils');
+
 const templateData = require('../template/template-data');
 
 const userData = {
@@ -225,23 +227,7 @@ const userData = {
           });
           return knex(USER_EMAIL_TABLE).transacting(trx).insert(emailMap);
         })
-        .then(() => {
-          const phoneMap = phones.map(phone => {
-            const {
-              phoneNumber,
-              primary,
-              phoneType
-            } = phone;
-            return {
-              userId,
-              phoneNumber,
-              primary,
-              phoneType,
-              isVerified: 1
-            };
-          });
-          return knex(USER_PHONE_TABLE).transacting(trx).insert(phoneMap);
-        })
+        .then(() => insertUserPhones(userId, phones, trx))
         .then(() => {
           const profile = {
             userId,
@@ -304,23 +290,7 @@ const userData = {
           });
           return knex(USER_EMAIL_TABLE).transacting(trx).insert(emailMap);
         })
-        .then(() => {
-          const phoneMap = phones.map(phone => {
-            const {
-              phoneNumber,
-              primary,
-              phoneType
-            } = phone;
-            return {
-              userId,
-              phoneNumber,
-              primary,
-              phoneType,
-              isVerified: true
-            };
-          });
-          return knex(USER_PHONE_TABLE).transacting(trx).insert(phoneMap);
-        })
+        .then(() => insertUserPhones(userId, phones, trx))
         .then(trx.commit)
         .catch(trx.rollback);
     });
@@ -509,6 +479,35 @@ const userData = {
         }
       });
   }
+};
+
+const insertUserPhones = (userId, phones = [], trx) => {
+  // unset all phone numbers as primary
+  (phones || []).forEach(p => {
+    p.primary = 0;
+  });
+
+  const phoneMap = phones.map(phone => {
+    const {
+      primary,
+      phoneType
+    } = phone;
+
+    const phoneNumber = formatPhoneNumber(phone.phoneNumber);
+    return {
+      userId,
+      phoneNumber,
+      primary,
+      phoneType,
+      isVerified: true
+    };
+  });
+
+  // set first phone number as primary
+  if (phoneMap[0]) {
+    phoneMap[0].primary = 1;
+  }
+  return knex(USER_PHONE_TABLE).transacting(trx).insert(phoneMap);
 };
 
 module.exports = userData;

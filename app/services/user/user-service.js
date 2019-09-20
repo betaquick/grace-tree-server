@@ -12,7 +12,6 @@ const smsService = require('../messaging/sms-service');
 const locationService = require('../location/location-service');
 const userData = require('./user-data');
 const templateHydration = require('../template/template-hydration-service');
-const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 const {
   statusValidator,
@@ -31,6 +30,7 @@ const {
 } = require('../../../constants/table.constants');
 const { throwError } = require('./../../controllers/util/controller-util');
 const { CrewRegistrationEmail } = require('@betaquick/grace-tree-constants').NotificationTypes;
+const { formatPhoneNumber } = require('../util/commonUtils');
 
 // Santize user details for the UI
 function sanitizeUser(user) {
@@ -106,17 +106,6 @@ const formatAddress = address => {
     return `${address.street}, ${address.city}, ${address.state}, ${address.zip}`;
   }
   return '';
-};
-
-const formatPhoneNumber = phoneNumber => {
-  try {
-    const number = phoneUtil.parseAndKeepRawInput(phoneNumber, 'US');
-    const paranthesesFormat = phoneUtil.formatInOriginalFormat(number, 'US');
-    // https://github.com/google/libphonenumber/pull/2307
-    return paranthesesFormat.replace('(', '').replace(')', '').replace(' ', '-');
-  } catch (error) {
-    return phoneNumber;
-  }
 };
 
 
