@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
 
-const { USER_PRODUCT_TABLE, PRODUCT_TABLE } = require('../../../constants/table.constants');
+const { USER_PRODUCT_TABLE, PRODUCT_TABLE } = require('../../../../constants/table.constants');
 /**
  * @param {*} knex
  * @returns {Promise<any>} users in db with current products
