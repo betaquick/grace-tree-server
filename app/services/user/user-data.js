@@ -15,6 +15,7 @@ const {
   USER_ADDRESS_TABLE,
   USER_PROFILE_TABLE,
   USER_COMPANY_TABLE,
+  PRODUCT_TABLE,
   USER_PRODUCT_TABLE,
   COMPANY_ADDRESS_TABLE,
   COMPANY_PROFILE_TABLE
@@ -32,10 +33,14 @@ const userData = {
   },
 
   getUsersByEmails(emailOne, emailTwo) {
-    return knex(USER_EMAIL_TABLE)
+    const query = knex(USER_EMAIL_TABLE)
       .joinRaw(`join ${USER_TABLE} on ${USER_EMAIL_TABLE}.userId=${USER_TABLE}.userId and ${USER_TABLE}.active=1`)
-      .where({ emailAddress: emailOne })
-      .orWhere({ emailAddress: emailTwo });
+      .where({ emailAddress: emailOne });
+
+    if (emailTwo) {
+      query.orWhere({ emailAddress: emailTwo });
+    }
+    return query;
   },
 
   getReadyUsers() {
@@ -60,6 +65,37 @@ const userData = {
       [`${USER_EMAIL_TABLE}.userId`]: userId,
       ...params
     });
+  },
+
+  getUsersAndProducts(conditions = {}) {
+    const { term, status } = conditions;
+    const query = knex(USER_TABLE)
+      .select(
+        `${USER_TABLE}.userId`,
+        `${USER_PROFILE_TABLE}.firstName`,
+        `${USER_PROFILE_TABLE}.lastName`,
+        `${USER_TABLE}.email`,
+        `${USER_PROFILE_TABLE}.status`,
+        `${PRODUCT_TABLE}.productCode`,
+        `${PRODUCT_TABLE}.productDesc`
+      )
+      .join(USER_PROFILE_TABLE, function() {
+        this.on(`${USER_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
+          .andOn(`${USER_TABLE}.active`, 1)
+          .andOn(`${USER_TABLE}.userType`, knex.raw('?', [UserTypes.General]));
+        if (status) {
+          this.andOn(`${USER_PROFILE_TABLE}.status`, knex.raw('?', [status]));
+        }
+      })
+      .joinRaw(`LEFT JOIN ${USER_PRODUCT_TABLE} ON ${USER_TABLE}.userId = ${USER_PRODUCT_TABLE}.userId AND ${USER_PRODUCT_TABLE}.status = true`)
+      .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`);
+
+    if (term) {
+      query.orWhere(`${USER_PROFILE_TABLE}.firstName`, 'like', '%' + term + '%');
+      query.orWhere(`${USER_PROFILE_TABLE}.lastName`, 'like', '%' + term + '%');
+    }
+
+    return query;
   },
 
   getUserPhone(userId) {

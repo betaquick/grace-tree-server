@@ -49,6 +49,7 @@ router.put('/user/products', auth, verify, userController.updateUserProducts);
 router.get('/user/address', auth, verify, userController.getUserAddress);
 router.put('/user/address', auth, verify, userController.updateUserAddress);
 
+router.get('/users', auth, verify, role([UserTypes.TreeAdmin]), userController.getUsersAndProducts);
 router.get('/search', auth, verify, role([UserTypes.TreeAdmin]), searchController.searchUsers);
 
 router.get('/products', productController.getProducts);
