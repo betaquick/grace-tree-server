@@ -86,6 +86,24 @@ const getReadyUsers = async() => {
   }
 };
 
+const getUsersAndProducts = async(conditions = {}) => {
+  debug('Fetching users');
+
+  try {
+    const users = await userData.getUsersAndProducts(conditions);
+    return _.chain(users)
+      .groupBy(data => data.userId)
+      .map(users => {
+        const user = users[0];
+        user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
+        return _.pick(user, ['userId', 'productDesc', 'firstName', 'lastName', 'status', 'email']);
+      });
+  } catch (err) {
+    error('Error fetching user ' + err.message);
+    throw err;
+  }
+};
+
 const acceptAgreement = async userId => {
   debug('Accept agreement for ' + userId);
 
@@ -462,5 +480,6 @@ module.exports = {
   getCoordinates,
   getReadyUsers,
   notifyAdmin,
-  notifyAdminOfEstimateOptIn
+  notifyAdminOfEstimateOptIn,
+  getUsersAndProducts
 };

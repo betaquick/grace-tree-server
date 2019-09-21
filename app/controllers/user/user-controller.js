@@ -32,6 +32,14 @@ module.exports = {
       .catch(err => handleError(err, res, err.message, error));
   },
 
+  getUsersAndProducts(req, res) {
+    const { term, status } = req.query;
+    userSvc
+      .getUsersAndProducts({ term, status })
+      .then(users => handleSuccess(res, 'Users fetched successfully', { users }))
+      .catch(err => handleError(err, res, err.message, error));
+  },
+
   onboarding(req, res) {
     const {
       user

@@ -49,8 +49,12 @@ const registrationValidator = Joi.object().keys({
       }
     }
   }),
-  phones: Joi.array().items(phoneListSchema).required().length(3),
-  emails: Joi.array().items(emailListSchema).required().length(2),
+  phones: Joi.array().items(phoneListSchema).required().when('userType', {
+    is: UserTypes.TreeAdmin, then: Joi.array().length(1), otherwise: Joi.array().length(3)
+  }),
+  emails: Joi.array().items(emailListSchema).required().when('userType', {
+    is: UserTypes.TreeAdmin, then: Joi.array().length(1), otherwise: Joi.array().length(2)
+  }),
   userType: Joi.string().valid([
     UserTypes.Crew,
     UserTypes.General,
