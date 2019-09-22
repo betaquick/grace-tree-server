@@ -132,12 +132,13 @@ const addDelivery = async(assignedByUserId, data) => {
   }
 };
 
-const updateDelivery = async(deliveryId, data) => {
+const updateDelivery = async(deliveryId, assignedByUserId, data) => {
   let transaction;
   try {
     const deliveryItem = {
       deliveryId,
-      ...data
+      ...data,
+      assignedByUserId
     };
     await Joi.validate(deliveryItem, updateDeliveryValidator);
 

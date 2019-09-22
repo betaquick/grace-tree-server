@@ -42,7 +42,7 @@ const updateDeliveryValidator = Joi.object().keys({
   userDeliveryStatus: Joi.string().valid([
     UserDeliveryStatus.Pending,
     UserDeliveryStatus.Accepted
-  ]).required(),
+  ]).optional(),
   isAssigned: Joi.any().valid([true, false, 1, 0])
 });
 

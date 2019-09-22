@@ -50,7 +50,7 @@ module.exports = {
     delete body.crewMessage;
 
     deliverySvc
-      .updateDelivery(deliveryId, body)
+      .updateDelivery(deliveryId, req.user.userId, body)
       .then(response => {
         delivery = response;
         const mails = [];
