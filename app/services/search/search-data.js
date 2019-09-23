@@ -59,9 +59,9 @@ const searchData = {
         WHERE  ${USER_TABLE}.active = true `.concat(ReadyConstraint)
                + ` AND longitude IS NOT NULL 
                AND latitude IS NOT NULL
-        HAVING 'distance' < ${radius}
+        HAVING distance < ${radius}
         ORDER  BY distance ASC
-        LIMIT  15) limited_tbl 
+        LIMIT  50) limited_tbl 
          LEFT JOIN ${USER_PRODUCT_TABLE}
                 ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId
                 AND ${USER_PRODUCT_TABLE}.status = true
