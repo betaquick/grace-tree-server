@@ -16,6 +16,15 @@ const DEFAULT_TEMPLATES = [
     notificationType: NotificationTypes.CrewRegistrationEmail
   },
   {
+    message: `Hi ${Placeholders.RecipientFirstName},
+    We created you a new crew account in the ${Placeholders.CompanyName}.
+    To login, go to ${Placeholders.SiteLoginUrl} then enter the following information:
+    Email: ${Placeholders.NewCrewEmail} Password: ${Placeholders.NewCrewPassword}
+    Please be aware that the email and password are case sensitive.
+    If you have any problem using your credential, please contact ${Placeholders.CompanyName} directly.`,
+    notificationType: 'CREW REGISTRATION SMS'
+  },
+  {
     message: `Hi,\n
     A user has just registered a new account.\n
     Registration was with the following information:\n
@@ -25,12 +34,25 @@ const DEFAULT_TEMPLATES = [
     notificationType: NotificationTypes.UserRegistrationAdminEmail
   },
   {
+    message: `Hi,\n
+    A user has just registered a new account.\n
+    Registration was with the following information:\n
+    Email: ${Placeholders.RecipientEmail}\n
+    Name: ${Placeholders.RecipientFirstName} ${Placeholders.RecipientLastName}.\n
+    Phone(s): ${Placeholders.RecipientPhoneNumber}`,
+    notificationType: 'NOTIFY ADMIN OF USER REGISTRATION SMS'
+  },
+  {
     message: `Hi ${Placeholders.RecipientFirstName},\n
     This is to notify you that your delivery status is now set to READY, we'll start assigning deliveries to you.`,
     notificationType: NotificationTypes.UserStatusEmail
   },
   {
-    message: 'Hi ${Placeholders.RecipientFirstName},\nThis is to notify you of a pending delivery to your address:' +
+    message: 'This is to notify that you are READY to start receiving deliveries.',
+    notificationType: 'USER STATUS UPDATE SMS'
+  },
+  {
+    message: `Hi ${Placeholders.RecipientFirstName},\nThis is to notify you of a pending delivery to your address:` +
     Placeholders.RecipientAddress + ', from the crew with the details below:\n' +
     `Company Name: ${Placeholders.CompanyAddress}\n
     Phone Number: ${Placeholders.AssignedUserPhoneNumber}\n
@@ -54,12 +76,6 @@ const DEFAULT_TEMPLATES = [
     ${Placeholders.DeliveryRequestUrl}\n
     If you are not interested, please ignore this email.`,
     notificationType: NotificationTypes.CompanyDeliveryRequestEmail
-  },
-  {
-    message: `Hi ${Placeholders.AssignedUserFirstName},\n` +
-    'This is to notify you that ' + Placeholders.RecipientFirstName + Placeholders.RecipientLastName +
-    ' has accepted your delivery request.',
-    notificationType: NotificationTypes.DeliveryRequestAcceptanceEmail
   },
   {
     message: `Hi ${Placeholders.RecipientFirstName},\nThis is to notify you that the delivery scheduled by ` +

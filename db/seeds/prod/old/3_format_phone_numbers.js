@@ -1,7 +1,7 @@
 'use strict';
 
-const { USER_PHONE_TABLE } = require('../../../constants/table.constants');
-const { formatPhoneNumber } = require('../../../app/services/util/commonUtils');
+const { USER_PHONE_TABLE } = require('../../../../constants/table.constants');
+const { formatPhoneNumber } = require('../../../../app/services/util/commonUtils');
 
 // alot of duplicate records in db
 const cache = {};

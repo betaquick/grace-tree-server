@@ -143,6 +143,7 @@ const notifyAdmin = async(userId, user) => {
     phoneNumbers, products, addressesAndDeliveryInstructions
   };
   emailService.sendAdminNotificationOfRegistrationInExcelFormat(options);
+  smsService.sendAdminNotificationOfRegistrationInExcelFormat(options);
 };
 
 const notifyAdminOfEstimateOptIn = async(userId, user) => {
@@ -173,7 +174,8 @@ const updateStatus = async(userId, status) => {
     if (user.profile.status === UserStatus.Ready) {
       const options = {
         email: user.email,
-        firstName: user.firstName
+        firstName: user.firstName,
+        lastName: user.lastName
       };
 
       const phone = _.find(user.phones, p => p.primary);
@@ -382,6 +384,13 @@ const addCompanyCrew = async(userId, data) => {
     const hydratedText = await templateHydration(companyId, CrewRegistrationEmail, hydrationOptions);
     emailService.sendCrewCreationMail(options, hydratedText);
 
+    const smsOptions = {
+      ...options,
+      toNumber: phoneNumber
+    };
+
+    const hydratedSMS = await templateHydration(companyId, 'CREW REGISTRATION SMS', hydrationOptions);
+    smsService.sendCrewCreationSMS(smsOptions, hydratedSMS);
     return userIds[0];
   } catch (err) {
     error('Error creating company crew', err);
