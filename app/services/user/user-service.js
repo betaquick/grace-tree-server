@@ -29,7 +29,7 @@ const {
   USER_COMPANY_TABLE
 } = require('../../../constants/table.constants');
 const { throwError } = require('./../../controllers/util/controller-util');
-const { CrewRegistrationEmail } = require('@betaquick/grace-tree-constants').NotificationTypes;
+const { CrewRegistrationEmail, CrewRegistrationSMS } = require('@betaquick/grace-tree-constants').NotificationTypes;
 const { formatPhoneNumber } = require('../util/commonUtils');
 
 // Santize user details for the UI
@@ -389,7 +389,7 @@ const addCompanyCrew = async(userId, data) => {
       toNumber: phoneNumber
     };
 
-    const hydratedSMS = await templateHydration(companyId, 'CREW REGISTRATION SMS', hydrationOptions);
+    const hydratedSMS = await templateHydration(companyId, CrewRegistrationSMS, hydrationOptions);
     smsService.sendCrewCreationSMS(smsOptions, hydratedSMS);
     return userIds[0];
   } catch (err) {

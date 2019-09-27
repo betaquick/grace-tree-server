@@ -19,7 +19,7 @@ exports.seed = async function(knex, Promise) {
         Password: ${Placeholders.NewCrewPassword}\n
         Please be aware that the email and password are case sensitive.\n
         If you have any problem using your credential, please contact ${Placeholders.CompanyName} directly.`,
-        notificationType: 'CREW REGISTRATION SMS'
+        notificationType: NotificationTypes.CrewRegistrationSMS
       },
       {
         message: `Hi,\n
@@ -28,11 +28,11 @@ exports.seed = async function(knex, Promise) {
         Email: ${Placeholders.RecipientEmail}\n
         Name: ${Placeholders.RecipientFirstName} ${Placeholders.RecipientLastName}.\n
         Phone(s): ${Placeholders.RecipientPhoneNumber}`,
-        notificationType: 'NOTIFY ADMIN OF USER REGISTRATION SMS'
+        notificationType: NotificationTypes.UserRegistrationAdminSMS
       },
       {
         message: 'This is to notify that you are READY to start receiving deliveries.',
-        notificationType: 'USER STATUS UPDATE SMS'
+        notificationType: NotificationTypes.UserStatusSMS
       }
     ].map(data => ({ ...data, companyId }))));
   });

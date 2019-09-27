@@ -22,7 +22,7 @@ const DEFAULT_TEMPLATES = [
     Email: ${Placeholders.NewCrewEmail} Password: ${Placeholders.NewCrewPassword}
     Please be aware that the email and password are case sensitive.
     If you have any problem using your credential, please contact ${Placeholders.CompanyName} directly.`,
-    notificationType: 'CREW REGISTRATION SMS'
+    notificationType: NotificationTypes.CrewRegistrationSMS
   },
   {
     message: `Hi,\n
@@ -40,7 +40,7 @@ const DEFAULT_TEMPLATES = [
     Email: ${Placeholders.RecipientEmail}\n
     Name: ${Placeholders.RecipientFirstName} ${Placeholders.RecipientLastName}.\n
     Phone(s): ${Placeholders.RecipientPhoneNumber}`,
-    notificationType: 'NOTIFY ADMIN OF USER REGISTRATION SMS'
+    notificationType: NotificationTypes.UserRegistrationAdminSMS
   },
   {
     message: `Hi ${Placeholders.RecipientFirstName},\n
@@ -49,7 +49,7 @@ const DEFAULT_TEMPLATES = [
   },
   {
     message: 'This is to notify that you are READY to start receiving deliveries.',
-    notificationType: 'USER STATUS UPDATE SMS'
+    notificationType: NotificationTypes.UserStatusSMS
   },
   {
     message: `Hi ${Placeholders.RecipientFirstName},\nThis is to notify you of a pending delivery to your address:` +
