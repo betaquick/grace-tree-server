@@ -15,6 +15,7 @@ const templateHydration = require('../template/template-hydration-service');
 
 const {
   statusValidator,
+  usersStatusValidator,
   businessInfoValidator,
   updateBusinessValidator,
   deliveryInfoValidator,
@@ -187,6 +188,20 @@ const updateStatus = async(userId, status) => {
     return user;
   } catch (err) {
     error('Error updating user status', err);
+    throw err;
+  }
+};
+
+const setUsersToPause = async(userIds) => {
+  debug('Pausing users ' + userIds);
+
+  const status = UserStatus.Pause;
+
+  try {
+    await Joi.validate({ users: userIds, status }, usersStatusValidator);
+    return userData.updateMultiUsersByParams(USER_PROFILE_TABLE, 'userId', userIds, { status });
+  } catch (err) {
+    error('Error pausing users >>> ' + err);
     throw err;
   }
 };
@@ -490,5 +505,6 @@ module.exports = {
   getReadyUsers,
   notifyAdmin,
   notifyAdminOfEstimateOptIn,
+  setUsersToPause,
   getUsersAndProducts
 };

@@ -31,10 +31,13 @@ module.exports = {
       .addDelivery(userId, body)
       .then(async response => {
         delivery = response;
-        if (delivery.statusCode === DeliveryStatusCodes.Requested) {
-          return deliverySvc.sendRequestNotification(delivery, company);
-        }
-        return deliverySvc.sendDeliveryNotification(delivery);
+        return userSvc.setUsersToPause(delivery.users)
+          .then(() => {
+            if (delivery.statusCode === DeliveryStatusCodes.Requested) {
+              return deliverySvc.sendRequestNotification(delivery, company);
+            }
+            return deliverySvc.sendDeliveryNotification(delivery);
+          });
       })
       .then(() => handleSuccess(res, 'Delivery added successfully', { delivery }))
       .catch(err => handleError(err, res, 'Error Creating Delivery', error));

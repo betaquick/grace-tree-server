@@ -90,6 +90,15 @@ const statusValidator = Joi.object().keys({
   ]).required()
 });
 
+const usersStatusValidator = Joi.object().keys({
+  users: Joi.array().items(Joi.number()).min(1),
+  status: Joi.string().valid([
+    UserStatus.Pause,
+    UserStatus.Ready,
+    UserStatus.Stop
+  ]).required()
+});
+
 const crewValidator = Joi.object().keys({
   userId: Joi.number().required(),
   firstName: Joi.string().required(),
@@ -125,5 +134,6 @@ module.exports = {
   statusValidator,
   updateUserProductsValidator,
   crewValidator,
+  usersStatusValidator,
   updateAddressValidator
 };
