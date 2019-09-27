@@ -454,6 +454,12 @@ const userData = {
       .update(params);
   },
 
+  updateMultiUsersByParams(table, column, userIds = [], params) {
+    return knex(table)
+      .whereIn(column, userIds)
+      .update(params);
+  },
+
   getAddresses(userId) {
     return knex(USER_ADDRESS_TABLE)
       .select([
