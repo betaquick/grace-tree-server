@@ -1,6 +1,6 @@
 'use strict';
 
-const { USER_PHONE_TABLE } = require('../../../constants/table.constants');
+const { USER_PHONE_TABLE } = require('../../../../constants/table.constants');
 
 const findUsersWithMultiplePrimaryPhones = (knex) => {
   return knex(USER_PHONE_TABLE)

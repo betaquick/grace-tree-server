@@ -3,6 +3,7 @@
 const { Placeholders } = require('@betaquick/grace-tree-constants');
 const _ = require('lodash');
 const templateData = require('./template-data');
+const error = require('debug')('grace-tree:template-hydration-service:error');
 
 /**
  * getTemplateContentForNotification
@@ -18,6 +19,7 @@ const getTemplateContentForNotification = async(companyId, notificationType) => 
 
 // ensure this never errors out;
 const hydrateTemplate = (template, lookup) => {
+  const defaultAddress = { street: '', city: '', state: '', zip: '' };
   try {
     let { assignedUser, recipient, company, deliveryId } = lookup;
 
@@ -31,7 +33,7 @@ const hydrateTemplate = (template, lookup) => {
 
     if (!recipient) {
       recipient = {
-        addresses: [{ street: '', city: '', state: '', zip: '' }],
+        addresses: [defaultAddress],
         phones: [],
         firstName: '',
         lastName: '',
@@ -46,15 +48,15 @@ const hydrateTemplate = (template, lookup) => {
         companyName: ''
       };
     }
-    const { street, city, state, zip } = _.head(recipient.addresses);
+    const { street, city, state, zip } = _.head(recipient.addresses) || defaultAddress;
     const recipientAddress = `${street}, ${city} ${state}, ${zip}`;
     const Cstreet = company.companyAddress;
     const Ccity = company.city;
     const Cstate = company.state;
     const Czip = company.zip;
     const companyAddress = `${Cstreet}, ${Ccity}, ${Cstate}, ${Czip}`;
-    const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
-    const assignedUserPhone = _.get(_.find(assignedUser.phones, p => p.primary), 'phoneNumber');
+    const recipientPhone = _.get(_.find((recipient.phones || []), p => p.primary), 'phoneNumber');
+    const assignedUserPhone = _.get(_.find((assignedUser.phones || []), p => p.primary), 'phoneNumber');
     let { crew } = lookup;
 
     return template.replace(new RegExp(Placeholders.RecipientFirstName, 'g'), recipient.firstName)
@@ -75,7 +77,8 @@ const hydrateTemplate = (template, lookup) => {
         `${process.env.WEB_URL}/request/user/${recipient.userId}/delivery/${deliveryId}`)
       .replace(new RegExp(Placeholders.CompanyName, 'g'), company.companyName)
       .replace(new RegExp(Placeholders.CompanyAddress, 'g'), companyAddress);
-  } catch (error) {
+  } catch (err) {
+    error('Error hydrating template >>> ' + template, err);
     return null;
   }
 };

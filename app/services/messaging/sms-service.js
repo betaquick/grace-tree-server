@@ -121,6 +121,46 @@ const sendWarningNotificationSMS = async(options, text) => {
   }
 };
 
+const sendCrewCreationSMS = async(options, text) => {
+  try {
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: options.toNumber,
+      body: text || `Hi ${options.firstName},
+      We created you a new crew account in the ${options.companyName}.
+      To login, go to ${process.env.WEB_URL}/login then enter the following information:
+      Email: ${options.email} Password: ${options.password}
+      Phone: ${options.phoneNumber}
+      Please be aware that the email and password are case sensitive.
+      If you have any problem using your credential, please contact ${options.companyName} directly.`
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
+
+const sendAdminNotificationOfRegistrationInExcelFormat = options => {
+  try {
+    const addresses = options.addressesAndDeliveryInstructions.map(({address}) => address);
+    const deliveryInstructions = options.addressesAndDeliveryInstructions
+      .map(({deliveryInstruction}) => deliveryInstruction);
+    const smsOptions = {
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: process.env.ADMIN_PHONE,
+      subject: 'User Registration',
+      // eslint-disable-next-line max-len
+      text: `${options.products} - ${options.fullname}, ${options.phoneNumbers}, ${addresses}, ${options.email}, ${deliveryInstructions}, ${options.profile.getEstimateInfo ? 'Yes' : 'No'}, ${options.profile.service_needs || 'None'},  ${options.profile.self_pickup ? 'Yes' : 'No'}`
+    };
+    return sendSMS(smsOptions);
+  } catch (err) {
+    error('Error sending sms', err);
+    throw err;
+  }
+};
+
 module.exports = {
   twilioClient: client,
   sendVerificationSMS,
@@ -129,5 +169,7 @@ module.exports = {
   sendCompanyDeliveryNotificationSMS,
   sendDeliveryRequestNotificationSMS,
   sendDeliveryAccceptedNotificationSMS,
-  sendWarningNotificationSMS
+  sendWarningNotificationSMS,
+  sendAdminNotificationOfRegistrationInExcelFormat,
+  sendCrewCreationSMS
 };
