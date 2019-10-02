@@ -52,16 +52,10 @@ const searchData = {
               ON ${USER_ADDRESS_TABLE}.userId = ${USER_TABLE}.userId 
               AND ${USER_TABLE}.active = 1
           LEFT JOIN ${USER_PHONE_TABLE}
-          ON ${USER_PHONE_TABLE}.userPhoneId in (SELECT userPhoneId 
-            FROM   ${USER_PHONE_TABLE} up 
-            WHERE  up.userId = ${USER_ADDRESS_TABLE}.userId 
-            ) 
+          ON ${USER_PHONE_TABLE}.userId  = ${USER_ADDRESS_TABLE}.userId
           LEFT JOIN ${USER_EMAIL_TABLE}
-          ON ${USER_EMAIL_TABLE}.userEmailId in (SELECT userEmailId 
-            FROM   ${USER_EMAIL_TABLE} ue 
-            WHERE  ue.userId = ${USER_ADDRESS_TABLE}.userId 
-            AND ue.isVerified = 1
-            ) 
+          ON ${USER_EMAIL_TABLE}.userId = ${USER_ADDRESS_TABLE}.userId 
+            AND ${USER_EMAIL_TABLE}.isVerified = 1 
         WHERE  ${USER_TABLE}.active = true `.concat(ReadyConstraint)
                + ` AND longitude IS NOT NULL 
                AND latitude IS NOT NULL
