@@ -13,6 +13,7 @@ const {
   USER_PROFILE_TABLE,
   USER_PRODUCT_TABLE,
   USER_DELIVERY_TABLE,
+  USER_EMAIL_TABLE,
   DELIVERY_TABLE,
   PRODUCT_TABLE
 } = require('../../../constants/table.constants');
@@ -33,7 +34,7 @@ const searchData = {
         knex.raw(
           `(SELECT ${USER_TABLE}.userId, 
                ${USER_TABLE}.active,
-               email, phoneNumber, 
+               email, phoneNumber, emailAddress,
                firstName, lastName, userAddressId,
                street, city, state, zip, deliveryInstruction, longitude, latitude, 
                ${USER_PROFILE_TABLE}.status, 
@@ -51,11 +52,10 @@ const searchData = {
               ON ${USER_ADDRESS_TABLE}.userId = ${USER_TABLE}.userId 
               AND ${USER_TABLE}.active = 1
           LEFT JOIN ${USER_PHONE_TABLE}
-          ON ${USER_PHONE_TABLE}.userPhoneId = (SELECT userPhoneId 
-            FROM   ${USER_PHONE_TABLE} up 
-            WHERE  up.userId = ${USER_ADDRESS_TABLE}.userId 
-            AND up.primary = 1
-            LIMIT  1) 
+          ON ${USER_PHONE_TABLE}.userId  = ${USER_ADDRESS_TABLE}.userId
+          LEFT JOIN ${USER_EMAIL_TABLE}
+          ON ${USER_EMAIL_TABLE}.userId = ${USER_ADDRESS_TABLE}.userId 
+            AND ${USER_EMAIL_TABLE}.isVerified = 1 
         WHERE  ${USER_TABLE}.active = true `.concat(ReadyConstraint)
                + ` AND longitude IS NOT NULL 
                AND latitude IS NOT NULL
@@ -81,8 +81,10 @@ const searchData = {
           .groupBy(detail => detail.userId)
           .map(users => {
             let user = users[0];
+            user.userId = users[0].userId;
             user.phoneNumber = _.uniq(_.map(users, u => u.phoneNumber)).filter(p => p);
             user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
+            user.validEmails = _.uniq(_.map(users, u => u.emailAddress)).filter(e => e);
             user.deliveries = _.uniqBy(_.map(users, u => ({
               deliveryId: u.deliveryId,
               status: u.deliveryStatus
