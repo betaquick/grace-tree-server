@@ -152,7 +152,7 @@ const sendAdminNotificationOfRegistrationInExcelFormat = options => {
       to: process.env.ADMIN_PHONE,
       subject: 'User Registration',
       // eslint-disable-next-line max-len
-      text: `${options.products} - ${options.fullname}, ${options.phoneNumbers}, ${addresses}, ${options.email}, ${deliveryInstructions}, ${options.profile.getEstimateInfo ? 'Yes' : 'No'}, ${options.profile.service_needs || 'None'},  ${options.profile.self_pickup ? 'Yes' : 'No'}`
+      body: `${options.products} - ${options.fullname}, ${options.phoneNumbers}, ${addresses}, ${options.email}, ${deliveryInstructions}, ${options.profile.getEstimateInfo ? 'Yes' : 'No'}, ${options.profile.service_needs || 'None'},  ${options.profile.self_pickup ? 'Yes' : 'No'}`
     };
     return sendSMS(smsOptions);
   } catch (err) {
