@@ -87,17 +87,20 @@ const getReadyUsers = async() => {
   }
 };
 
-const getUsersAndProducts = async(conditions = {}) => {
+const getUsers = async(conditions = {}) => {
   debug('Fetching users');
 
   try {
-    const users = await userData.getUsersAndProducts(conditions);
+    const users = await userData.getUsersProfiles(conditions);
     return _.chain(users)
       .groupBy(data => data.userId)
       .map(users => {
         const user = users[0];
         user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
-        return _.pick(user, ['userId', 'productDesc', 'firstName', 'lastName', 'status', 'email']);
+        user.address = `${user.street || ''}, ${user.city || ''}, ${user.state || ''}, ${user.zip || ''}`;
+        user.emails = _.uniq([user.email, ...(_.map(users, u => u.emailAddress).filter(eAddr => eAddr))]);
+        return _.pick(user, ['userId', 'productDesc', 'address', 'deliveryInstruction',
+          'firstName', 'lastName', 'status', 'emails']);
       });
   } catch (err) {
     error('Error fetching user ' + err.message);
@@ -506,5 +509,5 @@ module.exports = {
   notifyAdmin,
   notifyAdminOfEstimateOptIn,
   setUsersToPause,
-  getUsersAndProducts
+  getUsers
 };
