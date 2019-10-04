@@ -99,8 +99,9 @@ const getUsers = async(conditions = {}) => {
         user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
         user.address = `${user.street || ''}, ${user.city || ''}, ${user.state || ''}, ${user.zip || ''}`;
         user.emails = _.uniq([user.email, ...(_.map(users, u => u.emailAddress).filter(eAddr => eAddr))]);
+        user.phones = _.uniq(_.map(users, u => u.phoneNumber).filter(phone => phone));
         return _.pick(user, ['userId', 'productDesc', 'address', 'deliveryInstruction',
-          'firstName', 'lastName', 'status', 'emails']);
+          'firstName', 'lastName', 'status', 'emails', 'phones']);
       });
   } catch (err) {
     error('Error fetching user ' + err.message);
