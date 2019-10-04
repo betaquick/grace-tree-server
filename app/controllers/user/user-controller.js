@@ -32,10 +32,10 @@ module.exports = {
       .catch(err => handleError(err, res, err.message, error));
   },
 
-  getUsersAndProducts(req, res) {
+  getUsers(req, res) {
     const { term, status } = req.query;
     userSvc
-      .getUsersAndProducts({ term, status })
+      .getUsers({ term, status })
       .then(users => handleSuccess(res, 'Users fetched successfully', { users }))
       .catch(err => handleError(err, res, err.message, error));
   },

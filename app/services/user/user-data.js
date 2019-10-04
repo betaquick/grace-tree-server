@@ -67,7 +67,7 @@ const userData = {
     });
   },
 
-  getUsersAndProducts(conditions = {}) {
+  getUsersProfiles(conditions = {}) {
     const { term, status } = conditions;
     const query = knex(USER_TABLE)
       .select(
@@ -77,7 +77,13 @@ const userData = {
         `${USER_TABLE}.email`,
         `${USER_PROFILE_TABLE}.status`,
         `${PRODUCT_TABLE}.productCode`,
-        `${PRODUCT_TABLE}.productDesc`
+        `${PRODUCT_TABLE}.productDesc`,
+        `${USER_ADDRESS_TABLE}.street`,
+        `${USER_ADDRESS_TABLE}.city`,
+        `${USER_ADDRESS_TABLE}.state`,
+        `${USER_ADDRESS_TABLE}.zip`,
+        `${USER_ADDRESS_TABLE}.deliveryInstruction`,
+        `${USER_EMAIL_TABLE}.emailAddress`
       )
       .join(USER_PROFILE_TABLE, function() {
         this.on(`${USER_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
@@ -86,6 +92,11 @@ const userData = {
         if (status) {
           this.andOn(`${USER_PROFILE_TABLE}.status`, knex.raw('?', [status]));
         }
+      })
+      .leftJoin(USER_ADDRESS_TABLE, `${USER_PROFILE_TABLE}.userId`, `${USER_ADDRESS_TABLE}.userId`)
+      .leftJoin(USER_EMAIL_TABLE, function() {
+        this.on(`${USER_TABLE}.userId`, `${USER_EMAIL_TABLE}.userId`)
+          .andOn(`${USER_EMAIL_TABLE}.isVerified`, 1);
       })
       .joinRaw(`LEFT JOIN ${USER_PRODUCT_TABLE} ON ${USER_TABLE}.userId = ${USER_PRODUCT_TABLE}.userId AND ${USER_PRODUCT_TABLE}.status = true`)
       .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`);
