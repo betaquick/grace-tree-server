@@ -97,7 +97,11 @@ const getUsers = async(conditions = {}) => {
       .map(users => {
         const user = users[0];
         user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
-        user.address = `${user.street || ''}, ${user.city || ''}, ${user.state || ''}, ${user.zip || ''}`;
+        if (user.street || user.city || user.state) {
+          user.address = `${user.street || ''}, ${user.city || ''}, ${user.state || ''}, ${user.zip || ''}`;
+        } else {
+          user.address = 'No Address Found';
+        }
         user.emails = _.uniq([user.email, ...(_.map(users, u => u.emailAddress).filter(eAddr => eAddr))]);
         user.phones = _.uniq(_.map(users, u => u.phoneNumber).filter(phone => phone));
         return _.pick(user, ['userId', 'productDesc', 'address', 'deliveryInstruction',
