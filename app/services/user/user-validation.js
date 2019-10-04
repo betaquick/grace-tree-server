@@ -121,8 +121,8 @@ const updateAddressValidator = Joi.object().keys({
   city: Joi.string().required(),
   state: Joi.string().required(),
   zip: Joi.string().required(),
-  latitude: Joi.string().optional(),
-  longitude: Joi.string().optional(),
+  latitude: Joi.string().optional().allow([null, '']),
+  longitude: Joi.string().optional().allow([null, '']),
   deliveryInstruction: Joi.string().required().min(1)
 });
 
