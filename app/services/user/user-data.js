@@ -83,7 +83,8 @@ const userData = {
         `${USER_ADDRESS_TABLE}.state`,
         `${USER_ADDRESS_TABLE}.zip`,
         `${USER_ADDRESS_TABLE}.deliveryInstruction`,
-        `${USER_EMAIL_TABLE}.emailAddress`
+        `${USER_EMAIL_TABLE}.emailAddress`,
+        `${USER_PHONE_TABLE}.phoneNumber`
       )
       .join(USER_PROFILE_TABLE, function() {
         this.on(`${USER_TABLE}.userId`, '=', `${USER_PROFILE_TABLE}.userId`)
@@ -98,6 +99,7 @@ const userData = {
         this.on(`${USER_TABLE}.userId`, `${USER_EMAIL_TABLE}.userId`)
           .andOn(`${USER_EMAIL_TABLE}.isVerified`, 1);
       })
+      .leftJoin(USER_PHONE_TABLE, `${USER_PROFILE_TABLE}.userId`, `${USER_PHONE_TABLE}.userId`)
       .joinRaw(`LEFT JOIN ${USER_PRODUCT_TABLE} ON ${USER_TABLE}.userId = ${USER_PRODUCT_TABLE}.userId AND ${USER_PRODUCT_TABLE}.status = true`)
       .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`);
 
