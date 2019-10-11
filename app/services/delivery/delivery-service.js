@@ -40,7 +40,7 @@ const getDeliveryInfo = async(userId, recipientId) => {
 
   const recipient = await userData
     .getUserByParam(USER_ADDRESS_TABLE, { [`${USER_ADDRESS_TABLE}.userId`]: recipientId });
-  recipient.products = await userData.getUserProducts({ userId: recipientId, status: true });
+  recipient.products = await userData.getUserProducts({ userId: recipientId });
   recipient.emails = await userData.getUserEmails(recipientId);
   recipient.phones = await userData.getUserPhones(recipientId);
   recipient.profile = await userData.getUserProfile(recipientId);
@@ -111,17 +111,18 @@ const getDelivery = async(deliveryId, userType) => {
   }
 };
 
-const addDelivery = async(assignedByUserId, data) => {
+const addDelivery = async(assignedByUserId, { products, ...data }) => {
   let transaction;
   try {
     const deliveryItem = {
       assignedByUserId,
       ...data
     };
-    await Joi.validate(deliveryItem, deliveryInfoValidator);
+    await Joi.validate({ ...deliveryItem, products }, deliveryInfoValidator);
 
     transaction = await getTransaction();
     deliveryItem.deliveryId = await deliveryData.addDelivery(deliveryItem, transaction);
+    await deliveryData.insertDeliveryProducts(deliveryItem.deliveryId, products, transaction);
     transaction.commit();
 
     return deliveryItem;
@@ -132,7 +133,7 @@ const addDelivery = async(assignedByUserId, data) => {
   }
 };
 
-const updateDelivery = async(deliveryId, assignedByUserId, data) => {
+const updateDelivery = async(deliveryId, assignedByUserId, { products, ...data }) => {
   let transaction;
   try {
     const deliveryItem = {
@@ -140,10 +141,12 @@ const updateDelivery = async(deliveryId, assignedByUserId, data) => {
       ...data,
       assignedByUserId
     };
-    await Joi.validate(deliveryItem, updateDeliveryValidator);
+    await Joi.validate({ ...deliveryItem, products }, updateDeliveryValidator);
 
     transaction = await getTransaction();
     await deliveryData.updateDelivery(deliveryItem, transaction);
+    await deliveryData.removeDeliveryProducts(deliveryId, transaction);
+    await deliveryData.insertDeliveryProducts(deliveryId, products, transaction);
     transaction.commit();
 
     return deliveryItem;

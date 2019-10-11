@@ -16,6 +16,7 @@ const deliveryInfoValidator = Joi.object().keys({
     DeliveryStatusCodes.Delivered,
     DeliveryStatusCodes.Expired
   ]).required(),
+  products: Joi.array().items(Joi.number()).min(1).required(),
   userDeliveryStatus: Joi.string().valid([
     UserDeliveryStatus.Pending,
     UserDeliveryStatus.Accepted
@@ -39,6 +40,7 @@ const updateDeliveryValidator = Joi.object().keys({
     DeliveryStatusCodes.Delivered,
     DeliveryStatusCodes.Expired
   ]).required(),
+  products: Joi.array().items(Joi.number()).min(1).required(),
   userDeliveryStatus: Joi.string().valid([
     UserDeliveryStatus.Pending,
     UserDeliveryStatus.Accepted

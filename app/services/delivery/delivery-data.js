@@ -11,7 +11,8 @@ const {
   COMPANY_PROFILE_TABLE,
   USER_ADDRESS_TABLE,
   USER_PRODUCT_TABLE,
-  PRODUCT_TABLE
+  PRODUCT_TABLE,
+  DELIVERY_PRODUCT_TABLE
 } = require('../../../constants/table.constants');
 
 const _ = require('lodash');
@@ -62,16 +63,19 @@ module.exports = {
         'crew.firstName as crewFirstName',
         'crew.lastName as crewLastName',
         'recipient.firstName as firstName',
-        'recipient.lastName as lastName'
+        'recipient.lastName as lastName',
+        'deliveryProduct.productId as deliveryProduct',
+        `${USER_DELIVERY_TABLE}.deliveryId as deliveryId`
       )
+      .debug(true)
       .where(`${USER_DELIVERY_TABLE}.deliveryId`, deliveryId)
       .join(`${USER_PROFILE_TABLE} as recipient`, `${USER_DELIVERY_TABLE}.userId`, '=', 'recipient.userId')
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_ADDRESS_TABLE, 'recipient.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
       .join(`${USER_PROFILE_TABLE} as crew`, `${DELIVERY_TABLE}.assignedToUserId`, 'crew.userId')
+      .leftJoin(`${DELIVERY_PRODUCT_TABLE} as deliveryProduct`, 'deliveryProduct.deliveryId', `${USER_DELIVERY_TABLE}.deliveryId`)
       .leftJoin(USER_PRODUCT_TABLE, function() {
-        this.on('recipient.userId', `${USER_PRODUCT_TABLE}.userId`)
-          .on(`${USER_PRODUCT_TABLE}.status`, 1);
+        this.on('recipient.userId', `${USER_PRODUCT_TABLE}.userId`);
       })
       .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
       .then(results => {
@@ -79,7 +83,9 @@ module.exports = {
           .groupBy(detail => detail.userId)
           .map(users => {
             let user = users[0];
-            user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
+            user.productDesc = _.uniq(_.map(users, u => (u.productDesc && u.status ? u.productDesc : false))).filter(desc => desc);
+            user.deliveryProducts = (_.uniq(_.map(users, u => u.deliveryProduct).filter(dProd => dProd))) || [];
+            user.products = _.uniqBy(_.map(users, u => ({ productId: u.productId, productDesc: u.productDesc })), 'productId');
             delete user.userProductId;
             delete user.productId;
             delete user.profileId;
@@ -227,6 +233,23 @@ module.exports = {
         return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
       })
       .then(() => deliveryId);
+  },
+
+  insertDeliveryProducts(deliveryId, productIds = [], trx) {
+    const deliveryProductMap = productIds.map(productId => ({
+      deliveryId, productId
+    }));
+
+    return knex(DELIVERY_PRODUCT_TABLE)
+      .transacting(trx)
+      .insert(deliveryProductMap);
+  },
+
+  removeDeliveryProducts(deliveryId, trx) {
+    return knex(DELIVERY_PRODUCT_TABLE)
+      .transacting(trx)
+      .where({ deliveryId })
+      .del();
   },
 
   updateDelivery(deliveryInfo, trx) {
