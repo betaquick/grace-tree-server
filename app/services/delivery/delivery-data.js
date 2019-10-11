@@ -67,7 +67,6 @@ module.exports = {
         'deliveryProduct.productId as deliveryProduct',
         `${USER_DELIVERY_TABLE}.deliveryId as deliveryId`
       )
-      .debug(true)
       .where(`${USER_DELIVERY_TABLE}.deliveryId`, deliveryId)
       .join(`${USER_PROFILE_TABLE} as recipient`, `${USER_DELIVERY_TABLE}.userId`, '=', 'recipient.userId')
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
@@ -83,9 +82,9 @@ module.exports = {
           .groupBy(detail => detail.userId)
           .map(users => {
             let user = users[0];
-            user.productDesc = _.uniq(_.map(users, u => (u.productDesc && u.status ? u.productDesc : false))).filter(desc => desc);
-            user.deliveryProducts = (_.uniq(_.map(users, u => u.deliveryProduct).filter(dProd => dProd))) || [];
             user.products = _.uniqBy(_.map(users, u => ({ productId: u.productId, productDesc: u.productDesc })), 'productId');
+            user.productDesc = _.uniq(_.map(users, u => ((u.productDesc && u.status) ? u.productDesc : false))).filter(desc => desc);
+            user.deliveryProducts = (_.uniq(_.map(users, u => u.deliveryProduct)).filter(dProd => dProd)) || [];            
             delete user.userProductId;
             delete user.productId;
             delete user.profileId;
