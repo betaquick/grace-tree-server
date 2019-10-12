@@ -53,6 +53,12 @@ module.exports = {
       });
   },
 
+  getProductDescriptions(productIds = []) {
+    return knex(PRODUCT_TABLE)
+      .whereIn('productId', productIds)
+      .select('productDesc');
+  },
+
   getScheduledDeliveries() {
     return knex(knex.raw(`${USER_DELIVERY_TABLE} ud`))
       .select(

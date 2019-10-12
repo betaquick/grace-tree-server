@@ -125,7 +125,10 @@ const addDelivery = async(assignedByUserId, { products, ...data }) => {
     await deliveryData.insertDeliveryProducts(deliveryItem.deliveryId, products, transaction);
     transaction.commit();
 
-    return deliveryItem;
+    let deliveryProducts = await deliveryData.getProductDescriptions(products);
+    deliveryProducts = (deliveryProducts || []).map(({ productDesc }) => productDesc);
+
+    return { ...deliveryItem, deliveryProducts };
   } catch (err) {
     if (transaction) transaction.rollback();
     error('Error adding new delivery', err);
@@ -193,6 +196,7 @@ const sendDeliveryNotification = async(delivery) => {
       const recipientPhone = _.get(_.find(recipient.phones, p => p.primary), 'phoneNumber');
       const recipientAddress = _.head(recipient.addresses);
       const { street, city, state, zip } = recipientAddress;
+      const { deliveryProducts } = delivery;
 
       let options = {
         email: assignedUser.email,
@@ -205,7 +209,7 @@ const sendDeliveryNotification = async(delivery) => {
       };
 
       const hydrateOptions = {
-        recipient, assignedUser, company, additionalCompanyText, additionalRecipientText
+        recipient, assignedUser, company, additionalCompanyText, additionalRecipientText, deliveryProducts
       };
       let hydratedText = await templateHydration(company.companyId, CompanyDeliveryEmail, hydrateOptions);
       emailService.sendCompanyDeliveryNotificationMail(options, hydratedText);

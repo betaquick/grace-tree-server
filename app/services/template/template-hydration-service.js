@@ -21,7 +21,7 @@ const getTemplateContentForNotification = async(companyId, notificationType) => 
 const hydrateTemplate = (template, lookup) => {
   const defaultAddress = { street: '', city: '', state: '', zip: '' };
   try {
-    let { assignedUser, recipient, company, deliveryId } = lookup;
+    let { assignedUser, recipient, company, deliveryId, deliveryProducts } = lookup;
 
     if (!assignedUser) {
       assignedUser = {
@@ -73,6 +73,7 @@ const hydrateTemplate = (template, lookup) => {
       .replace(new RegExp(Placeholders.NewCrewPassword, 'g'), (crew || { password: '' }).password)
       .replace(new RegExp(Placeholders.SiteUrl, 'g'), process.env.WEB_URL)
       .replace(new RegExp(Placeholders.SiteLoginUrl, 'g'), `${process.env.WEB_URL}/login`)
+      .replace(new RegExp('{{DELIVERYPRODUCTS}}', 'g'), deliveryProducts || [])
       .replace(new RegExp(Placeholders.DeliveryRequestUrl, 'g'),
         `${process.env.WEB_URL}/request/user/${recipient.userId}/delivery/${deliveryId}`)
       .replace(new RegExp(Placeholders.CompanyName, 'g'), company.companyName)
