@@ -15,6 +15,7 @@ const DELIVERY_TABLE = 'delivery';
 const USER_DELIVERY_TABLE = 'user_delivery';
 const NOTIFICATION_TABLE = 'notification';
 const TEMPLATE_TABLE = 'template';
+const DELIVERY_PRODUCT_TABLE = 'delivery_product';
 
 module.exports = {
   USER_TABLE,
@@ -31,5 +32,6 @@ module.exports = {
   DELIVERY_TABLE,
   USER_DELIVERY_TABLE,
   NOTIFICATION_TABLE,
-  TEMPLATE_TABLE
+  TEMPLATE_TABLE,
+  DELIVERY_PRODUCT_TABLE
 };

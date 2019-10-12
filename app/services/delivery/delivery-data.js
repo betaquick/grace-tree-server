@@ -11,7 +11,8 @@ const {
   COMPANY_PROFILE_TABLE,
   USER_ADDRESS_TABLE,
   USER_PRODUCT_TABLE,
-  PRODUCT_TABLE
+  PRODUCT_TABLE,
+  DELIVERY_PRODUCT_TABLE
 } = require('../../../constants/table.constants');
 
 const _ = require('lodash');
@@ -27,13 +28,35 @@ module.exports = {
         'firstName',
         'lastName',
         `${USER_ADDRESS_TABLE}.street`, `${USER_ADDRESS_TABLE}.zip`,
-        `${USER_ADDRESS_TABLE}.city`, `${USER_ADDRESS_TABLE}.state`
+        `${USER_ADDRESS_TABLE}.city`, `${USER_ADDRESS_TABLE}.state`,
+        `${DELIVERY_PRODUCT_TABLE}.productId`,
+        `${PRODUCT_TABLE}.productDesc`
       )
       .where({ assignedByUserId })
       .join(DELIVERY_TABLE, 'ud.deliveryId', '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_PROFILE_TABLE, 'ud.userId', '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_ADDRESS_TABLE, 'ud.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
-      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc');
+      .leftJoin(DELIVERY_PRODUCT_TABLE, 'ud.deliveryId', '=', `${DELIVERY_PRODUCT_TABLE}.deliveryId`)
+      .leftJoin(PRODUCT_TABLE, `${DELIVERY_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
+      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc')
+      .then(results => {
+        return _.chain(results)
+          .groupBy(detail => detail.deliveryId)
+          .map(deliveries => {
+            let delivery = deliveries[0];
+            delivery.deliveryProducts = _.uniq(_.map(deliveries, d => d.productDesc)).filter(prod => prod);
+            delete delivery.productId;
+            delete delivery.productDesc;
+            return delivery;
+          })
+          .value();
+      });
+  },
+
+  getProductDescriptions(productIds = []) {
+    return knex(PRODUCT_TABLE)
+      .whereIn('productId', productIds)
+      .select('productDesc');
   },
 
   getScheduledDeliveries() {
@@ -62,16 +85,18 @@ module.exports = {
         'crew.firstName as crewFirstName',
         'crew.lastName as crewLastName',
         'recipient.firstName as firstName',
-        'recipient.lastName as lastName'
+        'recipient.lastName as lastName',
+        'deliveryProduct.productId as deliveryProduct',
+        `${USER_DELIVERY_TABLE}.deliveryId as deliveryId`
       )
       .where(`${USER_DELIVERY_TABLE}.deliveryId`, deliveryId)
       .join(`${USER_PROFILE_TABLE} as recipient`, `${USER_DELIVERY_TABLE}.userId`, '=', 'recipient.userId')
       .join(DELIVERY_TABLE, `${USER_DELIVERY_TABLE}.deliveryId`, '=', `${DELIVERY_TABLE}.deliveryId`)
       .join(USER_ADDRESS_TABLE, 'recipient.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
       .join(`${USER_PROFILE_TABLE} as crew`, `${DELIVERY_TABLE}.assignedToUserId`, 'crew.userId')
+      .leftJoin(`${DELIVERY_PRODUCT_TABLE} as deliveryProduct`, 'deliveryProduct.deliveryId', `${USER_DELIVERY_TABLE}.deliveryId`)
       .leftJoin(USER_PRODUCT_TABLE, function() {
-        this.on('recipient.userId', `${USER_PRODUCT_TABLE}.userId`)
-          .on(`${USER_PRODUCT_TABLE}.status`, 1);
+        this.on('recipient.userId', `${USER_PRODUCT_TABLE}.userId`);
       })
       .leftJoin(PRODUCT_TABLE, `${USER_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
       .then(results => {
@@ -79,7 +104,9 @@ module.exports = {
           .groupBy(detail => detail.userId)
           .map(users => {
             let user = users[0];
-            user.productDesc = _.uniq(_.map(users, u => u.productDesc)).filter(desc => desc);
+            user.products = _.uniqBy(_.map(users, u => ({ productId: u.productId, productDesc: u.productDesc })), 'productId');
+            user.productDesc = _.uniq(_.map(users, u => ((u.productDesc && u.status) ? u.productDesc : false))).filter(desc => desc);
+            user.deliveryProducts = (_.uniq(_.map(users, u => u.deliveryProduct)).filter(dProd => dProd)) || [];
             delete user.userProductId;
             delete user.productId;
             delete user.profileId;
@@ -181,12 +208,21 @@ module.exports = {
 
   getUserDelivery(deliveryId) {
     return knex(DELIVERY_TABLE)
-      .where({ deliveryId: deliveryId })
+      .where(`${DELIVERY_TABLE}.deliveryId`, deliveryId )
       .join(USER_PROFILE_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_COMPANY_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_COMPANY_TABLE}.userId`)
       .join(COMPANY_PROFILE_TABLE, `${USER_COMPANY_TABLE}.companyId`, '=', `${COMPANY_PROFILE_TABLE}.companyId`)
-      .first()
-      .select('*');
+      .leftJoin(`${DELIVERY_PRODUCT_TABLE} as deliveryProduct`, 'deliveryProduct.deliveryId', `${DELIVERY_TABLE}.deliveryId`)
+      .leftJoin(PRODUCT_TABLE, 'deliveryProduct.productId', `${PRODUCT_TABLE}.productId`)
+      .select('*')
+      .then(deliveries => {
+        let delivery = deliveries[0];
+        delivery.deliveryProducts = _.uniq(_.map(deliveries, d => d.productDesc)).filter(prod => prod);
+        delete delivery.deliveryProductId;
+        delete delivery.productCode;
+        delete delivery.productId;
+        return delivery;
+      });
   },
 
   addDelivery(deliveryInfo, trx) {
@@ -227,6 +263,23 @@ module.exports = {
         return knex(USER_DELIVERY_TABLE).transacting(trx).insert(userDeliveries);
       })
       .then(() => deliveryId);
+  },
+
+  insertDeliveryProducts(deliveryId, productIds = [], trx) {
+    const deliveryProductMap = productIds.map(productId => ({
+      deliveryId, productId
+    }));
+
+    return knex(DELIVERY_PRODUCT_TABLE)
+      .transacting(trx)
+      .insert(deliveryProductMap);
+  },
+
+  removeDeliveryProducts(deliveryId, trx) {
+    return knex(DELIVERY_PRODUCT_TABLE)
+      .transacting(trx)
+      .where({ deliveryId })
+      .del();
   },
 
   updateDelivery(deliveryInfo, trx) {
