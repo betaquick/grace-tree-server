@@ -38,7 +38,6 @@ module.exports = {
       .join(USER_ADDRESS_TABLE, 'ud.userId', '=', `${USER_ADDRESS_TABLE}.userId`)
       .leftJoin(DELIVERY_PRODUCT_TABLE, 'ud.deliveryId', '=', `${DELIVERY_PRODUCT_TABLE}.deliveryId`)
       .leftJoin(PRODUCT_TABLE, `${DELIVERY_PRODUCT_TABLE}.productId`, `${PRODUCT_TABLE}.productId`)
-      .orderBy(`${DELIVERY_TABLE}.createdAt`, 'desc')
       .then(results => {
         return _.chain(results)
           .groupBy(detail => detail.deliveryId)
@@ -49,6 +48,7 @@ module.exports = {
             delete delivery.productDesc;
             return delivery;
           })
+          .orderBy('createdAt', 'desc')
           .value();
       });
   },
