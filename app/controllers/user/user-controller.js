@@ -16,7 +16,7 @@ module.exports = {
     const { userId } = req.params;
 
     try {
-      const user = await userSvc.getUserObject(userId);
+      const user = await userSvc.getUserDetails(userId);
       handleSuccess(res, 'User fetched successfully', user);
     } catch (err) {
       handleError(err, res, `Error fetching user with userId: ${userId}`, error);
@@ -275,7 +275,7 @@ module.exports = {
   },
 
   deactivateUser(req, res) {
-    const { userId } = req.user;
+    const { userId } = req.params;
 
     userSvc
       .deactivateUser(userId)

@@ -31,8 +31,8 @@ router.put('/auth/validate/:verifyType/:token', authController.validateToken);
 
 // User API
 router.get('/user', auth, role([UserTypes.TreeAdmin]), userController.getReadyUsers);
-router.delete('/user/:userId', auth, role([UserTypes.General, UserTypes.Crew]),
-  userEligibility('userId'), userController.deactivateUser);
+router.delete('/user/:userId', auth, role([UserTypes.General, UserTypes.Crew, UserTypes.TreeAdmin]),
+  userEligibility('userId', true), userController.deactivateUser);
 router.get('/user/company', auth, verify, userController.getCompanyInfo);
 router.post('/user/company', auth, userController.addCompanyInfo);
 router.put('/user/company', auth, verify, userController.updateCompanyInfo);

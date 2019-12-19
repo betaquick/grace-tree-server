@@ -208,7 +208,7 @@ module.exports = {
 
   getUserDelivery(deliveryId) {
     return knex(DELIVERY_TABLE)
-      .where(`${DELIVERY_TABLE}.deliveryId`, deliveryId )
+      .where(`${DELIVERY_TABLE}.deliveryId`, deliveryId)
       .join(USER_PROFILE_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_PROFILE_TABLE}.userId`)
       .join(USER_COMPANY_TABLE, `${DELIVERY_TABLE}.assignedToUserId`, '=', `${USER_COMPANY_TABLE}.userId`)
       .join(COMPANY_PROFILE_TABLE, `${USER_COMPANY_TABLE}.companyId`, '=', `${COMPANY_PROFILE_TABLE}.companyId`)
