@@ -1,5 +1,7 @@
 'use strict';
 
+const debug = require('debug')('grace-tree:search-data:debug');
+
 const {
   UserStatus, DeliveryStatusCodes
 } = require('@betaquick/grace-tree-constants');
@@ -25,6 +27,7 @@ const searchData = {
     if (includePause === 'true') {
       ReadyConstraint = '';
     }
+    debug('DEbug query', { ReadyConstraint, includePause });
     const query = knex.select(
       'limited_tbl.*',
       `${PRODUCT_TABLE}.productDesc`,
@@ -61,7 +64,7 @@ const searchData = {
                AND latitude IS NOT NULL
         HAVING distance < ${radius}
         ORDER  BY distance ASC
-        LIMIT  50) limited_tbl 
+        LIMIT  300) limited_tbl 
          LEFT JOIN ${USER_PRODUCT_TABLE}
                 ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId
                 AND ${USER_PRODUCT_TABLE}.status = true
