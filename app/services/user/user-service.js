@@ -41,6 +41,7 @@ function sanitizeUser(user) {
     firstName: user.profile.firstName,
     lastName: user.profile.lastName,
     phones: user.phones,
+    products: user.products,
     userId: user.userId,
     userType: user.userType,
     addresses: user.addresses,
@@ -428,6 +429,27 @@ const getUserProducts = async userId => {
   return userProducts;
 };
 
+const getUserDetails = async userId => {
+
+  try {
+    const user = await userData.getUserByParam(USER_TABLE, { userId });
+
+    user.emails = await userData.getUserEmails(user.userId);
+    user.phones = await userData.getUserPhones(user.userId);
+    user.addresses = await userData.getAddresses(user.userId);
+    user.profile = await userData.getUserProfile(user.userId);
+    user.company = await userData.getCompanyInfoByUserId(userId);
+    user.products = await userData.getUserProducts({ userId });
+
+    return sanitizeUser(user);
+
+  } catch (err) {
+    error('Unable to fetch user by userId: ', userId);
+    throw err;
+  }
+
+};
+
 const updateUserProducts = async(userId, userProducts) => {
   try {
     await Joi.validate({
@@ -494,6 +516,7 @@ const getCoordinates = async(street, city, state) => {
 
 module.exports = {
   getUserObject,
+  getUserDetails,
   acceptAgreement,
   updateStatus,
   editUser,
