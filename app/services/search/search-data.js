@@ -27,17 +27,18 @@ const searchData = {
     if (includePause === 'true') {
       ReadyConstraint = '';
     }
-    debug('DEbug query', { ReadyConstraint, includePause });
+    debug('Query constraints', { ReadyConstraint, includePause, radius, longitude, latitude });
     const query = knex.select(
       'limited_tbl.*',
       `${PRODUCT_TABLE}.productDesc`,
+      'phoneNumber', 'emailAddress',
       'usd.status as deliveryStatus', 'usd.deliveryId'
     )
       .from(
         knex.raw(
           `(SELECT ${USER_TABLE}.userId, 
                ${USER_TABLE}.active,
-               email, phoneNumber, emailAddress,
+               email,
                firstName, lastName, userAddressId,
                street, city, state, zip, deliveryInstruction, longitude, latitude, 
                ${USER_PROFILE_TABLE}.status, 
@@ -54,17 +55,17 @@ const searchData = {
           INNER JOIN ${USER_TABLE} 
               ON ${USER_ADDRESS_TABLE}.userId = ${USER_TABLE}.userId 
               AND ${USER_TABLE}.active = 1
-          LEFT JOIN ${USER_PHONE_TABLE}
-          ON ${USER_PHONE_TABLE}.userId  = ${USER_ADDRESS_TABLE}.userId
-          LEFT JOIN ${USER_EMAIL_TABLE}
-          ON ${USER_EMAIL_TABLE}.userId = ${USER_ADDRESS_TABLE}.userId 
-            AND ${USER_EMAIL_TABLE}.isVerified = 1 
         WHERE  ${USER_TABLE}.active = true `.concat(ReadyConstraint)
                + ` AND longitude IS NOT NULL 
                AND latitude IS NOT NULL
         HAVING distance < ${radius}
         ORDER  BY distance ASC
-        LIMIT  300) limited_tbl 
+        LIMIT  50) limited_tbl 
+         LEFT JOIN ${USER_PHONE_TABLE}
+          ON ${USER_PHONE_TABLE}.userId  = limited_tbl.userId
+         LEFT JOIN ${USER_EMAIL_TABLE}
+          ON ${USER_EMAIL_TABLE}.userId = limited_tbl.userId 
+          AND ${USER_EMAIL_TABLE}.isVerified = 1 
          LEFT JOIN ${USER_PRODUCT_TABLE}
                 ON limited_tbl.userId = ${USER_PRODUCT_TABLE}.userId
                 AND ${USER_PRODUCT_TABLE}.status = true
