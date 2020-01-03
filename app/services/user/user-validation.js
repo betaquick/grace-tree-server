@@ -15,7 +15,7 @@ const phoneListSchema = Joi.object().keys({
 });
 
 const emailListSchema = Joi.object().keys({
-  emailAddress: Joi.string().required(),
+  emailAddress: Joi.string().trim().email().required(),
   primary: Joi.any().valid([true, false, 1, 0])
 });
 
@@ -64,7 +64,7 @@ const updateUserProductsValidator = Joi.object().keys({
 
 const deliveryInfoValidator = Joi.object().keys({
   userId: Joi.number().optional(),
-  userProducts: Joi.array().items(productsValidator).required(),
+  userProducts: Joi.array().items(productsValidator).required().min(1),
   address: Joi.object().keys({
     street: Joi.string().required(),
     city: Joi.string().required(),
@@ -112,7 +112,7 @@ const crewValidator = Joi.object().keys({
       }
     }
   }),
-  email: Joi.string().email().required()
+  email: Joi.string().trim().email().required()
 });
 
 const updateAddressValidator = Joi.object().keys({

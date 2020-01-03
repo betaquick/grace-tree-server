@@ -5,6 +5,7 @@ const {UserTypes, PhoneTypes} = require('@betaquick/grace-tree-constants');
 
 const loginValidator = Joi.object().keys({
   email: Joi.string()
+    .trim()
     .email()
     .required(),
   password: Joi.string().required()
@@ -34,7 +35,7 @@ const phoneListSchema = Joi.object().keys({
 });
 
 const emailListSchema = Joi.object().keys({
-  emailAddress: Joi.string().required(),
+  emailAddress: Joi.string().trim().required(),
   primary: Joi.boolean().required()
 });
 
@@ -64,7 +65,7 @@ const registrationValidator = Joi.object().keys({
 
 const emailValidator = Joi.object().keys({
   userId: Joi.number().required(),
-  emailAddress: Joi.string().email().required()
+  emailAddress: Joi.string().trim().email().required()
 });
 
 const phoneValidator = Joi.object().keys({
