@@ -11,6 +11,14 @@ const { throwError } = require('../../controllers/util/controller-util');
 
 const bitly = new BitlyClient('f9e91c00b984ae05f696974a3ed401915cb0f421');
 
+// TODO (oneeyedsunday) move to .env process.env.SILENT_SMS_ERRORS
+/**
+ * @description Flag denoting whether errors should be silenced
+ * @description when set, sms errors will be caught by methods using sendSMS
+ * @type {Boolean}
+ */
+const SILENT_ERRORS = true;
+
 const sendSMS = async smsOptions => {
   try {
     const response = await client.messages.create(smsOptions);
@@ -32,7 +40,7 @@ const sendVerificationSMS = async options => {
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -46,7 +54,7 @@ const sendStatusNotificationSMS = async options => {
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -55,12 +63,13 @@ const sendUserDeliveryNotificationSMS = async(options, body) => {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.toNumber,
+      // eslint-disable-next-line max-len
       body: body || `This is to notify you that your products have been assigned to ${options.companyName}. Please contact them via ${options.phoneNumber}`
     };
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -69,18 +78,20 @@ const sendCompanyDeliveryNotificationSMS = async(options, text) => {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.toNumber,
+      // eslint-disable-next-line max-len
       body: text || `You have been assigned ${options.recipientName} products for delivery at ${options.address}. Please contact him/her via ${options.phoneNumber}`
     };
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
 const sendDeliveryRequestNotificationSMS = async(options, text) => {
   try {
-    const result = await bitly.shorten(`${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}`);
+    const result = await bitly
+      .shorten(`${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}`);
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.phoneNumber,
@@ -89,7 +100,7 @@ const sendDeliveryRequestNotificationSMS = async(options, text) => {
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -103,7 +114,7 @@ const sendDeliveryAccceptedNotificationSMS = async(options, text) => {
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -112,12 +123,13 @@ const sendWarningNotificationSMS = async(options, text) => {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: options.toNumber,
+      // eslint-disable-next-line max-len
       body: text || `This is to notify you that the delivery scheduled by ${options.companyName} will expire tomorrow. Please confirm the delivery by updating the status of the delivery`
     };
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -137,7 +149,7 @@ const sendCrewCreationSMS = async(options, text) => {
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
@@ -157,7 +169,7 @@ const sendAdminNotificationOfRegistrationInExcelFormat = options => {
     return sendSMS(smsOptions);
   } catch (err) {
     error('Error sending sms', err);
-    throw err;
+    if (!SILENT_ERRORS) throw err;
   }
 };
 
