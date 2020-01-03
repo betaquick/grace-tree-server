@@ -2,7 +2,7 @@
 # Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
 # Only use spaces to indent your .yml configuration.
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: betaquick/node_sonar
+image: betaquick/angular
 
 pipelines:
   default:
@@ -20,7 +20,6 @@ pipelines:
   branches:
     master:
     - step:
-        image: betaquick/node_sonar
         script:
         - npm install
         - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
