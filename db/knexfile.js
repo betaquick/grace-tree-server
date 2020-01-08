@@ -39,7 +39,7 @@ module.exports = {
     },
     pool: {
       min: 1,
-      max: 7
+      max: 1
     },
     seeds: {
       directory: './seeds/prod'
