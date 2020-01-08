@@ -4,7 +4,7 @@
   "description": "Grace Tree now ChipDump",
   "main": "server.js",
   "scripts": {
-    "prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER GOOGLE_MAP_KEY",
+    "prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER GOOGLE_MAP_KEY SLACK_WEBHOOK_URL",
     "pretest": "eslint --ignore-path .gitignore . --fix",
     "test": "npm run prestart && mocha --exit",
     "test-coverage": "npm test && istanbul cover node_modules/mocha/bin/_mocha -- -R spec --exit",
@@ -15,7 +15,7 @@
     "seed": "npm run prestart && knex seed:run --env development --knexfile ./db/knexfile.js",
     "start": "npm run prestart && node server.js",
     "debug": "npm run prestart && node-debug server.js",
-    "dev": "set DEBUG=grace-tree* & npm run prestart && nodemon %NODE_DEBUG_OPTION% server.js",
+    "dev": "set DEBUG=grace-tree* & npm run prestart && nodemon server.js",
     "dev:mac": "npm run prestart && DEBUG=grace-tree* nodemon server.js",
     "db_upload": "npm run prestart && node ./upload-client.js"
   },
