@@ -7,7 +7,7 @@ function checkVariables(variables) {
   const missing = [];
 
   variables.forEach(variable => {
-    if (!process.env[variable]) {
+    if (typeof process.env[variable] == 'undefined') {
       missing.push(variable);
     }
   });
