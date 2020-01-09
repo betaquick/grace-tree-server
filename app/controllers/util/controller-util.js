@@ -65,8 +65,8 @@ module.exports = {
    * Send message to slack
    *
    * @param {string} message
-   * @param {'warning' | 'danger' | 'good' | string} type
-   * @return {Promise<IncomingWebhookResult>}
+   * @param {'warning' | 'danger' | 'good' | string = null} type
+   * @return {Promise<IncomingWebhookResult | null>}
    */
   sendMessage(message, type) {
     if (!process.env.SLACK_WEBHOOK_URL || !webhook) {
@@ -77,13 +77,7 @@ module.exports = {
     }
 
     return webhook.send({
-      text: 'GraceTree Database Alert',
-      attachments: [
-        {
-          color: type,
-          text: message
-        }
-      ]
+      text: message,
     });
   }
 };
