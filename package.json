@@ -44,6 +44,7 @@
   "dependencies": {
     "@betaquick/grace-tree-constants": "^1.0.17",
     "@google/maps": "^0.5.5",
+    "@slack/webhook": "^5.0.2",
     "aws-sdk": "^2.373.0",
     "bcryptjs": "^2.4.3",
     "bitly": "^6.0.8",
