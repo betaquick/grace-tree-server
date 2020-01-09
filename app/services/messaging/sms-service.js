@@ -5,7 +5,7 @@ const client = require('twilio')(
   process.env.TWILIO_AUTH_TOKEN
 );
 const { BitlyClient } = require('bitly');
-const error = require('debug')('grace-tree:sms-service:error');
+const { error } = require('./../../../debug')('grace-tree:sms-service');
 
 const { throwError } = require('../../controllers/util/controller-util');
 

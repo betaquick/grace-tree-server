@@ -1,7 +1,7 @@
 'use strict';
 
-const debug = require('debug')('grace-tree:service:debug');
-const error = require('debug')('grace-tree:auth-service:error');
+const { error, debug } = require('./../../../debug')('grace-tree:notification-service');
+
 const stringify = require('json-stringify-safe');
 const Joi = require('joi');
 const { UserTypes } = require('@betaquick/grace-tree-constants');

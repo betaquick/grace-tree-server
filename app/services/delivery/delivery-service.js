@@ -2,8 +2,7 @@
 
 const knex = require('knex')(require('../../../db/knexfile').getKnexInstance());
 const Joi = require('joi');
-const error = require('debug')('grace-tree:delivery-service:error');
-const debug = require('debug')('grace-tree:delivery-service:debug');
+const { error, debug } = require('./../../../debug')('grace-tree:delivery-service');
 const moment = require('moment');
 const _ = require('lodash');
 

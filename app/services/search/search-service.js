@@ -1,7 +1,6 @@
 'use strict';
 
-const error = require('debug')('grace-tree:auth-service:error');
-const debug = require('debug')('grace-tree:auth-service:debug');
+const { error, debug } = require('./../../../debug')('grace-tree:search-service');
 const Joi = require('joi');
 
 const locationService = require('../location/location-service');

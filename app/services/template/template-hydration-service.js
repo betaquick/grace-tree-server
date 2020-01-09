@@ -3,7 +3,7 @@
 const { Placeholders } = require('@betaquick/grace-tree-constants');
 const _ = require('lodash');
 const templateData = require('./template-data');
-const error = require('debug')('grace-tree:template-hydration-service:error');
+const { error } = require('./../../../debug')('grace-tree:template-hydration-service');
 
 /**
  * getTemplateContentForNotification
