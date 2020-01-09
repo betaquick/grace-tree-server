@@ -65,10 +65,10 @@ module.exports = {
    * Send message to slack
    *
    * @param {string} message
-   * @param {'warning' | 'danger' | 'good' | string = null} type
+   * @param {'warning' | 'danger' | 'good' | string | null} [type=null]
    * @return {Promise<IncomingWebhookResult | null>}
    */
-  sendMessage(message, type) {
+  sendMessage(message, type = null) {
     if (!process.env.SLACK_WEBHOOK_URL || !webhook) {
       console.log('No Webhook URL provided, logging to console instead...');
       console.log(message);
@@ -77,7 +77,7 @@ module.exports = {
     }
 
     return webhook.send({
-      text: message,
+      text: message
     });
   }
 };

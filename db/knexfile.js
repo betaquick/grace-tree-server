@@ -30,10 +30,10 @@ module.exports = {
     },
     log: {
       warn(message) {
-        (async () => await sendMessage(message, 'warning'))();
+        (async () => await sendMessage(message))();
       },
       error(message) {
-        (async () => await sendMessage(message, 'danger'))();
+        (async () => await sendMessage(message))();
       }
     }
   },
