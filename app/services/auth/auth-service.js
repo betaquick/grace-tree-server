@@ -67,7 +67,7 @@ function isRestricted(user) {
   if ((user.userType !== UserTypes.General) && (WHITELIST.indexOf(user.email) < 0)) {
     const userType = user.userType === UserTypes.TreeAdmin ? 'Arborist' : 'Crew Members';
     throwError(403, `Unfortunately ChipDump is not available for use by ${userType}  at this time,` +
-    ' we will contact you when we open the system for general use');
+      ' we will contact you when we open the system for general use');
   }
 }
 
@@ -158,6 +158,27 @@ const resetPassword = async data => {
   const { password, token } = data;
   debug('Starting reset process for token: ' + token);
 
+  // check if user's primary email address is not verified
+  async function verifyUserIfNotVerified(user) {
+    const userEmail = await userData.getUserByParam(USER_EMAIL_TABLE, {
+      userId: user.userId,
+      emailAddress: user.email,
+      primary: true,
+      isVerified: false
+    }).whereNotNull('verificationCode');
+
+    if (userEmail) {
+      await userData.updateUserByParams(USER_EMAIL_TABLE,
+        { userEmailId: userEmail.userEmailId },
+        {
+          verificationCode: null,
+          verificationCodeExpiry: null,
+          isVerified: true
+        });
+      debug(`User email ${user.email} verified through password reset`);
+    }
+  }
+
   try {
     await Joi.validate(data, resetPasswordValidator);
 
@@ -175,6 +196,9 @@ const resetPassword = async data => {
       resetPasswordToken: null,
       resetPasswordExpiry: null
     };
+
+    await verifyUserIfNotVerified(user);
+
     await userData.updateUserByParams(USER_TABLE, { userId: user.userId }, params);
 
     return await userService.getUserObject(user.userId);
@@ -194,7 +218,7 @@ const register = async data => {
     const emailAddress = _.get(emails[0], 'emailAddress');
     const users = await userData.getUsersByEmails(...(emails || []).map(e => e.emailAddress));
     if (users.length) {
-      const matchedEmails = users.map(({emailAddress}) => emailAddress).join(', ');
+      const matchedEmails = users.map(({ emailAddress }) => emailAddress).join(', ');
       debug('Email address has already been taken');
       throwError(422, `Email address(es) ${matchedEmails} have already been taken`);
     }
@@ -214,7 +238,7 @@ const register = async data => {
   }
 };
 
-const verifyEmail = async(userId, emailAddress, userType) => {
+const verifyEmail = async (userId, emailAddress, userType) => {
   debug('Starting validation process for email: ' + emailAddress + ' with userId: ' + userId);
 
   try {
@@ -248,7 +272,7 @@ const verifyEmail = async(userId, emailAddress, userType) => {
   }
 };
 
-const verifyPhone = async(userId, phoneNumber, userType) => {
+const verifyPhone = async (userId, phoneNumber, userType) => {
   debug('Starting validation process for phone: ' + phoneNumber);
 
   try {
