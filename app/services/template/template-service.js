@@ -1,7 +1,6 @@
 'use strict';
 
-const error = require('debug')('grace-tree:template-service:error');
-const debug = require('debug')('grace-tree:template-service:debug');
+const { error, debug } = require('./../../../debug')('grace-tree:template-service');
 
 const stringify = require('json-stringify-safe');
 

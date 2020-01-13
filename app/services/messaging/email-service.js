@@ -2,7 +2,7 @@
 
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
-const error = require('debug')('grace-tree:email-service:error');
+const { error } = require('./../../../debug')('grace-tree:email-service');
 
 const { throwError } = require('../../controllers/util/controller-util');
 

@@ -1,8 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const error = require('debug')('grace-tree:auth-service:error');
-const debug = require('debug')('grace-tree:auth-service:debug');
+const { error, debug } = require('./../../../debug')('grace-tree:auth-service');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');

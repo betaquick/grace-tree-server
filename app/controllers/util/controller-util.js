@@ -11,6 +11,15 @@ const throwError = (code, message) => {
   throw err;
 };
 
+
+const { IncomingWebhook, IncomingWebhookResult } = require('@slack/webhook');
+
+// Read a url from the environment variables
+const url = process.env.SLACK_WEBHOOK_URL;
+
+// Initialize
+const webhook = url ? new IncomingWebhook(url) : null;
+
 module.exports = {
   randomBytesAsync,
   throwError,
@@ -48,6 +57,27 @@ module.exports = {
       error: true,
       message: msg,
       body
+    });
+  },
+
+
+  /**
+   * Send message to slack
+   *
+   * @param {string} message
+   * @param {'warning' | 'danger' | 'good' | string | null} [type=null]
+   * @return {Promise<IncomingWebhookResult | null>}
+   */
+  sendMessage(message, type = null) {
+    if (!process.env.SLACK_WEBHOOK_URL || !webhook) {
+      console.log('No Webhook URL provided, logging to console instead...');
+      console.log(message);
+
+      return Promise.resolve();
+    }
+
+    return webhook.send({
+      text: message
     });
   }
 };

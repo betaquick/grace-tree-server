@@ -1,7 +1,7 @@
 'use strict';
 
-const error = require('debug')('grace-tree:user-service:error');
-const debug = require('debug')('grace-tree:user-service:debug');
+const { error, debug } = require('./../../../debug')('grace-tree:user-service');
+
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');

@@ -6,8 +6,7 @@ const googleMapsClient = require('@google/maps').createClient({
   key: process.env.GOOGLE_MAP_KEY,
   Promise: Promise
 });
-const error = require('debug')('grace-tree:location-service:error');
-const debug = require('debug')('grace-tree:location-service:debug');
+const { error, debug } = require('./../../../debug')('grace-tree:location-service');
 const { throwError } = require('../../controllers/util/controller-util');
 
 const getCoordinates = async address => {
