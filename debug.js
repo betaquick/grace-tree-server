@@ -16,19 +16,13 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const Proxify = (logger, group) => new Proxy(logger, {
   get(target, propKey) {
     const type = propKey.toString();
-    if (propKey === 'error') {
-      return (...args) => {
-        let message;
-        [message, ...args] = args;
-
-        if (NODE_ENV === 'production') {
-          (async () => await sendMessage(
-            ':warning:' + ' `' + group + ':error` ' + `_${message}_ \n`
-            + '```' + JSON.stringify(args) + '```'
-          ))();
-        }
-        return target(group + ':' + 'error');
-      };
+    if (type === 'error' && NODE_ENV !== 'production') {
+      // todo <@radiumrasheed> also log to debug...
+      return (message, error) =>
+        (async () => await sendMessage(
+          ':beetle:' + ' `' + group + ':error` ' + `_${message}_ \n`
+          + '```' + (error.stack || error.message || error) + '```'
+        ).catch())();
     } else {
       return target(group + ':' + type);
     }
