@@ -20,15 +20,14 @@ const Proxify = (logger, group) => new Proxy(logger, {
       return (...args) => {
         let message;
         [message, ...args] = args;
-        group = group + ':error';
 
         if (NODE_ENV === 'production') {
           (async () => await sendMessage(
-            ':warning:' + ' `' + group + '` ' + `_${message}_ \n`
+            ':warning:' + ' `' + group + ':error` ' + `_${message}_ \n`
             + '```' + JSON.stringify(args) + '```'
           ))();
         }
-        return target(group);
+        return target(group + ':' + 'error');
       };
     } else {
       return target(group + ':' + type);
