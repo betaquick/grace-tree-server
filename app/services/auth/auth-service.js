@@ -369,7 +369,7 @@ const validatePhoneToken = async token => {
 
     return { email: userEmail, phone: userPhone };
   } catch (err) {
-    error('Error validating email', err);
+    error('Error validating phone', err);
     throw err;
   }
 };
