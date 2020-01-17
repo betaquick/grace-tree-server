@@ -39,7 +39,7 @@ const sendVerificationSMS = async options => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendVerificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
@@ -53,12 +53,12 @@ const sendStatusNotificationSMS = async options => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendStatusNotificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
 
-const sendUserDeliveryNotificationSMS = async(options, body) => {
+const sendUserDeliveryNotificationSMS = async (options, body) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
@@ -68,12 +68,12 @@ const sendUserDeliveryNotificationSMS = async(options, body) => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendUserDeliveryNotificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
 
-const sendCompanyDeliveryNotificationSMS = async(options, text) => {
+const sendCompanyDeliveryNotificationSMS = async (options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
@@ -83,12 +83,12 @@ const sendCompanyDeliveryNotificationSMS = async(options, text) => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendCompanyDeliveryNotificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
 
-const sendDeliveryRequestNotificationSMS = async(options, text) => {
+const sendDeliveryRequestNotificationSMS = async (options, text) => {
   try {
     const result = await bitly
       .shorten(`${process.env.WEB_URL}/request/user/${options.userId}/delivery/${options.deliveryId}`);
@@ -99,12 +99,12 @@ const sendDeliveryRequestNotificationSMS = async(options, text) => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendDeliveryRequestNotificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
 
-const sendDeliveryAccceptedNotificationSMS = async(options, text) => {
+const sendDeliveryAccceptedNotificationSMS = async (options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
@@ -113,12 +113,12 @@ const sendDeliveryAccceptedNotificationSMS = async(options, text) => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendDeliveryAccceptedNotificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
 
-const sendWarningNotificationSMS = async(options, text) => {
+const sendWarningNotificationSMS = async (options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
@@ -128,12 +128,12 @@ const sendWarningNotificationSMS = async(options, text) => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendWarningNotificationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
 
-const sendCrewCreationSMS = async(options, text) => {
+const sendCrewCreationSMS = async (options, text) => {
   try {
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
@@ -148,7 +148,7 @@ const sendCrewCreationSMS = async(options, text) => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms', err);
+    error('Error sending sendCrewCreationSMS', err);
     if (!SILENT_ERRORS) throw err;
   }
 };
@@ -156,9 +156,9 @@ const sendCrewCreationSMS = async(options, text) => {
 
 const sendAdminNotificationOfRegistrationInExcelFormat = options => {
   try {
-    const addresses = options.addressesAndDeliveryInstructions.map(({address}) => address);
+    const addresses = options.addressesAndDeliveryInstructions.map(({ address }) => address);
     const deliveryInstructions = options.addressesAndDeliveryInstructions
-      .map(({deliveryInstruction}) => deliveryInstruction);
+      .map(({ deliveryInstruction }) => deliveryInstruction);
     const smsOptions = {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: process.env.ADMIN_PHONE,
@@ -168,7 +168,7 @@ const sendAdminNotificationOfRegistrationInExcelFormat = options => {
     };
     backgroundOp(sendSMS, smsOptions);
   } catch (err) {
-    error('Error sending sms: ', err);
+    error('Error sending sendAdminNotificationOfRegistrationInExcelFormat: ', err);
     if (!SILENT_ERRORS) throw err;
     throw err;
   }
@@ -183,16 +183,18 @@ const sendAdminNotificationOfRegistrationInExcelFormat = options => {
  * @description all errors thrown from `op` will now be `ASYNC`
  * @param  {() => Promise<any>} op   Function to be performed
  * @param  {[any, any]} args variable number of arguments to the operation to be performed
- * @return {Promise<void>}
+ * @return {void}
  */
-async function backgroundOp(op, ...args) {
-  try {
-    await op(...args);
-  } catch (err) {
-    error('Error from backgroundOp: >>> ', err);
-    // NOTE throwing errors here will result in UnhandledPromiseRejectionWarning: in the node process
-    if (!SILENT_ERRORS) throw err;
-  }
+function backgroundOp(op, ...args) {
+  (async () => {
+    try {
+      await op(...args);
+    } catch (err) {
+      error('Error from backgroundOp: >>> ', err);
+      // NOTE throwing errors here will result in UnhandledPromiseRejectionWarning: in the node process
+      if (!SILENT_ERRORS) throw err;
+    }
+  })();
 }
 
 module.exports = {
