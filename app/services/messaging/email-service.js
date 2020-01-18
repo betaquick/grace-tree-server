@@ -57,7 +57,7 @@ const sendVerificationMail = options => {
     to: options.email,
     subject: 'ChipDump Email Verification',
     text: `Hi,\n
-This message has been sent to you because you entered you e-mail address on a verification form. 
+This message has been sent to you because your entered your e-mail address on a verification form. 
 If this wasn't you, please ignore this message.\n
 Please click on the following link, or paste this into your browser to complete the process:\n
 ${process.env.WEB_URL}/${options.path}/verification/email/${options.token}\n
