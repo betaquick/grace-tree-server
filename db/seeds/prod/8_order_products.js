@@ -1,11 +1,11 @@
 'use strict';
 
 const {
-  CHIIPS, FILLDIRT, GRINDINGS,
+  CHIPS, FILLDIRT, GRINDINGS,
   LOGS, PINE, POPLAR, ROUNDS
 } = require('../../../constants/products.constants');
 
-exports.seed = knex => knex('product').update({ order: 1 }).where({ productCode: CHIIPS })
+exports.seed = knex => knex('product').update({ order: 1 }).where({ productCode: CHIPS })
   .then(() => knex('product').update({ order: 2 }).where({ productCode: LOGS }))
   .then(() => knex('product').update({ order: 3 }).where({ productCode: ROUNDS }))
   .then(() => knex('product').update({ order: 4, productDesc: 'Pine OK?' }).where({ productCode: PINE }))

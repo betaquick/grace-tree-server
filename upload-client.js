@@ -17,7 +17,7 @@ const {
 } = require('./constants/table.constants');
 
 const {
-  CHIIPS,
+  CHIPS,
   POPLAR,
   GRINDINGS,
   PINE,
@@ -178,7 +178,7 @@ const addEmail = async(userId, data, transaction) => {
 
 const addProduct = async(userId, data, transaction) => {
   if (data.Chips === 'Yes') {
-    const result = await getProductId(CHIIPS, transaction);
+    const result = await getProductId(CHIPS, transaction);
     await addUserToUserProductTable(userId, result.productId, transaction);
   }
 
