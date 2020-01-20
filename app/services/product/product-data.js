@@ -7,6 +7,9 @@ const {
 
 module.exports = {
   getProducts() {
-    return knex(PRODUCT_TABLE).where({ active: true }).select('*');
+    return knex(PRODUCT_TABLE)
+      .where({ active: true })
+      .select('*')
+      .orderBy('order');
   }
 };
