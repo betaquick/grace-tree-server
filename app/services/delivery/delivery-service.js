@@ -375,8 +375,7 @@ const deleteDelivery = async(deliveryId) => {
 const filterDeliveries = (delivery, filter) => {
   const createdAt = moment(delivery.createdAt);
   const dateDiff = moment().diff(createdAt, 'days');
-
-  return dateDiff === filter;
+  return dateDiff >= filter;
 };
 
 const sendWarningNotification = async delivery => {
@@ -433,7 +432,10 @@ const expireDeliveryJob = async() => {
     const warningDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 2));
     const expiredDeliveries = deliveries.filter(delivery => filterDeliveries(delivery, 3));
 
-    const warningDeliveriesMap = warningDeliveries.map(delivery => sendWarningNotification(delivery));
+    const warningDeliveriesMap = warningDeliveries.map(delivery =>
+      sendWarningNotification(delivery).catch(err => {
+        error('Error sending warning delivery message', err);
+      }));
     const expiredDeliveriesMap = expiredDeliveries.map(
       delivery => deliveryData.updateDeliveryStatus(delivery.deliveryId, DeliveryStatusCodes.Expired
       ));
