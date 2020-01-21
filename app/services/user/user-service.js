@@ -171,6 +171,14 @@ const notifyAdminOfEstimateOptIn = async(userId, user) => {
   emailService.sendAdminNotificationOfEstimateOptIn(options);
 };
 
+const notifyUserOfTermsAcceptance = async(user) => {
+  const options = {
+    email: user.email
+  };
+
+  emailService.sendNotificationOfToCAcceptance(options);
+};
+
 const updateStatus = async(userId, status) => {
   debug('Update status for ' + userId);
 
@@ -535,6 +543,7 @@ module.exports = {
   getCoordinates,
   getReadyUsers,
   notifyAdmin,
+  notifyUserOfTermsAcceptance,
   notifyAdminOfEstimateOptIn,
   setUsersToPause,
   getUsers
