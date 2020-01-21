@@ -54,6 +54,7 @@ module.exports = {
     userSvc
       .acceptAgreement(userId)
       .then(() => userSvc.notifyAdmin(userId, req.user))
+      .then(() => userSvc.notifyUserOfTermsAcceptance(req.user))
       .then(() => req.user.profile.getEstimateInfo && userSvc.notifyAdminOfEstimateOptIn(userId, req.user))
       .then(() => handleSuccess(res, 'Agreement accepted successful', {
         user: req.user

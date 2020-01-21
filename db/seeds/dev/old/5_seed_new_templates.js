@@ -2,7 +2,7 @@
 
 
 const { Placeholders, NotificationTypes } = require('@betaquick/grace-tree-constants');
-const { TEMPLATE_TABLE, COMPANY_PROFILE_TABLE } = require('../../../constants/table.constants');
+const { TEMPLATE_TABLE, COMPANY_PROFILE_TABLE } = require('../../../../constants/table.constants');
 
 exports.seed = async function(knex, Promise) {
   const companyIds = await knex(COMPANY_PROFILE_TABLE).select('companyId');
