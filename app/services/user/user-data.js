@@ -237,7 +237,8 @@ const userData = {
   getUserProducts(where) {
     return knex(USER_PRODUCT_TABLE)
       .where(where)
-      .join('product', `${USER_PRODUCT_TABLE}.productId`, '=', 'product.productId');
+      .join('product', `${USER_PRODUCT_TABLE}.productId`, '=', 'product.productId')
+      .orderBy('order');
   },
 
   insertUser(user) {
