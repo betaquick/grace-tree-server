@@ -3,7 +3,7 @@
 const {
   CHIPS, FILLDIRT, GRINDINGS,
   LOGS, PINE, POPLAR, ROUNDS
-} = require('../../../constants/products.constants');
+} = require('../../../../constants/products.constants');
 
 exports.seed = knex => knex('product')
   .update({ order: 1, hint: 'Want Chips?' })
