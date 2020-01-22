@@ -139,7 +139,7 @@ const formatAddress = address => {
 
 const notifyAdmin = async(userId, user) => {
   const userProducts = await userData.getUserProducts({ userId, status: 1 });
-  const products = (userProducts || []).map(p => p.productDesc).join(', ');
+  const products = (userProducts || []).map(p => (p.productDesc || '').replace('OK?', '')).join(', ');
   const { emails, firstName, lastName, phones, addresses, profile } = user;
   debug('Notifying admin of ToC acceptance of user with email: ' + user.email + ' with userId: ' + userId);
   const phoneNumbers = phones.map(p => formatPhoneNumber(p.phoneNumber)).join(', ');
