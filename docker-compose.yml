@@ -5,12 +5,12 @@ x-env:
   environment:
     - DB_HOST=mysql
     - REDIS_HOST=redis
-    - API_URL=http://localhost:8083
+    - API_URL=http://localhost:8081
     - WEB_URL=http://localhost:4200
     - DB_USERNAME=root
     - DB_PASSWORD=root
     - DB_PORT=3306
-    - PORT=8083
+    - PORT=8081
     - TZ=UTC
     - ADMIN_EMAIL=support@bhsehr.com
     - REDIS_PORT=6379
@@ -43,9 +43,9 @@ services:
       dockerfile: Dockerfile
     <<: *env_variables
     ports:
-      - '8083:8083'
+      - '8081:8081'
     expose:
-      - '8083'
+      - '8081'
     depends_on:
       - mysql
     links:
