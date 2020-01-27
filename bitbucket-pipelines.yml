@@ -46,11 +46,10 @@ pipelines:
             - aws deploy push --application-name grace-tree-server-app --s3-location s3://grace-tree-server/$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER --ignore-hidden-files
             - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default
       - step:
-          name: Build and push docker image to Docker Hub
+          name: Build and push docker image to Amazon ECR
           caches:
             - node
           script:
-            - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             - docker build -f Dockerfile -t $DOCKER_SERVER_IMAGE:latest .
             - docker tag $DOCKER_SERVER_IMAGE:latest $AWS_SERVER_IMAGE:latest
             - docker push $AWS_SERVER_IMAGE:latest
