@@ -11,7 +11,7 @@ x-env:
     - DB_PORT=3306
     - PORT=8081
     - TZ=UTC
-    - ADMIN_EMAIL=support@bhsehr.com
+    - ADMIN_EMAIL=gracetrees@gmail.com
 
 services:
   mysql:
