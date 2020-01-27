@@ -1,0 +1,82 @@
+version: '2.1'
+
+x-env:
+  &env_variables
+  environment:
+    - DB_HOST=mysql
+    - REDIS_HOST=redis
+    - API_URL=http://localhost:8081
+    - WEB_URL=http://localhost:4200
+    - DB_USERNAME=root
+    - DB_PASSWORD=root
+    - DB_PORT=3306
+    - PORT=8081
+    - TZ=UTC
+    - ADMIN_EMAIL=support@bhsehr.com
+    - REDIS_PORT=6379
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'grace_tree_db'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3304:3306'
+    expose:
+      - '3306'
+    volumes:
+      - my-db:/var/lib/mysql
+    # Solves the Incorrect date value issue
+    command: --sql_mode="NO_ENGINE_SUBSTITUTION"
+
+  grace-tree-server:
+    image: betaquick/grace-tree-server:latest
+    # Wait for redis and mysql to be up before starting the server
+    command: bash -c "./wait-for-it.sh mysql:3306 -- npm start"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *env_variables
+    ports:
+      - '8081:8081'
+    expose:
+      - '8081'
+    depends_on:
+      - mysql
+    links:
+      - mysql
+
+  migrate:
+    image: betaquick/grace-tree-server:latest
+    # Wait for mysql and redis to be up before migrating and seeding database
+    command: bash -c "./wait-for-it.sh mysql:3306 -- npm run migrate && npm run seed"
+    <<: *env_variables
+    links:
+      - mysql
+    depends_on:
+      - mysql
+
+  test:
+    image: betaquick/grace-tree-server:latest
+    # Wait for database migrations and seed data to be inserted before running tests
+    command: >
+      bash -c "
+        while
+          ping -c1 migrate &>/dev/null
+        do
+          sleep 1;
+        done;
+        echo Migration Done! && npm run test-coverage"
+    <<: *env_variables
+    links:
+      - mysql
+    depends_on:
+      - mysql
+
+volumes:
+  my-db:
