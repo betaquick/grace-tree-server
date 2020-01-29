@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  CHIIPS, FILLDIRT, GRINDINGS,
+  CHIPS, FILLDIRT, GRINDINGS,
   LOGS, PINE, POPLAR, ROUNDS
 } = require('../../../constants/products.constants');
 
@@ -10,7 +10,7 @@ exports.seed = function(knex) {
     .truncate()
     .then(() => {
       return knex('product').insert([
-        {productCode: CHIIPS, productDesc: 'Chips'},
+        {productCode: CHIPS, productDesc: 'Chips'},
         {productCode: FILLDIRT, productDesc: 'Fill Dirt'},
         {productCode: GRINDINGS, productDesc: 'Grindings'},
         {productCode: LOGS, productDesc: 'Logs'},

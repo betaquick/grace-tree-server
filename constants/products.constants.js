@@ -1,6 +1,6 @@
 'use strict';
 
-const CHIIPS = 'chips';
+const CHIPS = 'chips';
 const FILLDIRT = 'fillDirt';
 const GRINDINGS = 'grindings';
 const LOGS = 'logs';
@@ -9,7 +9,7 @@ const POPLAR = 'poplar';
 const ROUNDS = 'Rounds';
 
 module.exports = {
-  CHIIPS,
+  CHIPS,
   FILLDIRT,
   GRINDINGS,
   LOGS,
