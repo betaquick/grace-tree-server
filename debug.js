@@ -16,7 +16,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const Proxify = (logger, group) => new Proxy(logger, {
   get(target, propKey) {
     const type = propKey.toString();
-    if (type === 'error' && NODE_ENV === 'production') {
+    if (process.env.SLACK_LOGS && type === 'error' && NODE_ENV === 'production') {
       // todo <@radiumrasheed> also log to debug...
       return (message, error) =>
         (async () => await sendMessage(
