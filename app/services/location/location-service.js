@@ -10,6 +10,11 @@ const { error, debug } = require('./../../../debug')('grace-tree:location-servic
 const { throwError } = require('../../controllers/util/controller-util');
 
 const getCoordinates = async address => {
+  if (process.env.NODE_ENV !== 'production' && process.env.SKIP_EXTERNAL_APIS) {
+    // return dummy data...
+    return { lat: -34.397, lng: 150.644 };
+  }
+
   try {
     const googleMapResponse = await googleMapsClient.geocode({ address, components: { country: 'US' } }).asPromise();
     const googleMapResults = googleMapResponse.json.results;
@@ -23,7 +28,7 @@ const getCoordinates = async address => {
     return result.geometry.location;
   } catch (err) {
     error(err);
-    throwError(422, 'The address you entered is invalid');
+    throwError(422, err.json.error_message || 'The address you entered is invalid');
   }
 };
 
