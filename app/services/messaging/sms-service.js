@@ -20,6 +20,11 @@ const bitly = new BitlyClient('f9e91c00b984ae05f696974a3ed401915cb0f421');
 const SILENT_ERRORS = true;
 
 const sendSMS = async smsOptions => {
+  if (process.env.NODE_ENV !== 'production' && process.env.SKIP_EXTERNAL_APIS) {
+    // return dummy data...
+    return Promise.resolve();
+  }
+
   try {
     const response = await client.messages.create(smsOptions);
     return response;

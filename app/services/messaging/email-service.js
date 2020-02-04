@@ -17,6 +17,11 @@ const SES = new aws.SES({
 const transporter = nodemailer.createTransport({ SES });
 
 const sendMail = async mailOptions => {
+  if (process.env.NODE_ENV !== 'production' && process.env.SKIP_EXTERNAL_APIS) {
+    // return dummy data...
+    return Promise.resolve();
+  }
+
   try {
     const response = await transporter.sendMail(mailOptions);
     return response;

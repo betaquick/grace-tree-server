@@ -2,40 +2,6 @@
 # Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
 # Only use spaces to indent your .yml configuration.
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: betaquick/angular
-
-pipelines:
-  default:
-  - step:
-      caches:
-      - node
-      script: # Modify the commands below to build your repository.
-      - npm install
-      - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
-      - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
-      # - npm run test-coverage
-      services:
-      - mysql
-
-  branches:
-    master:
-    - step:
-        script:
-        - npm install
-        - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
-        - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
-        # - npm run test-coverage
-        services:
-        - mysql
-    - step:
-        name: Deploy to AWS
-        # trigger: manual
-        deployment: test
-        image: atlassian/pipelines-awscli
-        script:
-        - aws deploy push --application-name grace-tree-server-app --s3-location s3://grace-tree-server/$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER --ignore-hidden-files
-        - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default
-
 definitions:
   services:
     mysql:
@@ -45,3 +11,48 @@ definitions:
         MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
         MYSQL_USER: $DB_USERNAME
         MYSQL_PASSWORD: $DB_PASSWORD
+
+image: betaquick/angular
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - node
+        script: # Modify the commands below to build your repository.
+          - npm install
+          - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
+          - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
+        # - npm run test-coverage
+        services:
+          - mysql
+
+  branches:
+    master:
+      - step:
+          script:
+            - npm install
+            - node ./node_modules/knex/bin/cli.js migrate:latest --knexfile ./db/knexfile.js
+            - node ./node_modules/knex/bin/cli.js seed:run --knexfile ./db/knexfile.js
+          # - npm run test-coverage
+          services:
+            - mysql
+      - step:
+          name: Deploy to AWS
+          # trigger: manual
+          deployment: test
+          image: atlassian/pipelines-awscli
+          script:
+            - aws deploy push --application-name grace-tree-server-app --s3-location s3://grace-tree-server/$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER --ignore-hidden-files
+            - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default
+      - step:
+          name: Build and push docker image to Amazon ECR
+          caches:
+            - node
+          script:
+            - $(aws ecr get-login --no-include-email)
+            - docker build -f Dockerfile -t $DOCKER_SERVER_IMAGE:latest .
+            - docker tag $DOCKER_SERVER_IMAGE:latest $AWS_SERVER_IMAGE:latest
+            - docker push $AWS_SERVER_IMAGE:latest
+          services:
+            - docker
