@@ -47,6 +47,7 @@ pipelines:
             - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default
       - step:
           name: Build and push docker image to Amazon ECR
+          image: betaquick/awscli:bleeding
           caches:
             - node
           script:
