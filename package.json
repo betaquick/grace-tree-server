@@ -4,7 +4,7 @@
   "description": "Grace Tree now ChipDump",
   "main": "server.js",
   "scripts": {
-    "prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER GOOGLE_MAP_KEY SLACK_WEBHOOK_URL",
+    "prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER GOOGLE_MAP_KEY SLACK_WEBHOOK_URL KEY_PATH PORT",
     "pretest": "eslint --ignore-path .gitignore . --fix",
     "test": "npm run prestart && mocha --exit",
     "test-coverage": "npm test && istanbul cover node_modules/mocha/bin/_mocha -- -R spec --exit",
