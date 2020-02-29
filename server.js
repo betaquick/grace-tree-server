@@ -9,6 +9,8 @@ const app = require('./app/config/app-config')();
 const debug = require('debug')('grace-tree:server:debug');
 const error = require('debug')('grace-tree:server:error');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 
 /**
  * Get port from environment and store in Express.
@@ -21,7 +23,17 @@ app.set('port', port);
  * Create HTTP server.
  */
 debug('Starting server...');
-var server = http.createServer(app);
+let serverInstance;
+if (process.env.SITE === 'production') {
+  serverInstance = https.createServer({
+    key: fs.readFileSync(`${process.env.KEY_PATH}/privkey.pem`),
+    cert: fs.readFileSync(`${process.env.KEY_PATH}/cert.pem`),
+    ca: fs.readFileSync(`${process.env.KEY_PATH}/chain.pem`)
+  }, app);
+} else {
+  serverInstance = http.createServer(app);
+}
+const server = serverInstance;
 
 /**
  * Listen on provided port, on all network interfaces.
