@@ -43,8 +43,8 @@ pipelines:
           deployment: test
           image: atlassian/pipelines-awscli
           script:
-            - aws deploy push --application-name grace-tree-server-app --s3-location s3://grace-tree-server/$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER --ignore-hidden-files
-            - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default
+            - aws deploy push --application-name grace-tree-server-app --s3-location s3://grace-tree-server/$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER --ignore-hidden-files --region us-east-2
+            - aws deploy create-deployment --application-name grace-tree-server-app --s3-location bucket=grace-tree-server,key=$BITBUCKET_REPO_SLUG-$BITBUCKET_BUILD_NUMBER,bundleType=zip --deployment-group-name default --region us-east-2
       - step:
           name: Build and push docker image to Amazon ECR
           image: betaquick/awscli:bleeding
