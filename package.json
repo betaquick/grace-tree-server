@@ -1,7 +1,7 @@
 {
   "name": "grace-tree",
   "version": "0.0.1",
-  "description": "Grace Tree now ChipDump",
+  "description": "Grace Tree now GraceTreeProducts",
   "main": "server.js",
   "scripts": {
     "prestart": "node check-env.js DB_HOST DB_USERNAME DB_PASSWORD ADMIN_EMAIL WEB_URL TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER GOOGLE_MAP_KEY SLACK_WEBHOOK_URL KEY_PATH PORT",

@@ -1,6 +1,6 @@
 # README #
 
-Grace Tree Services...(now _ChipDump_)
+Grace Tree Services...(now _GraceTreeProducts_)
 
 ### What is this repository for? ###
 
