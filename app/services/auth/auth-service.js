@@ -65,7 +65,7 @@ function isUserValid(user) {
 function isRestricted(user) {
   if ((user.userType !== UserTypes.General) && (WHITELIST.indexOf(user.email) < 0)) {
     const userType = user.userType === UserTypes.TreeAdmin ? 'Arborist' : 'Crew Members';
-    throwError(403, `Unfortunately ChipDump is not available for use by ${userType}  at this time,` +
+    throwError(403, `Unfortunately GraceTreeProducts is not available for use by ${userType}  at this time,` +
       ' we will contact you when we open the system for general use');
   }
 }

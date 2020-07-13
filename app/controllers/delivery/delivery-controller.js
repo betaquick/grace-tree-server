@@ -61,7 +61,7 @@ module.exports = {
         if ((recipientMessage || '').trim().length) {
           mails.push({
             to: delivery.userId, text: recipientMessage,
-            subject: 'Delivery Notification ChipDump' });
+            subject: 'Delivery Notification GraceTreeProducts' });
         }
 
 
@@ -73,7 +73,7 @@ module.exports = {
         switch (delivery.statusCode) {
           case DeliveryStatusCodes.Expired:
             mails.push({ text: `Your delivery #${delivery.deliveryId} has expired`,
-              subject: 'Delivery Expiration on ChipDump', to: delivery.userId });
+              subject: 'Delivery Expiration on GraceTreeProducts', to: delivery.userId });
             break;
         }
 

@@ -413,7 +413,7 @@ const sendWarningNotification = async delivery => {
  * @param {Array} messageTextAndSubjects
  */
 const sendNotifications = async(messages) => {
-  const subject = 'Delivery Notification ChipDump';
+  const subject = 'Delivery Notification GraceTreeProducts';
   try {
     const addresses = await Promise.all(messages.map(m => userData.getUserEmail(m.to)));
     addresses.map((rawPacket, index) => {
