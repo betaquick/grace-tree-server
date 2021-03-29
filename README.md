@@ -42,6 +42,10 @@ Seed the database
 * How to run tests
 * Deployment instructions
 
+### Deploying
+You'd need to install knex, pm2 and other cli software you'd need on the server yourself.
+Also check the default/current node versions to be sure. 
+
 ### Contribution guidelines ###
 
 
