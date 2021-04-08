@@ -9,8 +9,8 @@ const app = require('./app/config/app-config')();
 const debug = require('debug')('grace-tree:server:debug');
 const error = require('debug')('grace-tree:server:error');
 const http = require('http');
-const https = require('https');
 const fs = require('fs');
+const { createServer } = require('@betaquick/https-cert-watcher');
 
 /**
  * Get port from environment and store in Express.
@@ -23,17 +23,41 @@ app.set('port', port);
  * Create HTTP server.
  */
 debug('Starting server...');
-let serverInstance;
+/**
+ * @type {import('http').Server || import('https').Server}
+ */
+let server;
 if (process.env.SITE === 'production') {
-  serverInstance = https.createServer({
-    key: fs.readFileSync(`${process.env.KEY_PATH}/privkey.pem`),
-    cert: fs.readFileSync(`${process.env.KEY_PATH}/cert.pem`),
-    ca: fs.readFileSync(`${process.env.KEY_PATH}/chain.pem`)
-  }, app);
+  const keyPaths = {
+    key: `${process.env.KEY_PATH}/privkey.pem`,
+    cert: `${process.env.KEY_PATH}/cert.pem`,
+    ca: `${process.env.KEY_PATH}/chain.pem`,
+  }
+
+
+  /**
+   * 
+   * @param {Record<string, string>} filePathMap
+   * @returns {Record<string, Buffer>} 
+   */
+  function getBuffersFromFilePathMap(filePathMap) {
+    const bufferMap = {}
+
+    for (const path in filePathMap) {
+      if (Object.hasOwnProperty.call(filePathMap, path)) {
+        bufferMap[path] = fs.readFileSync(filePathMap[path]);
+      }
+    }
+
+    return bufferMap;
+  }
+
+  const keyBuffers = getBuffersFromFilePathMap(keyPaths);
+  const ONE_SECOND_IN_MS = 1e3;
+  server = createServer(keyBuffers, Object.values(keyPaths), app , 30 * ONE_SECOND_IN_MS);
 } else {
-  serverInstance = http.createServer(app);
+  server = http.createServer(app);
 }
-const server = serverInstance;
 
 /**
  * Listen on provided port, on all network interfaces.
