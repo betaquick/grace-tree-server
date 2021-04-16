@@ -28,33 +28,19 @@ debug('Starting server...');
  */
 let server;
 if (process.env.SITE === 'production') {
-  const keyPaths = {
-    key: `${process.env.KEY_PATH}/privkey.pem`,
-    cert: `${process.env.KEY_PATH}/cert.pem`,
-    ca: `${process.env.KEY_PATH}/chain.pem`,
-  }
-
-
-  /**
-   * 
-   * @param {Record<string, string>} filePathMap
-   * @returns {Record<string, Buffer>} 
-   */
-  function getBuffersFromFilePathMap(filePathMap) {
-    const bufferMap = {}
-
-    for (const path in filePathMap) {
-      if (Object.hasOwnProperty.call(filePathMap, path)) {
-        bufferMap[path] = fs.readFileSync(filePathMap[path]);
-      }
-    }
-
-    return bufferMap;
-  }
-
-  const keyBuffers = getBuffersFromFilePathMap(keyPaths);
+  const path = require('path');
+  const baseKeyPath = process.env.KEY_PATH;
+  const filesToWatch = ['privkey.pem', 'cert.pem', 'chain.pem'].map(relativePath => path.join(baseKeyPath, relativePath));
   const ONE_SECOND_IN_MS = 1e3;
-  server = createServer(keyBuffers, Object.values(keyPaths), app , 30 * ONE_SECOND_IN_MS);
+
+  function serverOptsFactory() {
+    return {
+      key: fs.readFileSync(path.join(baseKeyPath, 'privkey.pem')),
+      cert: fs.readFileSync(path.join(baseKeyPath, 'cert.pem')),
+      ca: fs.readFileSync(path.join(baseKeyPath, 'chain.pem'))
+    }
+  }
+  server = createServer(serverOptsFactory, filesToWatch, app , 30 * ONE_SECOND_IN_MS);
 } else {
   server = http.createServer(app);
 }
